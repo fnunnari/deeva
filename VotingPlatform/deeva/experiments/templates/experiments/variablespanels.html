@@ -1,0 +1,40 @@
+        	<div class="list-group">
+		  	<div class="list-group-item">
+			  	<h4 class="list-group-item-heading">{{variables.name}}</h4>
+	    		<p class="list-group-item-text"> {{variables.description}}</p>
+		   	</div>
+		   	{% for variablerange in variables.variablerange_set.all %}
+		   		{% with variable=variablerange.variable %}
+			   		<div class="list-group-item">
+						<dl class="dl-horizontal">
+							<dt>Variable</dt>
+							<dd>{{variable.name}}</dd>
+							<dt>Type</dt>
+							<dd>{{variable.get_variable_type_display}}</dd>
+							{% if variable.variable_type == "nd" or variablerange.variable.variable_type == "nc"   %}
+								<dt>Left Boundary</dt>
+								<dd>{{variable.left}} 
+									{% if variable.left_description %}
+										 - {{variable.left_description}}
+									{% endif %}
+								</dd>
+								<dt>Right Boundary</dt>
+								<dd>{{variable.right}} 
+									{% if variable.right_description %}
+										 - {{variable.right_description}}
+									{% endif %}
+								</dd>
+								<dt>Possible Values</dt>
+								<dd>{{variablerange.min_value}} - {{variablerange.max_value}} 
+								</dd>
+							{% else %}
+								<dt>Possible Values</dt>
+								<dd>{{variablerange.labels}}
+								</dd>
+							{% endif %}
+						</dl>
+
+			   		</div>
+		   		{% endwith %}
+		   	{% endfor %}
+		</div>

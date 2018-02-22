@@ -1,0 +1,87 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+		<title>Deeva</title>
+
+		<!-- Staticfiles -->
+		{% load staticfiles %}
+
+		<!-- Bootstrap Django & CSS -->
+		{# Load the tag library for django-bootstrap3 #}
+		{% load bootstrap3 %}
+
+		{# Load Bootstrap CSS #}
+		{% bootstrap_css %}
+
+		<link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
+		<link href="{% static "css/font-awesome.css" %}" rel="stylesheet">
+		<link href="{% static "css/bootstrap-social.css" %}" rel="stylesheet">
+		<link href="{% static "css/vote.css" %}" rel="stylesheet">
+	</head>
+
+	<body>
+		<!-- Top Navigation Bar -->
+		{% block navbar %}
+			<nav class="navbar navbar-inverse navbar-static-top">
+				<div class="container">
+					<div class="navbar-header">
+						<!-- Following lines create the 'hamburger' menu button fro small screens -->
+						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+							<span class="sr-only">Toggle navigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+						<a class="navbar-brand" href="#">Deeva<small> a Depot of Evolving Avatars</small></a>
+					</div>
+					<div id="navbar" class="navbar-collapse collapse">
+						<ul class="nav navbar-nav navbar-right">
+							<li><a href="{% url 'experiments:index' %}">Home</a></li>
+							<li><a href="#about">About</a></li>
+							<li><a href="{% url 'experiments:allExperiments' %}">Experiments</a></li>
+							<li><a href="#contact">Documentation</a></li>
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</nav>
+		{% endblock %}
+
+		<!-- Main Content -->
+		<div class="container">
+		{% block messageblock %}		  
+			  {% bootstrap_messages %}
+		{% endblock %}
+		{% block content %}		  
+			  <h1>Empty Template</h1>
+			  <p>The template didn't specify a content block or the base template was called directly. Add a content block to display something nice for the user :-)</p>
+		{% endblock %}
+		</div> <!-- /container -->
+
+  		<!-- Footer after horizontal line -->
+  		<hr>
+  		{% block footer %}
+		<footer class="footer">
+			<div class="container">
+				<ul class="list-inline text-center text-muted">
+					<li>Deeva - Depot of Evolving Avatars &copy; 2013-{% now "Y" %}</li>
+					<li><a href="http://slsi.dfki.de/" target="_blank">Sign Language Synthesis and Interaction group</a> at <a href="http://www.mmci.uni-saarland.de" target="_blank">MMCI</a> / <a href="http://www.dfki.de/web" target="_blank">DFKI</a></li>
+					<li><a href="">Site Credits / Impressum</a></li>
+				</ul>
+			</div>
+		</footer>
+		{% endblock %}
+
+		<!-- load scripts in the end jQuery and Bootstrap-->
+		<script src="{% static "js/jquery.min.js" %}"></script>
+
+		{# Load Bootstrap JavaScript #}    
+		{% bootstrap_javascript %}
+
+  	</body>
+</html>

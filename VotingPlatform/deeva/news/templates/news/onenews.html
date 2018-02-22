@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block content %}
+	<div class="row">
+		<!-- news -->
+	  	<div class="col-sm-8">
+         	<h1>{{news.title}}</h1>
+         	<p> {{news.text|safe}} </p>
+        </div>
+
+	    <!-- date and social buttons-->
+	 	<div class="col-sm-4">
+	 		{% if previous %}
+	 			<a class="btn btn" href="../../components/#navbar" role="button">&laquo; previous</a>
+	 		{% endif %}
+	 		<a class="btn btn" href="{% url "allNews" %}" role="button">all news</a>
+	 		{% if next %}
+	 			<a class="btn btn" href="../../components/#navbar" role="button">next &raquo;</a>
+	 		{% endif %}
+	  		<hr>
+	  		
+	  		<h2>Published</h2>
+	  		<p>{{news.date}}</p>
+	        <hr>
+	        
+	        <h2>Share</h2>
+	  		<a href="https://www.facebook.com/sharer/sharer.php?u=BASEURLTODO{{news.url}}" target="_blank" class="btn btn-block btn-social btn-adn btn-facebook">
+		    	<span class="fa fa-facebook"></span> Share on Facebook
+		  	</a>
+			<a href="https://twitter.com/intent/tweet?url=www.google.de&text={{news.title}} BASEURLTODO{{news.url}}&via=Deeva_mmci"  target="_blank" class="btn btn-block btn-social btn-twitter">
+		    	<span class="fa fa-twitter"></span> Share on Twitter
+		  	</a>
+
+		</div>
+	</div>
+
+  
+{% endblock %}
+

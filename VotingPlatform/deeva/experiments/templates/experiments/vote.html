@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block content %}
+	
+	<h1>Vote</h1>
+	
+	<p>Lorem ipsum</p>
+
+	
+
+	<div class="row">
+		<!-- left individual -->
+		<div class="col-sm-4 col-xs-6 text-center">
+		L
+			<div class="img-thumbnail">
+				<img class="img-responsive img-vote" src="https://deeva.mmci.uni-saarland.de/storage/images/120000/120238-face.png">
+				<img class="img-responsive img-vote" src="https://deeva.mmci.uni-saarland.de/storage/images/120000/120238-body.png">
+			</div>
+		</div>
+
+		<!-- right individual -->
+		<div class="col-sm-4 col-sm-push-4 col-xs-6 text-center">
+		R
+			<div class="img-thumbnail">
+				<img class="img-responsive img-vote" src="https://deeva.mmci.uni-saarland.de/storage/images/120000/120238-face.png">
+				<img class="img-responsive img-vote" src="https://deeva.mmci.uni-saarland.de/storage/images/120000/120238-body.png">
+			</div>
+		</div>
+
+		<!-- comparison vote panel -->
+		<div class="col-sm-4 col-sm-pull-4 col-xs-12 text-center">
+			{% bootstrap_form form %}
+		</div>
+		
+	</div>
+
+         
+{% endblock %}
+

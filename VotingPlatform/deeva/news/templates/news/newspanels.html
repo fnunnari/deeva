@@ -1,0 +1,24 @@
+{% for news in newss %}
+	<div class="panel panel-default">
+	  	<div class="panel-heading">
+	    	<a href="{{news.url}}"> {{news.title}} </a>
+	    	<div class="pull-right">
+			    &nbsp;</span> {{news.date}}
+			</div>
+	    	<div class="pull-right">
+
+			    	<a href="https://www.facebook.com/sharer/sharer.php?u=BASEURLTODO{{news.url}}" target="_blank" class="btn btn-xs btn-social btn-facebook">
+				    	<span class="fa fa-facebook"></span>Share
+				  	</a> 
+					<a href="https://twitter.com/intent/tweet?url=www.google.de&text={{news.title}} BASEURLTODO{{news.url}}&via=Deeva_mmci" target="_blank" class="btn btn-spacing btn-xs btn-social btn-twitter">
+				    	<span class="fa fa-twitter"></span>Tweet
+			    	</a> 
+			    	 
+			    </div>
+		    <div class="clearfix"></div>
+		</div>
+		<div class="panel-body">
+			<p> {{news.text|safe}} </p>
+		</div>
+	</div>
+{% endfor %}

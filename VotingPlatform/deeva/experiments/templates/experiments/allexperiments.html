@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block content %}
+	<!-- recent news -->
+	<h1>Experiments</h1>
+	
+	<p>Here you can see all experiments that are currently available on Deeva</p>
+
+	{% include "experiments/experimentpanels.html" %}
+
+         
+{% endblock %}
+

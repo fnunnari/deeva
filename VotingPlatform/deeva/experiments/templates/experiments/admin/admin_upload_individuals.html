@@ -1,0 +1,110 @@
+{% extends 'base.html'  %}
+{% load staticfiles %}
+
+
+
+{% block content %}
+
+{# Load the tag library for django-bootstrap3 #}
+{% load bootstrap3 %}
+
+{# Load Bootstrap CSS #}
+{% bootstrap_css %}
+
+<link href="{% static "css/font-awesome.css" %}" rel="stylesheet">
+
+<h1>Create or update individuals from file</h1>
+
+<p>Upload a csv file to create or update individuals for the following Generation.</p>
+
+<dl class="dl-horizontal">
+	<dt>Experiment</dt>
+	<dd>{{generation.experiment.name}}</dd>
+	<dt>Generation</dt>
+	<dd>{{generation.nickname}}TODO link up both</dd>
+</dl>
+
+<p>The csv needs to have the following format. If you provide an id, the corresponding individual will be updated, if existant. The hyphen and variable name is optional.</p>
+<div class="row">
+	<div class="col-sm-6">
+		<div class="table-responsive">
+			<table class="table table-condensed">
+				<tr>
+					<th>id</th>
+					{% for variablerange in generation.experiment.independent_variables.variablerange_set.all %}
+					<th>{{variablerange.variable.id}}-{{variablerange.variable.name}}</th>
+					{% endfor %}
+				</tr>
+				<tr>
+					<td></td>
+					{% for variablerange in generation.experiment.independent_variables.variablerange_set.all %}
+					<td>
+					{% if variablerange.variable.variable_type == "nd" or variablerange.variable.variable_type == "nc"  %}
+						{{variablerange.min_value}}
+					{% else %}
+						{{variablerange.labels|truncatewords:1|slice:":-5"}}
+					{% endif %}
+					</td>
+					{% endfor %}
+				</tr>
+				<tr>
+					<td></td>
+					{% for variablerange in generation.experiment.independent_variables.variablerange_set.all %}
+					<td>
+					{% if variablerange.variable.variable_type == "nd" or variablerange.variable.variable_type == "nc"  %}
+						{{variablerange.max_value}}
+					{% else %}
+						{{variablerange.labels|truncatewords:1|slice:":-5"}}
+					{% endif %}
+					</td>
+					{% endfor %}
+				</tr>
+				<tr>
+					<td> </td>
+					{% for variablerange in generation.experiment.independent_variables.variablerange_set.all %}
+					<td>...</td>
+					{% endfor %}
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+
+<form enctype="multipart/form-data" action="" method="post" class="form">
+  {% csrf_token %}
+  {% bootstrap_form_errors form %}
+  {% bootstrap_form form %}
+  {% buttons %}
+    <button type="submit" class="btn btn-primary">
+      <span class="fa fa-file-excel-o"></span><span class="fa fa-long-arrow-up"></span> Upload
+    </button>
+  {% endbuttons %}
+</form>
+
+
+
+
+{% endblock %}
+
+
+{% if variable.variable_type == "nd" or variablerange.variable.variable_type == "nc"   %}
+								<dt>Left Boundary</dt>
+								<dd>{{variable.left}} 
+									{% if variable.left_description %}
+										 - {{variable.left_description}}
+									{% endif %}
+								</dd>
+								<dt>Right Boundary</dt>
+								<dd>{{variable.right}} 
+									{% if variable.right_description %}
+										 - {{variable.right_description}}
+									{% endif %}
+								</dd>
+								<dt>Possible Values</dt>
+								<dd>{{variablerange.min_value}} - {{variablerange.max_value}} 
+								</dd>
+							{% else %}
+								<dt>Possible Values</dt>
+								<dd>{{variablerange.labels}}
+								</dd>
+							{% endif %}

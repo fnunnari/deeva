@@ -1,0 +1,25 @@
+{% extends 'experiments/admin/admin_include_base.html' %}
+
+{% block content %}
+
+  {% if experiment.id %}
+    <div class="clearfix"></div>
+    <div class="row">
+      	<div class="col-sm-6">
+        	<h2>Independant Variables</h2>
+        	{% with variables=experiment.independent_variables %}
+        		{% include "experiments/variablespanels.html" %}
+        	{% endwith %}
+        </div>
+        <div class="col-sm-6">
+         	<h2>Dependant Variables</h2>
+         	{% with variables=experiment.dependent_variables %}
+        		{% include "experiments/variablespanels.html" %}
+        	{% endwith %}
+        </div>
+    </div>
+  {% else %}
+    After saving a represenation of the variables will be displayed here.
+  {% endif %}
+
+{% endblock %}

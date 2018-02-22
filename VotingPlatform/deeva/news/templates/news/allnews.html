@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block content %}
+	<!-- recent news -->
+	<h1>News</h1>
+	
+	<p>Here you can read all news ever published on Deeva</p>
+
+	{% include "news/newspanels.html" %}
+
+         
+{% endblock %}
+

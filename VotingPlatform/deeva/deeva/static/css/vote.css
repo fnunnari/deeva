@@ -1,0 +1,33 @@
+/*!
+ * Special css for the vote page
+ */
+
+.img-vote {
+  /*max-height: calc(100vh/2 - 100px);*/
+  height: auto;
+  width: 6.5cm;
+  min-width: 6.5cm;
+ }
+
+
+/* {display: inline-block;}*/
+
+input[type="radio"] {display: none}
+
+input[type="radio"]+label {
+  padding: 2px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border: 2px outset #BBB;
+  cursor: pointer;
+}
+
+input[type="radio"]:checked+label {
+  font-weight: bold;
+  background-color: black;
+  color: white;
+}
+
+
+

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block content %}
+	<div class="row">
+		<!-- welcome and video -->
+	  	<div class="col-sm-8">
+		  	<div class="well">
+	          <h1>Welcome to Deeva.</h1>
+	          <p>This is a scientific experimental platform using crowd-based knowledge gathering
+				and genetic algorithms for fast generation of virtual characters using non-geometric input.</p>
+				<p>Please visit the <a href="/about">About</a> page for more details. Or watch the video below
+				to know everything in 2 minutes.</p>
+	         
+	        </div>
+	       	<div class="embed-responsive embed-responsive-16by9">
+				<iframe class="embed-responsive-item" src="//www.youtube.com/embed/bYuMhuzYVzI" frameborder="0" allowfullscreen></iframe>
+			</div>
+	    </div>
+
+	    <!-- featured experiment and social buttons-->
+	 	<div class="col-sm-4">
+	  		<h1>Featured</h1>
+	  		<h2>OCEAN-Experimensldlsdhsdhfvdsfhglidfglisdgldffhlt</h2>
+	  		<p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla tincidunt laoreet nisl, sed lobortis sem malesuada sit amet. Vestibulum bibendum, elit in tempor egestas, lectus quam dapibus quam, id cursus arcu dolor vitae dui. Nunc fringilla est non nunc ullamcorper, vel porttitor justo bibendum. In tincidunt erat in massa pulvinar facilisis. </p>
+	  		<a class="btn btn btn-primary" href="../../components/#navbar" role="button">Start voting &raquo;</a>
+	        <a class="btn btn" href="../../components/#navbar" role="button">Learn more &raquo;</a>
+	  		
+	  		<hr>
+	  		<a  href="https://www.facebook.com/deeva.mmci/" target="_blank" class="btn btn-block btn-social btn-adn btn-facebook">
+		    	<span class="fa fa-facebook"></span> Like us on Facebook
+		  	</a>
+			<a href="https://twitter.com/Deeva_mmci"  target="_blank" class="btn btn-block btn-social btn-twitter">
+		    	<span class="fa fa-twitter"></span> Follow us on Twitter
+		  	</a>
+
+		</div>
+	</div>
+
+	
+	<hr>
+
+	<!-- recent news -->
+	<h1>Current News <small><a class="btn" href="{% url 'allNews' %}" role="button">all news &raquo;</a></small></h1>
+
+	{% include "news/newspanels.html" %}
+
+         
+{% endblock %}
+

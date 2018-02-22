@@ -1,0 +1,116 @@
+{% extends 'base.html'  %}
+{% load staticfiles %}
+
+
+
+{% block content %}
+
+{# Load the tag library for django-bootstrap3 #}
+{% load bootstrap3 %}
+
+{# Load Bootstrap CSS #}
+{% bootstrap_css %}
+
+<link href="{% static "css/font-awesome.css" %}" rel="stylesheet">
+
+<h1>Import variables from file</h1>
+
+<p>Upload a csv file to create new or update existing variables.</p>
+
+<p>The csv needs to have the following format. If the name already exists, the corresponding variable will be updated, if possible. It may not be posible if there are <i>variable ranges</i> defined that do not allow for the new type. The extrema and extrema description fields can be left empty.</p>
+<div class="row">
+	<div class="col-sm-6">
+		<div class="table-responsive">
+			<table class="table table-condensed">
+				<tr>
+					<th>name*</th>
+					<th>type*</th>
+					<th>left</th>
+					<th>left_desc</th>
+					<th>right</th>
+					<th>right_desc</th>
+				</tr>
+				<tr>
+					<td>cash in dollar</td>
+					<td>nc</td>
+					<td>bankrupt</td>
+					<th></th>
+					<th></th>
+					<th></th>
+				</tr>
+				<tr>
+					<td>height in cm</td>
+					<td>nd</td>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+				</tr>
+				<tr>
+					<td>favorite color</td>
+					<td>ct</td>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+				</tr>
+				<tr>
+					<td>fitness rating</td>
+					<td>od</td>
+					<td>couch potato</td>
+					<th></th>
+					<td>hercules</td>
+					<th></th>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+
+<ul class="list-inline">
+Key: 
+  <li><b>*</b> required</li>
+  <li><b>nc</b> numerical-continous</li>
+  <li><b>nd</b> numerical-discrete</li>
+  <li><b>ct</b> categorical</li>
+  <li><b>od</b> ordinal</li>
+</ul>
+
+<form enctype="multipart/form-data" action="" method="post" class="form">
+  {% csrf_token %}
+  {% bootstrap_form_errors form %}
+  {% bootstrap_form form %}
+  {% buttons %}
+    <button type="submit" class="btn btn-primary">
+      <span class="fa fa-file-excel-o"></span><span class="fa fa-long-arrow-up"></span> Upload
+    </button>
+  {% endbuttons %}
+</form>
+
+
+
+
+{% endblock %}
+
+
+{% if variable.variable_type == "nd" or variablerange.variable.variable_type == "nc"   %}
+								<dt>Left Boundary</dt>
+								<dd>{{variable.left}} 
+									{% if variable.left_description %}
+										 - {{variable.left_description}}
+									{% endif %}
+								</dd>
+								<dt>Right Boundary</dt>
+								<dd>{{variable.right}} 
+									{% if variable.right_description %}
+										 - {{variable.right_description}}
+									{% endif %}
+								</dd>
+								<dt>Possible Values</dt>
+								<dd>{{variablerange.min_value}} - {{variablerange.max_value}} 
+								</dd>
+							{% else %}
+								<dt>Possible Values</dt>
+								<dd>{{variablerange.labels}}
+								</dd>
+							{% endif %}

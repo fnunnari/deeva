@@ -1,0 +1,31 @@
+<!-- Staticfiles -->
+{% load staticfiles %}
+
+<!-- Bootstrap Django & CSS -->
+{# Load the tag library for django-bootstrap3 #}
+{% load bootstrap3 %}
+
+
+<div class="admin_inject">
+	<style type="text/css">
+		@import url('{% static "css/font-awesome.css" %}');
+	</style>
+    <style scoped>
+        @import url('{% static "css/bootstrap.min.css" %}');
+    </style>
+
+    {% block content %}		  
+			  <h1>Empty Template</h1>
+			  <p>The template didn't specify a content block or the base template was called directly. Add a content block to display something nice for the user :-)</p>
+	{% endblock %}
+</div>
+
+<!-- load scripts in the end jQuery and Bootstrap-->
+<script>
+  $.scoped();
+</script>
+{% block sitescripts %}
+{% endblock %}		
+{# Load Bootstrap JavaScript #}    
+{% bootstrap_javascript %}
+		

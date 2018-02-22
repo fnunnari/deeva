@@ -1,0 +1,48 @@
+#
+# Get the repository from git at:
+fnunnari@deeva.mmci.uni-saarland.de:/home/deevauser/gitrepos/deeva3.git
+(of course, use your own username) 
+
+#
+# Create a database on your local mysql machine called "deeva_dev"
+# Leave the root user with the standard password "123"
+echo "DROP DATABASE deeva_dev" | mysql -u root -p123
+echo "CREATE SCHEMA deeva_dev" | mysql -u root -p123
+
+
+#
+# Install mysqlclient for python:
+pip install mysqlclient
+
+#
+# Install the connector between python and mySql. Options:
+- pip install mysql-connector-python
+- brew install Caskroom/cask/mysql-connector-python
+- download the dmg here: https://dev.mysql.com/downloads/connector/python/
+
+#
+# Install the Django framework
+pip install Django==1.9
+pip install django-bootstrap3
+
+
+#
+# Let django create the database structure (skip this if you are dumping a database from somewhere else)
+python manage.py makemigrations
+python manage.py migrate
+
+# Create the django "admin" superuser (skip this if you are dumping a database from somewhere else)
+python manage.py createsuperuser
+
+#
+# Run the server on your favourite port
+python manage.py runserver 8888
+
+
+#
+# Important links
+
+# Home page
+http://127.0.0.1:8888
+# Admin page
+http://127.0.0.1:8888/admin/
