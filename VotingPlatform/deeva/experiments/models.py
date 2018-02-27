@@ -23,14 +23,14 @@ class Experiment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     
     #varibale set from which the individuals are created
-    independent_variables = models.ForeignKey('VariableSet', related_name='experiment_independant_variables')
+    independent_variables = models.ForeignKey('VariableSet', related_name='experiment_independant_variables', on_delete=models.PROTECT)
     
     #used variable set the user votes on
-    dependent_variables = models.ForeignKey('VariableSet', related_name='experiment_dependant_variables')
+    dependent_variables = models.ForeignKey('VariableSet', related_name='experiment_dependant_variables', on_delete=models.PROTECT)
     
     #questions to be answered by the user
     from questions.models import QuestionSet
-    questions = models.ForeignKey(QuestionSet, default=None, null=True, blank=True)
+    questions = models.ForeignKey(QuestionSet, default=None, null=True, blank=True, on_delete=models.PROTECT)
 
     def __str__(self):
         return "{}".format(self.name)
@@ -44,7 +44,7 @@ class Experiment(models.Model):
 class VotingWizard(models.Model):
     from django import forms
     name = models.CharField(max_length = 128, null=True, blank=True, default="", help_text="A nickname, so the wizard can be identified more easily.")
-    generation = models.ForeignKey('Generation')
+    generation = models.ForeignKey('Generation', on_delete=models.PROTECT)
 
     #HTML replacement texts
     welcome_html = models.TextField(null=True, blank=True)
@@ -80,8 +80,8 @@ class VotingWizard(models.Model):
 #A generation contains indiviuals
 class Generation(models.Model):
     nickname = models.CharField(max_length = 64, help_text="A user-friendly, memorable name for the generation.")
-    parent = models.ForeignKey('Generation', default=None, null=True, blank=True, on_delete=models.SET_DEFAULT)
-    experiment = models.ForeignKey('Experiment')
+    parent = models.ForeignKey('Generation', default=None, null=True, blank=True, on_delete=models.SET_NULL)
+    experiment = models.ForeignKey('Experiment', on_delete=models.CASCADE)
     individuals = models.ManyToManyField('Individual', related_name="in_generations", blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -123,19 +123,19 @@ class RateVote(models.Model):
 
     #user that voted and voted individual
     from django.contrib.auth.models import User
-    user = models.ForeignKey(User)
-    individual = models.ForeignKey('Individual')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    individual = models.ForeignKey('Individual', on_delete=models.PROTECT)
 
     #voted value and variable
     text_value = models.TextField(blank=True, null=True)
     int_value = models.IntegerField(blank=True, null=True)
     float_value = models.FloatField(blank=True, null=True)
 
-    variable = models.ForeignKey('Variable')
+    variable = models.ForeignKey('Variable', on_delete=models.PROTECT)
 
     #other information
     date_time = models.DateTimeField(auto_now_add=True)
-    generation = models.ForeignKey('Generation')
+    generation = models.ForeignKey('Generation', on_delete=models.PROTECT)
 
 
     def clean(self):
@@ -150,17 +150,17 @@ class CompareVote(models.Model):
 
     #user that voted and voted individuals
     from django.contrib.auth.models import User
-    user = models.ForeignKey(User)
-    individual1 = models.ForeignKey('Individual', related_name='ind1')
-    individual2 = models.ForeignKey('Individual', related_name='ind2')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    individual1 = models.ForeignKey('Individual', related_name='ind1', on_delete=models.PROTECT)
+    individual2 = models.ForeignKey('Individual', related_name='ind2', on_delete=models.PROTECT)
 
     #vote and voted trait
     from django.core.validators import MinValueValidator, MaxValueValidator
     vote = models.IntegerField(validators= [MinValueValidator(-1), MaxValueValidator(1)])
-    variable = models.ForeignKey('Variable')
+    variable = models.ForeignKey('Variable', on_delete=models.PROTECT)
     
     date_time = models.DateTimeField(auto_now_add=True)
-    generation = models.ForeignKey('Generation')
+    generation = models.ForeignKey('Generation', on_delete=models.PROTECT)
 
 
 
@@ -198,8 +198,8 @@ class Individual(models.Model):
 
 #Connecting model between an individual and a variable with the value the variable has for the individual
 class IndividualVariableValue(models.Model):
-    individual = models.ForeignKey('Individual')
-    variable = models.ForeignKey('Variable')
+    individual = models.ForeignKey('Individual', on_delete=models.CASCADE)
+    variable = models.ForeignKey('Variable', on_delete=models.CASCADE)
 
     text_value = models.TextField(blank=True, null=True)
     int_value = models.IntegerField(blank=True, null=True)
@@ -236,8 +236,8 @@ class VariableSet(models.Model):
 #Connecting model between the variable set and the varibales with allowed min and max values or possible categories or degrees
 class VariableRange(models.Model):
     from django.core.validators import MinValueValidator, MaxValueValidator
-    variable_set = models.ForeignKey('VariableSet')
-    variable = models.ForeignKey('Variable')
+    variable_set = models.ForeignKey('VariableSet', on_delete=models.CASCADE)
+    variable = models.ForeignKey('Variable', on_delete=models.CASCADE)
 
     #min and max value for ordinal mode and also numerical types if used in rate mode
     min_value = models.FloatField(blank=True, null=True)
@@ -287,7 +287,7 @@ class UserProfile(models.Model):
     """User Profile to save additional information about a user
     """
 
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     # last anonymous session id
     session_id = models.CharField(max_length=40)

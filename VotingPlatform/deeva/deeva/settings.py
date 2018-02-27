@@ -43,8 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bootstrap3',
-    'djcelery', 
-    'kombu.transport.django', 
+    #'djcelery', 
+    #'kombu.transport.django', 
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -86,7 +86,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
         'NAME': 'deeva_dev',
-        'USER': 'root',
+        'USER': 'deeva',
         'PASSWORD': '123',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',

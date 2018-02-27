@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from . import views, views_admin
 
+app_name = 'admin'
+
 urlpatterns = [
     url(r'^experiments/experiment/(?P<variable_set_id>[0-9]+)/variables_header_download$',
         views_admin.download_variables_header, name='variables_header'),

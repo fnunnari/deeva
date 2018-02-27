@@ -18,7 +18,7 @@ class Question(models.Model):
 
 #Answer possibilty for list type question
 class AnswerPossibility(models.Model):
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     answer = models.CharField(max_length=64)
 
     def __unicode__(self):
@@ -27,8 +27,8 @@ class AnswerPossibility(models.Model):
 #An answer for a question by a user
 class Answer(models.Model):
     from django.contrib.auth.models import User
-    user = models.ForeignKey(User)
-    question = models.ForeignKey(Question)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     answer = models.TextField()
     answered_on = models.DateTimeField(auto_now=True)
 
@@ -50,6 +50,6 @@ class QuestionSet(models.Model):
 
 #Connection model between Set and Questions
 class SetHasQuestion(models.Model):
-    question_set = models.ForeignKey(QuestionSet)
-    question = models.ForeignKey(Question)
+    question_set = models.ForeignKey(QuestionSet, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     is_required = models.BooleanField()
