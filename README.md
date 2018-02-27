@@ -4,7 +4,7 @@ Virtual characters' generation and voting platform
 
 This is a platform for the procedural generation of characters.
 
-It currently consists of several, but inter-dependent, projects.
+It currently consists of several, inter-dependent, projects.
 
 # Projects
 

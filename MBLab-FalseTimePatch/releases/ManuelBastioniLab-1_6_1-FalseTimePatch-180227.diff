@@ -1,0 +1,77 @@
+diff -rup ../manuelbastionilab/__init__.py manuelbastionilab/__init__.py
+--- ../manuelbastionilab/__init__.py	2018-01-19 18:04:02.000000000 +0100
++++ manuelbastionilab/__init__.py	2018-02-27 15:05:30.000000000 +0100
+@@ -214,6 +214,19 @@ def realtime_update(self, context):
+         mblab_humanoid.sync_gui_according_measures()
+         #print("realtime_update: {0}".format(time.time()-time1))
+ 
++
++def falsetime_update(self, context):
++    """
++    Update the character while the prop slider moves.
++    """
++    global mblab_humanoid
++    # time1 = time.time()
++    # scn = bpy.context.scene
++    mblab_humanoid.update_character(category_name="all", mode="update_all")
++    mblab_humanoid.sync_gui_according_measures()
++    # print("realtime_update: {0}".format(time.time()-time1))
++        
++        
+ def age_update(self, context):
+     global mblab_humanoid
+     time1 = time.time()
+@@ -1394,6 +1407,16 @@ class ExpAllImages(bpy.types.Operator, E
+         mblab_humanoid.save_all_textures(self.filepath)
+         return {'FINISHED'}
+ 
++class FalsetimeUpdate(bpy.types.Operator):
++    bl_idname = "refresh.character"
++    bl_label = "refresh character"
++    bl_description = 'Refresh the character'
++    bl_context = 'objectmode'
++    bl_options = {'REGISTER', 'INTERNAL'}
++
++    def execute(self, context):
++        falsetime_update(self, context)
++        return {'FINISHED'}
+ 
+ 
+ class ExpCharacter(bpy.types.Operator, ExportHelper):
+Only in manuelbastionilab/: __init__.py.orig
+Only in manuelbastionilab/: __pycache__
+diff -rup ../manuelbastionilab/humanoid.py manuelbastionilab/humanoid.py
+--- ../manuelbastionilab/humanoid.py	2018-01-19 18:04:02.000000000 +0100
++++ manuelbastionilab/humanoid.py	2018-02-27 14:31:42.000000000 +0100
+@@ -742,15 +742,21 @@ class Humanoid:
+             self.morph_engine.update(update_all_verts=True)
+         else:
+             if category_name:
+-                category = self.categories[category_name]
+-                modified_modifiers = []
+-                for modifier in category.get_modifiers():
+-                    if modifier.is_changed(self.character_data):
+-                        modified_modifiers.append(modifier)
+-                for modifier in modified_modifiers:
+-                    if sync_morphdata:
+-                        modifier.sync_modifier_data_to_obj_prop(self.character_data)
+-                    self.combine_morphings(modifier)
++                if (category_name == "all"):
++                    for category in self.get_categories():
++                        for modifier in category.get_modifiers():
++                            modifier.sync_modifier_data_to_obj_prop(self.character_data)
++                            self.combine_morphings(modifier, add_vertices_to_update=True)
++                else:                
++                    category = self.categories[category_name]
++                    modified_modifiers = []
++                    for modifier in category.get_modifiers():
++                        if modifier.is_changed(self.character_data):
++                            modified_modifiers.append(modifier)
++                    for modifier in modified_modifiers:
++                        if sync_morphdata:
++                            modifier.sync_modifier_data_to_obj_prop(self.character_data)
++                            self.combine_morphings(modifier)
+             else:
+                 for category in self.get_categories():
+                     for modifier in category.get_modifiers():
+Only in manuelbastionilab/: humanoid.py.orig

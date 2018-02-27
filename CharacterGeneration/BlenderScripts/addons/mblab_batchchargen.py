@@ -1,21 +1,3 @@
-bl_info = {
-    "name": "Automation Tool for ManuelbastioniLAB",
-    "category": "Object",
-}
-
-bl_info = {
-    "name": "Automation Tool for ManuelbastioniLAB",
-    "description": "Automates import of scripts and genration of pictures from characters for the ManuelbastioniLAB.",
-    "author": "Nicolas Erbach",
-    "version": (0, 9),
-    "blender": (2, 78, 0),
-    "location": "Toolbox > ManuelBastioniLAB > Automation",
-    "support": "TESTING",
-    "category": "Import-Export"
-    }
-
-
-
 import bpy
 from mathutils import Vector
 
@@ -30,11 +12,23 @@ from bpy.types import (Panel,
                        Operator,
                        PropertyGroup,
                        )
-                       
-                       
-pi = 3.14159265
-                       
-### Panel ###                     
+
+import math
+
+
+bl_info = {
+    "name": "Deeva - Character Generation Automation Tool",
+    "description": "Automates import of scripts and generation of pictures from characters for the ManuelbastioniLAB.",
+    "author": "Nicolas Erbach",
+    "version": (0, 9),
+    "blender": (2, 79, 0),
+    "location": "Toolbox > ManuelBastioniLAB > Automation",
+    "category": "Characters",
+    }
+
+
+#
+# Panel ###
                        
 class AutomationPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_hello_world"
@@ -171,7 +165,7 @@ class ChangeCamera(bpy.types.Operator):
         bpy.context.scene.camera.location = t
         
         #set camera direction (rotation)
-        r = [value * (pi/180.0) for value in r]
+        r = [value * (math.pi/180.0) for value in r]
         bpy.context.scene.camera.rotation_mode = 'XYZ'
         bpy.context.scene.camera.rotation_euler = r
         
@@ -370,7 +364,7 @@ class ReplaceLights(bpy.types.Operator):
         lamp_data.energy=15
         
         r = [108, 66, 38]
-        r = [value * (pi/180.0) for value in r]
+        r = [value * (math.pi/180.0) for value in r]
         lamp_object.rotation_mode = 'XYZ'
         lamp_object.rotation_euler = r
 

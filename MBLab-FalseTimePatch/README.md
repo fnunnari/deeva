@@ -6,11 +6,13 @@ However, in its original version, it is impossible to alter the character appear
 
 This patch allows people to edit a ManualeBastioniLAB character using scripted code instead of direct GUI manipulation.
 
+
 ## Releases
 
 The patch doesn't come as pre-packed zip. It is a _.diff_ file that you must apply using a _patch_ tool (it is a default command-line utility on Mac and Linux).
 
 * `ManuelBastioniLab-1_4_0-FalseTimePatch-171006.diff` applies to versions 1.4, 1.4a, 1.5.
+* `ManuelBastioniLab-1_6_1-FalseTimePatch-180227.diff` applies to version 1.6.1. (Untested on 1.6.0)
 
 
 ## How to patch a vanilla version of ManuelBastioniLAB
@@ -18,7 +20,7 @@ The patch doesn't come as pre-packed zip. It is a _.diff_ file that you must app
 * Download and install the ManuelBastioniLAB add-on from its official website;
 * Open a console/terminal
 * CD to the directory `manuelbastionilab`, probably in your Blender's addons directory;
-* Apply the patch with command `patch`.
+* Apply the patch with command `patch`. E.g.:
 
 ```
 > cd path/to/BlenderScripts/addons/manuelbastionilab
@@ -34,6 +36,7 @@ Hunk #2 succeeded at 1515 with fuzz 1 (offset -7 lines).
 patching file humanoid.py
 Hunk #1 succeeded at 795 (offset -5 lines).
 ```
+
 
 ## Usage
 
