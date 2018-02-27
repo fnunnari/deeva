@@ -1,17 +1,11 @@
 bl_info = {
     "name": "Automation Tool for ManuelbastioniLAB",
-    "category": "Object",
-}
-
-bl_info = {
-    "name": "Automation Tool for ManuelbastioniLAB",
     "description": "Automates import of scripts and genration of pictures from characters for the ManuelbastioniLAB.",
     "author": "Nicolas Erbach",
     "version": (0, 9),
-    "blender": (2, 78, 0),
+    "blender": (2, 79, 0),
     "location": "Toolbox > ManuelBastioniLAB > Automation",
-    "support": "TESTING",
-    "category": "Import-Export"
+    "category": "Characters",
     }
 
 
