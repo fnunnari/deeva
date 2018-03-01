@@ -42,6 +42,6 @@ In the project folder `deeva`, where the `manage.py` file is located, run in ord
 
 ## Run the developmnent server
 
-Finally to run the development server run `pyhton manage.py runserver` and it will create a locally accessible server on port 8000. You can specify that it accessible from other computers or chnage the port like so: `pyhton manage.py runserver 0.0.0.0:8000`.
+Finally to run the development server run `python manage.py runserver` and it will create a locally accessible server on port 8000. You can specify that it accessible from other computers or chnage the port like so: `pyhton manage.py runserver 0.0.0.0:8000`.
 
 Remember to crete a new package list when adding required packages by running `pip freeze > requirements.txt` and pushing the file to the repository.
