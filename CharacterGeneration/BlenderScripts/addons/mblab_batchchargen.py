@@ -13,6 +13,7 @@ from bpy.types import (Panel,
                        PropertyGroup,
                        )
 
+import os
 import math
 
 
@@ -26,13 +27,20 @@ bl_info = {
     "category": "Characters",
     }
 
+#
+# Constants
+#
+HEAD_CAMERA_ORTHO_SCALE = 1.1
+HEAD_CAMERA_ORTHO_DEFAULT = 0.3
 
 #
-# Panel ###
-                       
+# Panel
+#
+
+
 class AutomationPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_hello_world"
-    bl_label = "Automation"
+    bl_label = "Automated Character Generation"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'TOOLS'
     bl_context = 'objectmode'
@@ -69,7 +77,7 @@ class AutomationPanel(bpy.types.Panel):
         
         row = box.row(align=True)
         row.alignment = 'EXPAND'
-        row.label(text="head scale")
+        row.label(text="Camera Ortho Scale")
         row.prop(context.scene, "check_head_scale")
         row.prop(context.scene, "float_head_scale")
         
@@ -91,16 +99,15 @@ class AutomationPanel(bpy.types.Panel):
         row.operator(CreateOneRender.bl_idname, text="current").file_name = context.scene.character_file_list
         row.operator(CreateAllRender.bl_idname, text="all")
         
-        
-        
         row = layout.row()
         box = row.box()
         box.label(text="Version {}.{}".format(bl_info['version'][0], bl_info['version'][1]))
         
 
+#
+# Operators
+#
 
-
-### Functions ###
 
 class LoadScripts(bpy.types.Operator):
     """Iterates trough the folder and looks for json files."""
@@ -113,26 +120,24 @@ class LoadScripts(bpy.types.Operator):
         cursor = scene.cursor_location
         obj = scene.objects.active
         
-        import glob, os
+        import glob
         
-        #clear current list
+        # clear current list
         del context.scene.character_file_list_items[:]
         
-        #print(" path" , context.scene.conf_path)
+        # print(" path" , context.scene.conf_path)
         os.chdir(context.scene.conf_path)
         
-        #fill list with filenames
+        # fill list with filenames
         for file in glob.glob("*.json"):
-            #print(file)
-            #print("enum m", context.scene.character_file_list_items)
+            # print(file)
+            # print("enum m", context.scene.character_file_list_items)
             context.scene.character_file_list_items.append((file, file, file))
             
-        print("enum s", context.scene.character_file_list)
-        
-            
-
+        print("List of retrieved characters: ", context.scene.character_file_list)
 
         return {'FINISHED'}
+
     
 class ChangeCamera(bpy.types.Operator):
     bl_idname = "mbastauto.change_camera"
@@ -141,56 +146,56 @@ class ChangeCamera(bpy.types.Operator):
  
     def execute(self, context):
         if self.view == 'head':
-            #get correct skeleton
-            skeleton = next( v for k,v in bpy.data.armatures.items() if k.find('skeleton'))
+            # get correct skeleton
+            skeleton = next(v for k, v in bpy.data.armatures.items() if k.find('skeleton'))
     
-            #calculate head position and size
+            # calculate head position and size
             bone_head_end = skeleton.bones['head'].tail_local
             bone_neck_start = skeleton.bones['neck'].head_local
             head_middle = (bone_head_end + bone_neck_start)/2
             head_length = (bone_head_end - bone_neck_start).length
             
-            t = head_middle - Vector([0, 1, 0])
-            r = [90, 0, 0]
-            o = head_length * 1.1
+            t = head_middle - Vector([0, 1, 0])  # Moves the camera aaway from the body
+            r = [90, 0, 0]  # the camera must point horizontally
+            o = head_length * HEAD_CAMERA_ORTHO_SCALE
+            print("THis o:"+str(o))
             if context.scene.check_head_scale:
-                o  = context.scene.float_head_scale
+                o = context.scene.float_head_scale
                 
         elif self.view == 'body':
             t = [0, -5, 1.30]
             r = [90, 0, 0]
             o = 2.7
+        else:
+            assert False
             
-        #set camera position (translation)         
+        # set camera position (translation)
         bpy.context.scene.camera.location = t
         
-        #set camera direction (rotation)
+        # set camera direction (rotation)
         r = [value * (math.pi/180.0) for value in r]
         bpy.context.scene.camera.rotation_mode = 'XYZ'
         bpy.context.scene.camera.rotation_euler = r
         
-        #set camera to ortographic mode and set scale
+        # set camera to ortographic mode and set scale
         bpy.data.cameras['Camera'].type = 'ORTHO'
         bpy.data.cameras['Camera'].ortho_scale = o
         
-        #set render size (to get correct preview)
+        # set render size (to get correct preview)
         bpy.context.scene.render.resolution_x = 600
         bpy.context.scene.render.resolution_y = 600
         bpy.context.scene.render.resolution_percentage = 100
         
-        #render settings
+        # render settings
         bpy.data.scenes['Scene'].cycles.samples = 1000
         bpy.data.scenes['Scene'].cycles.sample_clamp_direct = 3
         bpy.data.scenes['Scene'].cycles.sample_clamp_indirect = 3
-        
-        
-        
-        
-        return{'FINISHED'}  
+
+        return{'FINISHED'}
     
     
 class CreateOneRender(bpy.types.Operator):
-    """Create render for currenttly selected chracter"""
+    """Create render for currently selected character"""
     bl_idname = "mbastauto.create_one_render"
     bl_label = "Render current character"
     bl_options = {'REGISTER'}
@@ -201,43 +206,39 @@ class CreateOneRender(bpy.types.Operator):
         scene = context.scene
         cursor = scene.cursor_location
         obj = scene.objects.active
-        
-        import glob, os
-        
-        
+
         if not context.scene.check_head_render and not context.scene.check_body_render:
             raise Exception("No picture type selected!")
         
         if not context.scene.output_path:
-             raise Exception("No output path selected!")
+            raise Exception("No output path selected!")
         
-        #script_name = context.scene.character_file_list
+        # script_name = context.scene.character_file_list
         script_name = self.file_name
         
         if not self.file_name:
             raise Exception("No character selected!")    
         name = script_name.replace(".json", "")
         
-        #set background transparent
+        # set background transparent
         bpy.context.scene.cycles.film_transparent = True
         bpy.context.scene.render.alpha_mode = 'TRANSPARENT'
         
         if context.scene.check_head_render:
             bpy.ops.mbastauto.change_camera(view="head")
-            bpy.data.scenes['Scene'].render.filepath = os.path.join(context.scene.output_path, "{}-head.png".format(name))
-            bpy.ops.render.render( write_still=True ) 
-            
-        
+            bpy.data.scenes['Scene'].render.filepath = os.path.join(context.scene.output_path,
+                                                                    "{}-head.png".format(name))
+            bpy.ops.render.render(write_still=True)
+
         if context.scene.check_body_render:
             bpy.ops.mbastauto.change_camera(view="body")
-            bpy.data.scenes['Scene'].render.filepath = os.path.join(context.scene.output_path, "{}-body.png".format(name))
-            bpy.ops.render.render( write_still=True ) 
-
+            bpy.data.scenes['Scene'].render.filepath = os.path.join(context.scene.output_path,
+                                                                    "{}-body.png".format(name))
+            bpy.ops.render.render(write_still=True)
 
         return {'FINISHED'}
     
-    
-    
+
 class CreateAllRender(bpy.types.Operator):
     """Create render for all chracters"""
     bl_idname = "mbastauto.create_all_render"
@@ -250,10 +251,7 @@ class CreateAllRender(bpy.types.Operator):
         scene = context.scene
         cursor = scene.cursor_location
         obj = scene.objects.active
-        
-        import glob, os
-        
-        
+                
         if not context.scene.check_head_render and not context.scene.check_body_render:
             raise Exception("No picture type selected!")
         
@@ -305,20 +303,22 @@ class ReplaceLights(bpy.types.Operator):
     
     def execute(self, context):
         scene = context.scene
-        cursor = scene.cursor_location
-        obj = scene.objects.active
-        
-        #remove all lamps in current scene
+        # cursor = scene.cursor_location
+        # obj = scene.objects.active
+
+        #
+        # Remove all lamps in current scene
         for c in bpy.data.lamps:
             print(c.name)
             bpy.data.lamps.remove(c, do_unlink=True)
-            
-        #add lamps
+
+        #
+        # Add lamps
         
         # Create new lamp datablock
         bpy.ops.object.lamp_add(type='SUN')
         sun = bpy.data.lamps["Sun"]
-        sun.shadow_soft_size=5
+        sun.shadow_soft_size = 5
         sun.node_tree.nodes["Emission"].inputs[1].default_value = 15.0
         #sun.location = (-1.96, 1.59, 1.39)
         
@@ -347,9 +347,7 @@ class ReplaceLights(bpy.types.Operator):
         bpy.data.scenes['Scene'].render.engine = 'CYCLES'
         bpy.data.worlds['World'].use_nodes = True
         """
-        
-        
-        
+
         # Create new lamp datablock
         lamp_data = bpy.data.lamps.new(name="Lamp Front", type='HEMI')
 
@@ -375,27 +373,28 @@ class ReplaceLights(bpy.types.Operator):
         return {'FINISHED'}
 
 
-
-### Register & Unregister ###
+#
+# Register & Unregister ###
+#
 
 def register():
-    #panels
+    # panels
     bpy.utils.register_class(AutomationPanel)
     
-    #operators
+    # operators
     bpy.utils.register_class(LoadScripts)
     bpy.utils.register_class(ChangeCamera)
     bpy.utils.register_class(CreateOneRender)
     bpy.utils.register_class(CreateAllRender)
     bpy.utils.register_class(ReplaceLights)
     
-    
-    #variables/props
+    #
+    # variables/props
     bpy.types.Scene.conf_path = bpy.props.StringProperty(
-          name = "Scripts Path",
-          default = "",
-          description = "Define the path where the scripts are located",
-          subtype = 'DIR_PATH'
+          name="Scripts Path",
+          default="",
+          description="Define the path where the scripts are located",
+          subtype='DIR_PATH'
       )
       
     bpy.types.Scene.character_file_list_items = []
@@ -404,31 +403,27 @@ def register():
         return bpy.types.Scene.character_file_list_items
     
     def change_preview(self, context):
-        
-        import os
-        
-        filepath = os.path.join(context.scene.conf_path ,context.scene.character_file_list)
-        print(filepath)
-        
+        filepath = os.path.join(context.scene.conf_path, context.scene.character_file_list)
+        print("Loading MBLab character definitions from {}".format(filepath))
         bpy.ops.mbast_import.character(filepath=filepath)
     
     bpy.types.Scene.character_file_list = bpy.props.EnumProperty(
-            items = fill_items,
-            name = "character",
-            update = change_preview,
+            items=fill_items,
+            name="character",
+            update=change_preview,
         )
         
-    bpy.types.Scene.check_head_scale = bpy.props.BoolProperty(name = "manual")
-    bpy.types.Scene.float_head_scale = bpy.props.FloatProperty(name = "number", default=0.5)
-        
-    bpy.types.Scene.check_head_render = bpy.props.BoolProperty(name = "head")
-    bpy.types.Scene.check_body_render = bpy.props.BoolProperty(name = "body")
+    bpy.types.Scene.check_head_scale = bpy.props.BoolProperty(name="Manual")
+    bpy.types.Scene.float_head_scale = bpy.props.FloatProperty(name="Scale",
+                                                               default=HEAD_CAMERA_ORTHO_DEFAULT)
+    bpy.types.Scene.check_head_render = bpy.props.BoolProperty(name="head")
+    bpy.types.Scene.check_body_render = bpy.props.BoolProperty(name="body")
 
     bpy.types.Scene.output_path = bpy.props.StringProperty(
-          name = "Images Path",
-          default = "",
-          description = "Define the path where the rendered imgaes should be written",
-          subtype = 'DIR_PATH'
+          name="Images Path",
+          default="",
+          description="Define the path where the rendered images should be written",
+          subtype='DIR_PATH'
       )
 
 
@@ -448,11 +443,8 @@ def unregister():
     del bpy.types.Scene.check_head_scale
     del bpy.types.Scene.float_head_scale 
 
-    
-    
-   
 
-
-#invoke register if started from editor
+#
+# Invoke register if started from editor
 if __name__ == "__main__":
     register()
