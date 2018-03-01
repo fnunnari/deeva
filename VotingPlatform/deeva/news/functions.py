@@ -28,7 +28,7 @@ def getNews(limit=None, keepOnHome=True, short=False):
             news.text = news.text_short()
 
     #populate additional fields
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     for news in newss:
         news.url = reverse('oneNews', args=[news.id])
         news.fb_code = 'TODO facebook'

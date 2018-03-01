@@ -20,7 +20,7 @@ class News(models.Model):
 
     def share_news(self):
         from django.utils.safestring import mark_safe
-        from django.core.urlresolvers import reverse
+        from django.urls import reverse
         from django.contrib.sites.models import Site
         from django.utils.html import strip_tags
 

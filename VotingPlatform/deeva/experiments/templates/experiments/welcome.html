@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% load bootstrap3 %}
@@ -43,7 +44,7 @@
 	<hr>
 
 	<!-- recent news -->
-	<h1>Current News <small><a class="btn" href="{% url 'allNews' %}" role="button">all news &raquo;</a></small></h1>
+	<h1>Current News <small><a class="btn" href="{% url 'news:allNews' %}" role="button">all news &raquo;</a></small></h1>
 
 	{% include "news/newspanels.html" %}
 
