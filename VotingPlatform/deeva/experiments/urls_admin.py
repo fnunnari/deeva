@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 from . import views, views_admin
 
-app_name = 'admin'
+app_name = 'experiments_admin'
 
 urlpatterns = [
     url(r'^experiments/experiment/(?P<variable_set_id>[0-9]+)/variables_header_download$',

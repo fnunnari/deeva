@@ -1,6 +1,6 @@
 {% load staticfiles %}
 <link href="{% static "css/font-awesome.css" %}" rel="stylesheet">
-{% if generation %}
+{% if generation.id %}
 	<a class="" href="{% url 'experiments_admin:upload_individuals' generation.id %}" role="button">
 	  <span class="fa fa-file-excel-o"></span><span class="fa fa-long-arrow-up"></span> Create or update individuals from file
 	</a>
