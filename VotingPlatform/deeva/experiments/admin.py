@@ -21,8 +21,8 @@ class ExperimentAdmin(admin.ModelAdmin):
             'fields': ('id', 'name', 'created', 'description')
         }),
         ('Variables', {
-            #'fields': ('independent_variables', 'dependent_variables', 'download_header', 'variables',),
-            'fields': ('independent_variables', 'dependent_variables', 'variables',),
+            'fields': ('independent_variables', 'dependent_variables', 'download_header', 'variables',),
+            #'fields': ('independent_variables', 'dependent_variables', 'variables',),
         }),
         ('Questions', {
             'fields': ('questions', ),
@@ -39,7 +39,7 @@ class ExperimentAdmin(admin.ModelAdmin):
     def download_header(self, obj):
         template = loader.get_template('experiments/admin/admin_download_header.html')
         context = {'experiment': obj}
-        return template.renderp(context)
+        return template.render(context)
 
     download_header.short_description = "Download"
 

@@ -1,8 +1,8 @@
-{% load staticfiles %}
-<link href="{% static "css/font-awesome.css" %}" rel="stylesheet">
+{% extends 'experiments/admin/admin_include_base.html' %}
+
+{% block content %}
 
 {% if experiment.id %}
-
 	<a class="" href="{% url 'experiments_admin:variables_header' experiment.independent_variables.id %}" role="button">
 	  <span class="fa fa-file-excel-o"></span><span class="fa fa-long-arrow-down"></span> Independant Variables Header/Ranges
 	</a>
@@ -16,3 +16,5 @@
 {% else %}
 	You need to save the experiment before you can download anything.
 {% endif %}
+
+{% endblock %}
