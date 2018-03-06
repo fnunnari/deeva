@@ -49,7 +49,7 @@ def handle_import_individuals_file(filename, generation_id):
                         #check range and enter new value
                         ivv.individual = individual
                         ivv.variable = vr.variable
-                        if vr.variable.variable_type == 'nd' or vr.variable.variable_type == 'od':
+                        if vr.variable.variable_type == 'nd':
                             int_value = int(row[str(vr.variable.id)])
                             if not vr.min_value <= int_value and vr.max_value >= int_value:
                                 raise ValueError('Given value {v} was not in range {min}-{max}.'.format(v=int_value, min=vr.min_value, max=vr.max_value))
@@ -57,14 +57,14 @@ def handle_import_individuals_file(filename, generation_id):
 
                         elif vr.variable.variable_type == 'nc':
                             float_value = float(row[str(vr.variable.id)])
-                            if not vr.min_value <= int_value and vr.max_value >= int_value:
-                                raise ValueError('Given value {v} was not in range {min}-{max}.'.format(v=int_value, min=vr.min_value, max=vr.max_value))
+                            if not vr.min_value <= float_value and vr.max_value >= float_value:
+                                raise ValueError('Given value {v} was not in range {min}-{max}.'.format(v=float_value, min=vr.min_value, max=vr.max_value))
                             ivv.float_value = float_value
 
-                        else: #vr.variable.variable_type == 'ct'
+                        else: #vr.variable.variable_type == 'ct' or vr.variable.variable_type == 'od':
                             text_value = row[str(vr.variable.id)]
                             if text_value.strip(',') not in vr.labels:
-                                raise ValueError('Given value {v} was not in range "{r}".'.format(v=int_value, r=vr.labels))
+                                raise ValueError('Given value {v} was not in range "{r}".'.format(v=text_value, r=vr.labels))
                             ivv.text_value = text_value
 
                         ivvs.append(ivv)

@@ -69,8 +69,11 @@ def upload_individuals(request, generation_id):
                 check_import_file_header(uploadfile_fullname, generation)
                 handle_import_individuals_file(uploadfile_fullname, generation.id)
 
-                #redirect user to progress bar
-                return redirect('experiments_admin:upload_individuals_status', generation_id=generation.id, task_id=111)
+                ##OLDredirect user to progress bar
+                ##return redirect('experiments_admin:upload_individuals_status', generation_id=generation.id, task_id=111)
+
+                #show results page
+                
 
             else:
                 #form filled out incorrect (file missing), redisplay

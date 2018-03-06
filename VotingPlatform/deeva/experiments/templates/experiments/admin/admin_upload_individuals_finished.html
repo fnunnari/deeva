@@ -1,0 +1,29 @@
+{% extends 'base.html'  %}
+{% load staticfiles %}
+
+
+
+{% block content %}
+
+<link href="{% static "css/font-awesome.css" %}" rel="stylesheet">
+
+<h1>Create or update individuals from file</h1>
+
+<p>Upload a csv file to create or update individuals for the following Generation.</p>
+
+<dl class="dl-horizontal">
+	<dt>Experiment</dt>
+	<dd>{{generation.experiment.name}}</dd>
+	<dt>Generation</dt>
+	<dd>{{generation.nickname}}TODO link up both</dd>
+</dl>
+
+<p> The import finished with the following messages: </p>
+
+
+
+
+
+
+
+{% endblock %}
