@@ -40,8 +40,24 @@ In the project folder `deeva`, where the `manage.py` file is located, run in ord
   * `python manage.py makemigrations`
   * `python manage.py migrate`
 
+## Ceate a django-root user
+
+```
+$ python manage.py createsuperuser
+Username (leave blank to use 'fanu01'): admin
+Email address:
+Password:
+Password (again):
+```
+
 ## Run the developmnent server
 
-Finally to run the development server run `python manage.py runserver` and it will create a locally accessible server on port 8000. You can specify that it accessible from other computers or chnage the port like so: `pyhton manage.py runserver 0.0.0.0:8000`.
+Finally to run the development server run `python manage.py runserver` and it will create a locally accessible server on port 8000. You can specify that it accessible from other computers or change the port like so: `pyhton manage.py runserver 0.0.0.0:8000`.
 
 Remember to crete a new package list when adding required packages by running `pip freeze > requirements.txt` and pushing the file to the repository.
+
+
+## Login as administrator
+
+This is needed if you want to create new experiments.
+With your browser, go to: `http://localhost:8000/admin`

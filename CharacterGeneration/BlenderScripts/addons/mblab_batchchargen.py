@@ -251,7 +251,7 @@ class CreateAllRender(bpy.types.Operator):
         scene = context.scene
         cursor = scene.cursor_location
         obj = scene.objects.active
-                
+
         if not context.scene.check_head_render and not context.scene.check_body_render:
             raise Exception("No picture type selected!")
         
