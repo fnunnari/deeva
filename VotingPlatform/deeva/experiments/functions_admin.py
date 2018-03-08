@@ -51,20 +51,31 @@ def handle_import_individuals_file(filename, generation_id):
                         ivv.variable = vr.variable
                         if vr.variable.variable_type == 'nd':
                             int_value = int(row[str(vr.variable.id)])
-                            if not vr.min_value <= int_value and vr.max_value >= int_value:
+
+
+                            if (vr.min_value is not None)  and not (vr.min_value <= int_value):
                                 raise ValueError('Given value {v} was not in range {min}-{max}.'.format(v=int_value, min=vr.min_value, max=vr.max_value))
+                            if (vr.max_value is not None) and not (int_value <= vr.max_value):
+                                raise ValueError('Given value {v} was not in range {min}-{max}.'.format(v=int_value, min=vr.min_value, max=vr.max_value))
+                                     
                             ivv.int_value = int_value
 
                         elif vr.variable.variable_type == 'nc':
                             float_value = float(row[str(vr.variable.id)])
-                            if not vr.min_value <= float_value and vr.max_value >= float_value:
+
+                            if (vr.min_value is not None) and not(vr.min_value <= float_value):
                                 raise ValueError('Given value {v} was not in range {min}-{max}.'.format(v=float_value, min=vr.min_value, max=vr.max_value))
+                            if (vr.max_value is not None) and not(float_value <= vr.max_value):
+                                raise ValueError('Given value {v} was not in range {min}-{max}.'.format(v=float_value, min=vr.min_value, max=vr.max_value))
+                            
                             ivv.float_value = float_value
 
                         else: #vr.variable.variable_type == 'ct' or vr.variable.variable_type == 'od':
                             text_value = row[str(vr.variable.id)]
-                            if text_value.strip(',') not in vr.labels:
-                                raise ValueError('Given value {v} was not in range "{r}".'.format(v=text_value, r=vr.labels))
+
+                            if text_value.strip(',') not in vr.labels_list():
+                                raise ValueError('Given value "{v}" was not in range "{r}".'.format(v=text_value, r=vr.labels))
+                            
                             ivv.text_value = text_value
 
                         ivvs.append(ivv)
@@ -74,7 +85,7 @@ def handle_import_individuals_file(filename, generation_id):
                     
                 except ValueError as e:
                     message = {'mid': message_id,
-                                'type':'error',
+                                'type':'danger',
                                 'text':str(e)}
                     messages.append(message)
                     message_id += 1
@@ -87,7 +98,7 @@ def handle_import_individuals_file(filename, generation_id):
 
             #TODO don't forget to save
 
-    print(messages)
+    return messages
 
 def check_import_file_header(filename, generation):
     """Check if the header contains the ids correspondingto the experiment's independant variables
