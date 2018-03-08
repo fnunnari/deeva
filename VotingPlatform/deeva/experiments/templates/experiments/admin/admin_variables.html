@@ -7,13 +7,13 @@
     <div class="row">
       	<div class="col-sm-6">
         	<h2>Independant Variables</h2>
-        	{% with variables=experiment.independent_variables %}
+        	{% with variables=experiment.independent_variables is_superuser=True %}
         		{% include "experiments/variablespanels.html" %}
         	{% endwith %}
         </div>
         <div class="col-sm-6">
          	<h2>Dependant Variables</h2>
-         	{% with variables=experiment.dependent_variables %}
+         	{% with variables=experiment.dependent_variables is_superuser=True %}
         		{% include "experiments/variablespanels.html" %}
         	{% endwith %}
         </div>
