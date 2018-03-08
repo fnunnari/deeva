@@ -9,16 +9,61 @@
 
 <h1>Create or update individuals from file</h1>
 
-<p>Upload a csv file to create or update individuals for the following Generation.</p>
+<p>You uploaded a csv file to create or update individuals for the following Generation.</p>
 
 <dl class="dl-horizontal">
 	<dt>Experiment</dt>
-	<dd>{{generation.experiment.name}}</dd>
+	<dd><a href="{% url 'admin:experiments_experiment_change' generation.experiment.id %}">{{generation.experiment.name}}</a></dd>
 	<dt>Generation</dt>
-	<dd>{{generation.nickname}}TODO link up both</dd>
+	<dd><a href="{% url 'admin:experiments_generation_change' generation.id %}">{{generation.nickname}}</a></dd>
 </dl>
 
+<h2>Step 2: Result</h2>
+
+{% if results %}
 <p> The import finished with the following messages: </p>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">type</th>
+      <th scope="col">text</th>
+    </tr>
+  </thead>
+  <tbody>
+  	{% for m in results %}
+    <tr class="{{m.type}}">
+      <th scope="row">{{m.mid}}</th>
+      <td>{{m.type}}</td>
+      <td>{{m.text}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+
+<p>The import finished without further messages.</p>
+
+{% endif %}
+
+<a href="{% url 'experiments_admin:upload_individuals' generation.id %}" class="btn btn-default" role="button" aria-pressed="true">
+	<i class="fa fa-chevron-left"></i> Go back to Upload Page
+</a>
+
+
+<a href="{% url 'admin:experiments_generation_change' generation.id %}" class="btn btn-primary" role="button" aria-pressed="true">
+	<i class="fa fa-chevron-right"></i> Go to the Generation's Page
+</a>
+
+
+
+
+
+
+
+
 
 
 

@@ -246,6 +246,9 @@ class VariableRange(models.Model):
     #categories for categorical mode, also degrees for ordinal in rate mode
     labels = models.TextField(help_text='For ordinal type: Degrees to be shown seperated by commas. For categorical type: categories to be used seperated by commas.', blank=True)
 
+    #labels as a python list
+    def labels_list(self):
+        return [x.strip() for x in self.labels.split(',')]
     
     def clean(self):
         from django.core.exceptions import ValidationError

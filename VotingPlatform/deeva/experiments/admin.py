@@ -83,6 +83,7 @@ class GenerationAdmin(admin.ModelAdmin):
         return self.readonly_fields
 
     
+
 class IndividualVariableValueInline(admin.TabularInline):
     model = IndividualVariableValue
     extra = 0
@@ -116,10 +117,21 @@ class IndividualAdmin(admin.ModelAdmin):
 class VotingWizardAdmin(admin.ModelAdmin):
     pass
 
+class VariableRangeInline(admin.TabularInline):
+    model = VariableRange
+    extra = 0
+
 
 @admin.register(VariableSet)
 class PersonalityProfileAdmin(admin.ModelAdmin):
-    pass
+    #list
+    list_display = ('id', 'name',)
+    list_display_links = ('id', 'name',)
+
+    #page
+    readonly_fields = ('id',)
+
+    inlines = (VariableRangeInline,)
 
 
 @admin.register(VariableRange)

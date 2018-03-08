@@ -19,10 +19,12 @@
 
 <dl class="dl-horizontal">
 	<dt>Experiment</dt>
-	<dd>{{generation.experiment.name}}</dd>
+	<dd><a href="{% url 'admin:experiments_experiment_change' generation.experiment.id %}">{{generation.experiment.name}}</a></dd>
 	<dt>Generation</dt>
-	<dd>{{generation.nickname}}TODO link up both</dd>
+	<dd><a href="{% url 'admin:experiments_generation_change' generation.id %}">{{generation.nickname}}</a></dd>
 </dl>
+
+<h2>Step 1: Upload</h2>
 
 <p>The csv needs to have the following format. If you provide an id, the corresponding individual will be updated, if existant. The hyphen and variable name is optional.</p>
 <div class="row">

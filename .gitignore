@@ -106,3 +106,8 @@ CharacterGeneration/BlenderConfig
 CharacterGeneration/BlenderTemp
 CharacterGeneration/BlenderScripts/addons/manuelbastionilab
 VotingPlatform/p3env
+
+*.sublime-workspace
+*.sublime-project
+
+

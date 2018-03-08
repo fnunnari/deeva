@@ -5,6 +5,7 @@ from .models import *
 from .functions import *
 from .functions_admin import *
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import messages
 from .forms_admin import UploadForm
 from deeva.settings import *
 
@@ -65,14 +66,24 @@ def upload_individuals(request, generation_id):
                     for chunk in uploadfile.chunks():
                         destination.write(chunk)
 
-                #handle uploaded file TODO task
-                check_import_file_header(uploadfile_fullname, generation)
-                handle_import_individuals_file(uploadfile_fullname, generation.id)
+                #handle uploaded file
+                try:
+                    check_import_file_header(uploadfile_fullname, generation)
+                except Exception as e:
+                    messages.error(request, "(ERROR VA02) There was an error handling the uploaded file concerning the header. Error message was:\n\r {}".format(str(e)))
+                    return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
+
+                try:
+                    results = handle_import_individuals_file(uploadfile_fullname, generation.id)
+                except Exception as e:
+                    messages.error(request, "(ERROR VA01) There was an error handling the uploaded files content. Error message was:\n\r {}".format(str(e)))
+                    return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
 
                 ##OLDredirect user to progress bar
                 ##return redirect('experiments_admin:upload_individuals_status', generation_id=generation.id, task_id=111)
 
                 #show results page
+                return render(request, 'experiments/admin/admin_upload_individuals_finished.html', {'generation':generation, 'results':results})
                 
 
             else:
