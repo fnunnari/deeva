@@ -101,7 +101,7 @@ def check_import_file_header(filename, generation):
         list_trait_ids = next(header_reader)[1:]
 
         #convert strings to int and remove hman readable text and hyphen
-        list_trait_ids = map(lambda x:int(x.split('-')[0]), list_trait_ids)
+        list_trait_ids = map(lambda x: int(x.split('-')[0]), list_trait_ids)
 
         
         variables = generation.experiment.independent_variables.variablerange_set.all().values_list('id', flat=True)

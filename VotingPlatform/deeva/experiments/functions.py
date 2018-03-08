@@ -14,6 +14,5 @@ def getOneWizard(id):
 
     return wizard
 
-def importIndividualsfromFile(filename):
-	pass
+
 
