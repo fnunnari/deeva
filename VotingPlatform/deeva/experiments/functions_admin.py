@@ -1,6 +1,9 @@
-import csv
 from .models import *
 from django.shortcuts import get_object_or_404
+
+from tempfile import NamedTemporaryFile
+import shutil
+import csv
 
 def handle_import_individuals_file(filename, generation_id):
     """Read the uploaded file and create or update the individuals accordingly
@@ -19,6 +22,8 @@ def handle_import_individuals_file(filename, generation_id):
         content_reader = csv.DictReader(csvfile)
         rows = list(content_reader)
         for row in rows:
+            individual = None
+            print(row)
             #get given individual or create new one
             if row['id']:
                 print('hab id')
@@ -36,7 +41,7 @@ def handle_import_individuals_file(filename, generation_id):
                 individual.save() #save to get id
 
 
-            if individual:
+            if individual is not None:
                 ivvs = []
                 try:
                     for vr in variableranges:
@@ -82,6 +87,14 @@ def handle_import_individuals_file(filename, generation_id):
 
                     for ivv in ivvs:
                         ivv.save()
+                        
+                    message = {'mid': message_id,
+                                'type':'success',
+                                'text': "Created or updated individual with id '{}' without issues.".format(individual.id)}
+                    messages.append(message)
+                    message_id += 1
+                    #TODO check for missing IVVs!
+
                     
                 except ValueError as e:
                     message = {'mid': message_id,
@@ -101,27 +114,48 @@ def handle_import_individuals_file(filename, generation_id):
     return messages
 
 def check_import_file_header(filename, generation):
-    """Check if the header contains the ids correspondingto the experiment's independant variables
+    """Checks if the header contains the ids correspondingto the experiment's independant variables and rewites the first row if necessary (removing the hyphen )
     filename -- complete filename of the uploaded file
     generation -- generation the file corresponds to
     """
-    with open(filename) as csvfile:
-        header_reader = csv.reader(csvfile)
+    tempfile = NamedTemporaryFile(mode="w", delete=False)
 
-        #read ids
-        list_trait_ids = next(header_reader)[1:]
+    with open(filename) as csvfile, tempfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        writer = csv.writer(tempfile, delimiter=',', quotechar='"')
+
+        #read first row with ids
+        list_trait_ids = next(reader)[1:]
 
         #convert strings to int and remove hman readable text and hyphen
         list_trait_ids = map(lambda x:int(x.split('-')[0]), list_trait_ids)
 
-        
+        #convert new header back to string
+        list_trait_ids_str = ''.join(str(x) for x in list_trait_ids)
+
+        #build new header
+        first_row = ["id",]
+        first_row.extend(list(list_trait_ids_str))
+
+        #write new first row
+        writer.writerow(first_row)
+
+        #write rest of the file
+        for row in reader:
+            writer.writerow(row)
+
+        #check if header is correct for this generation
         variables = generation.experiment.independent_variables.variablerange_set.all().values_list('id', flat=True)
         
         if set(list_trait_ids).issubset(variables):
-            return True
+            result = True
         else:
-            return False
+            result = False
 
+    #replace old file with new file
+    shutil.move(tempfile.name, filename)
+
+    return result
 
 def handle_import_variables_file(filename):
     """Read the uploaded file and create or update the variables accordingly
