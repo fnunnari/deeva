@@ -128,10 +128,10 @@ def check_import_file_header(filename, generation):
         list_trait_ids = next(reader)[1:]
 
         #convert strings to int and remove hman readable text and hyphen
-        list_trait_ids = map(lambda x:int(x.split('-')[0]), list_trait_ids)
+        list_trait_ids = list(map(lambda x:int(x.split('-')[0]), list_trait_ids))
 
         #convert new header back to string
-        list_trait_ids_str = ''.join(str(x) for x in list_trait_ids)
+        list_trait_ids_str = list(str(x) for x in list(list_trait_ids))
 
         #build new header
         first_row = ["id",]
