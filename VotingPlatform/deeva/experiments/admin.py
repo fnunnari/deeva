@@ -59,14 +59,14 @@ class GenerationAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'nickname')
 
     #page
-    readonly_fields = ('id', 'created', 'individuals', 'import_individuals')
+    readonly_fields = ('id', 'created', 'individuals', 'import_individuals', 'export_individuals')
 
     fieldsets = (
         ('General Information', {
             'fields': ('id', 'nickname', 'experiment', 'created')
         }),
         ('Individuals', {
-            'fields': ('import_individuals',),
+            'fields': ('import_individuals', 'export_individuals'),
         }),
     )
 
@@ -76,6 +76,15 @@ class GenerationAdmin(admin.ModelAdmin):
         return template.render(context)
 
     import_individuals.short_description = "Create"
+
+    def export_individuals(self, obj):
+        template = loader.get_template('experiments/admin/admin_export_individuals_panel.html')
+        context = {'generation': obj}
+        return template.render(context)
+
+    export_individuals.short_description = "Export"
+
+    
 
     def get_readonly_fields(self, request, obj=None):
         if obj: # editing an existing object

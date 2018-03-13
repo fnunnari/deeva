@@ -1,0 +1,9 @@
+{% load staticfiles %}
+<link href="{% static "css/font-awesome.css" %}" rel="stylesheet">
+{% if generation.id %}
+	<a class="" href="{% url 'experiments_admin:export_individuals_data' generation.id %}" role="button">
+	  <span class="fa fa-file-excel-o"></span><span class="fa fa-long-arrow-down"></span> Export indidviduals data
+	</a>
+{% else %}
+	You need to save the generation before you can export individuals.
+{% endif %}
