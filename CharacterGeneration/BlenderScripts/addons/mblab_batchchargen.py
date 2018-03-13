@@ -40,7 +40,7 @@ HEAD_CAMERA_ORTHO_DEFAULT = 0.3
 
 class AutomationPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_hello_world"
-    bl_label = "Automated Character Generation"
+    bl_label = "Automated Character Pictures Generation"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'TOOLS'
     bl_context = 'objectmode'
@@ -92,7 +92,10 @@ class AutomationPanel(bpy.types.Panel):
         box.prop(context.scene, "check_head_render")
         box.prop(context.scene, "check_body_render")
         box.prop(context.scene, "output_path")
-        
+
+        box.prop(context.scene.render, "resolution_x")
+        box.prop(context.scene.render, "resolution_y")
+
         row = box.row(align=True)
         row.alignment = 'EXPAND'
         row.label(text="Render")
@@ -145,6 +148,8 @@ class ChangeCamera(bpy.types.Operator):
     view = bpy.props.StringProperty()
  
     def execute(self, context):
+        scene = context.scene
+
         if self.view == 'head':
             # get correct skeleton
             skeleton = next(v for k, v in bpy.data.armatures.items() if k.find('skeleton'))
@@ -158,9 +163,8 @@ class ChangeCamera(bpy.types.Operator):
             t = head_middle - Vector([0, 1, 0])  # Moves the camera aaway from the body
             r = [90, 0, 0]  # the camera must point horizontally
             o = head_length * HEAD_CAMERA_ORTHO_SCALE
-            print("THis o:"+str(o))
-            if context.scene.check_head_scale:
-                o = context.scene.float_head_scale
+            if scene.check_head_scale:
+                o = scene.float_head_scale
                 
         elif self.view == 'body':
             t = [0, -5, 1.30]
@@ -170,26 +174,24 @@ class ChangeCamera(bpy.types.Operator):
             assert False
             
         # set camera position (translation)
-        bpy.context.scene.camera.location = t
+        scene.camera.location = t
         
         # set camera direction (rotation)
         r = [value * (math.pi/180.0) for value in r]
-        bpy.context.scene.camera.rotation_mode = 'XYZ'
-        bpy.context.scene.camera.rotation_euler = r
+        scene.camera.rotation_mode = 'XYZ'
+        scene.camera.rotation_euler = r
         
         # set camera to ortographic mode and set scale
-        bpy.data.cameras['Camera'].type = 'ORTHO'
-        bpy.data.cameras['Camera'].ortho_scale = o
+        scene.camera.data.type = 'ORTHO'
+        scene.camera.data.ortho_scale = o
         
         # set render size (to get correct preview)
-        bpy.context.scene.render.resolution_x = 600
-        bpy.context.scene.render.resolution_y = 600
-        bpy.context.scene.render.resolution_percentage = 100
+        scene.render.resolution_percentage = 100
         
         # render settings
-        bpy.data.scenes['Scene'].cycles.samples = 1000
-        bpy.data.scenes['Scene'].cycles.sample_clamp_direct = 3
-        bpy.data.scenes['Scene'].cycles.sample_clamp_indirect = 3
+        scene.cycles.samples = 1000
+        scene.cycles.sample_clamp_direct = 3
+        scene.cycles.sample_clamp_indirect = 3
 
         return{'FINISHED'}
     
@@ -261,19 +263,20 @@ class CreateAllRender(bpy.types.Operator):
         if not bpy.types.Scene.character_file_list_items :
             raise Exception("No characters loaded!") 
            
-        print("here ") 
+        print("Rendering all characters...")
         for file_name in bpy.types.Scene.character_file_list_items:
             filepath = os.path.join(context.scene.conf_path, file_name[0])
             print(filepath)
-            bpy.ops.mbast_import.character(filepath=filepath)
+            # bpy.ops.mbast_import.character(filepath=filepath)
+            bpy.ops.mbast.import_character(filepath=filepath)
             print("rendering", file_name[0])
             bpy.ops.mbastauto.create_one_render(file_name=file_name[0])
-            #bpy.ops.mbastauto.create_one_render().file_name=file_name[0]
-
+            # bpy.ops.mbastauto.create_one_render().file_name=file_name[0]
 
         return {'FINISHED'}
-    
-'''
+
+
+"""
 #camera settings
 bpy.context.scene.render.resolution_x = 500
 bpy.context.scene.render.resolution_y = 500
@@ -290,8 +293,7 @@ bpy.ops.script.execute_preset(filepath="C:\\Program Files\\Blender Foundation\\B
 home/t_image.png'
 bpy.ops.render.render( write_still=True ) 
 
-
-'''
+"""
 
 
 class ReplaceLights(bpy.types.Operator):
@@ -299,8 +301,7 @@ class ReplaceLights(bpy.types.Operator):
     bl_idname = "mbastauto.replace_lights"
     bl_label = "Replace Lights"
     bl_options = {'REGISTER'}
-    
-    
+
     def execute(self, context):
         scene = context.scene
         # cursor = scene.cursor_location
@@ -320,7 +321,7 @@ class ReplaceLights(bpy.types.Operator):
         sun = bpy.data.lamps["Sun"]
         sun.shadow_soft_size = 5
         sun.node_tree.nodes["Emission"].inputs[1].default_value = 15.0
-        #sun.location = (-1.96, 1.59, 1.39)
+        # sun.location = (-1.96, 1.59, 1.39)
         
         """
         lamp_data = bpy.data.lamps.new(name="Lamp Back", type='SUN')
@@ -405,7 +406,7 @@ def register():
     def change_preview(self, context):
         filepath = os.path.join(context.scene.conf_path, context.scene.character_file_list)
         print("Loading MBLab character definitions from {}".format(filepath))
-        bpy.ops.mbast_import.character(filepath=filepath)
+        bpy.ops.mbast.import_character(filepath=filepath)
     
     bpy.types.Scene.character_file_list = bpy.props.EnumProperty(
             items=fill_items,
@@ -441,8 +442,7 @@ def unregister():
     del bpy.types.Scene.check_body_render 
     del bpy.types.Scene.output_path 
     del bpy.types.Scene.check_head_scale
-    del bpy.types.Scene.float_head_scale 
-
+    del bpy.types.Scene.float_head_scale
 
 #
 # Invoke register if started from editor
