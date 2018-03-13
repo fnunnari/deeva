@@ -41,6 +41,62 @@ def download_variables_header(request, variable_set_id):
 
 
 @staff_member_required
+def download_individuals_data(request, generation_id):
+    """Return a csv that contains the individual variable value for all individuals in the selected generation"""
+        
+    #get generation and variables set and create filename
+    g = get_object_or_404(Generation, id=generation_id)
+    filename = 'GEN-{id}-{name}'.format(id=g.id, name=g.nickname)
+
+    vs = g.experiment.independent_variables
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
+
+    fieldnames = ['id', 'creation_type', 'content_type', 'categories', 'extensions', 'has_content_files']
+    variables = [] #used variables
+
+    for vr in vs.variablerange_set.all():
+        #print (vr.variable.id, vr.variable.name)
+        variables.append(vr.variable)
+        fieldnames.append(vr.variable.id)
+
+    print(fieldnames)
+    print(variables)
+
+    #write header
+    writer = csv.DictWriter(response, fieldnames=fieldnames)
+
+    writer.writeheader()
+
+    #write rows
+    for i in g.individuals.all():
+        print (i.id)
+        d = {}
+        d['id'] = i.id
+        d['creation_type'] = i.creation_type
+        d['content_type'] = i.content_type
+        d['categories'] = i.categories
+        d['extensions'] = i.extensions
+        d['has_content_files'] = i.has_content_files
+        for v in variables:
+            ivv = IndividualVariableValue.objects.get(individual=i, variable=v)
+            if v.variable_type == 'nd': #int
+                d[v.id] = ivv.int_value
+            elif vr.variable.variable_type == 'nc': #float
+                d[v.id] = ivv.float_value
+            else: #ct or od -> text
+                d[v.id] = ivv.text_value
+
+        writer.writerow(d)
+
+    #send cvs
+    return response
+
+
+
+@staff_member_required
 def upload_individuals(request, generation_id):
     """Provide and handle a form to upload new or updated individuals"""
     generation = get_object_or_404(Generation, pk=generation_id) 

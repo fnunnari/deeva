@@ -87,6 +87,8 @@ def handle_import_individuals_file(filename, generation_id):
 
                     for ivv in ivvs:
                         ivv.save()
+
+                    generation.individuals.add(individual)
                         
                     message = {'mid': message_id,
                                 'type':'success',

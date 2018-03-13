@@ -15,6 +15,9 @@ urlpatterns = [
     url(r'^experiments/generation/(?P<generation_id>[0-9]+)/import_individuals/status/(?P<task_id>\w+)$',
         views_admin.upload_individuals_status, name='upload_individuals_status'),   
 
+    url(r'^experiments/generation/(?P<generation_id>[0-9]+)/export_individuals_data$',
+        views_admin.download_individuals_data, name='export_individuals_data'),  
+
     url(r'^experiments/variable/import_variables$',
         views_admin.import_variables, name='import_variables'),   
 ]
