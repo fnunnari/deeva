@@ -19,8 +19,6 @@ import bpy
 from bpy_extras.io_utils import ExportHelper
 from bpy.path import abspath
 
-import os
-
 from generation import create_random_individuals
 from generation import AttributesTable
 from generation import IndividualsTable
@@ -38,6 +36,9 @@ bl_info = {
     }
 
 
+#
+# GUI
+#
 class GenerationPanel(bpy.types.Panel):
     # bl_idname = "OBJECT_PT_GenerationPanel"
     bl_label = "Generation Tools (v" + (".".join([str(x) for x in bl_info["version"]])) + ")"
@@ -68,6 +69,9 @@ class GenerationPanel(bpy.types.Panel):
         box.operator(ConvertIndividualsToMBLabJSon.bl_idname)
 
 
+#
+# INDIVIDUALS MANAGEMENT
+#
 class CreateRandomIndividuals(bpy.types.Operator, ExportHelper):
     """Generates a set of random individuals."""
     bl_idname = "deeva.create_random_individuals"
@@ -120,7 +124,7 @@ class ExportMBLabAttributes(bpy.types.Operator, ExportHelper):
     """Export the attributes used by MBLab to control the shape of the characters.
     The exported csv can be used to populate the variables table in the web platform."""
     bl_idname = "deeva.export_attributes"
-    bl_label = "Export Attributes"
+    bl_label = "Export MBLab Attributes"
     bl_options = {'REGISTER', 'UNDO'}
 
     # ExportHelper mixin class uses this
@@ -164,19 +168,10 @@ def export_mblab_attributes(mesh_obj: bpy.types.Object, outfilepath: str) -> Non
 
     print("Found {} attributes.".format(len(attributes)))
 
-    print("Writing csv file '{}'...".format(outfilepath))
-
     #
     # Write attribute list to a file
-
-    # Useful paths
-    scene_path = bpy.data.filepath
-    scene_dir, scene_file = os.path.split(scene_path)
-    attributes_out_filename = os.path.join(scene_dir, outfilepath)
-
-    print("Writing attributes to file '{}'...".format(attributes_out_filename))
-
-    with open(attributes_out_filename, 'w') as csvfile:
+    print("Writing csv file '{}'...".format(outfilepath))
+    with open(outfilepath, 'w') as csvfile:
         fieldnames = ['name', 'type']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
@@ -225,7 +220,6 @@ def register():
         description="The directory where to put the MBLab json files.",
         subtype='DIR_PATH'
     )
-
 
     bpy.utils.register_class(ExportMBLabAttributes)
     bpy.utils.register_class(GenerationPanel)
