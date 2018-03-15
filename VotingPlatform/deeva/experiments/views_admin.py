@@ -124,7 +124,11 @@ def upload_individuals(request, generation_id):
 
                 #handle uploaded file
                 try:
-                    check_import_file_header(uploadfile_fullname, generation)
+                    valid = check_import_file_header(uploadfile_fullname, generation)
+                    if not valid: #header was not correct
+                        messages.error(request, "(ERROR VA03) The header of the uploaded did not contain all variables needed for this experiment configuration. Please compare the header with the example table below.")
+                        return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
+
                 except Exception as e:
                     messages.error(request, "(ERROR VA02) There was an error handling the uploaded file concerning the header. Error message was:\n\r {}".format(str(e)))
                     return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})

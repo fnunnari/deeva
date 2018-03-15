@@ -23,10 +23,12 @@ def handle_import_individuals_file(filename, generation_id):
         rows = list(content_reader)
         for row in rows:
             individual = None
+            new_individual = False
             print(row)
-            #get given individual or create new one
+
+            #retrieve given individual by id or create new one
             if row['id']:
-                print('hab id')
+                print('got id, try to load existing individual')
                 try:
                     individual = Individual.objects.get(pk=row['id'])
                 except Individual.DoesNotExist as e:
@@ -36,7 +38,8 @@ def handle_import_individuals_file(filename, generation_id):
                     messages.append(message)
                     message_id += 1
             else:
-                print('hab keine id')
+                print('got NO id, create new individual')
+                new_individual = True
                 individual = Individual()
                 individual.save() #save to get id
 
@@ -51,12 +54,11 @@ def handle_import_individuals_file(filename, generation_id):
                         except IndividualVariableValue.DoesNotExist as e:
                             ivv = IndividualVariableValue()
                         
-                        #check range and enter new value
+                        # check range and enter new value depending on type, but not save yet
                         ivv.individual = individual
                         ivv.variable = vr.variable
                         if vr.variable.variable_type == 'nd':
                             int_value = int(row[str(vr.variable.id)])
-
 
                             if (vr.min_value is not None)  and not (vr.min_value <= int_value):
                                 raise ValueError('Given value {v} was not in range {min}-{max}.'.format(v=int_value, min=vr.min_value, max=vr.max_value))
@@ -85,9 +87,11 @@ def handle_import_individuals_file(filename, generation_id):
 
                         ivvs.append(ivv)
 
+                    #if all ivvs were changed or created without problems, save them
                     for ivv in ivvs:
                         ivv.save()
 
+                    #add individual to generation
                     generation.individuals.add(individual)
                         
                     message = {'mid': message_id,
@@ -95,23 +99,29 @@ def handle_import_individuals_file(filename, generation_id):
                                 'text': "Created or updated individual with id '{}' without issues.".format(individual.id)}
                     messages.append(message)
                     message_id += 1
-                    #TODO check for missing IVVs!
+                    
 
                     
                 except ValueError as e:
+                    #There was an error while creating the ivvs. Ivvs for this individual get not saved. Display error message to user.
+                    text = str(e)
+
+                    if new_individual:
+                        #This individual now doesn't have any ivvs, so delete it.
+                        individual.delete()
+                        text += " Also, this was a newly created individual, so we deleted it as it hasn't a complete set of values for variables."
+                    else:
+                        text += " This was an existing individual. Due to the error we didn't change any variable value on it."
+
                     message = {'mid': message_id,
                                 'type':'danger',
-                                'text':str(e)}
+                                'text':text}
                     messages.append(message)
                     message_id += 1
+
+                    
                     
 
-
-                
-
-
-
-            #TODO don't forget to save
 
     return messages
 
@@ -148,12 +158,15 @@ def check_import_file_header(filename, generation):
             writer.writerow(row)
 
         #check if header is correct for this generation
-        variables = generation.experiment.independent_variables.variablerange_set.all().values_list('id', flat=True)
-        
-        if set(list_trait_ids).issubset(variables):
+        variables = generation.experiment.independent_variables.variablerange_set.all().values_list('variable__id', flat=True)
+
+        #all neded variables must be in the header we ignore other fields
+        if set(variables).issubset(set(list_trait_ids)):
             result = True
         else:
             result = False
+
+        print(list(variables), " is subset of ",  list_trait_ids, "=>", result)
 
     #replace old file with new file
     shutil.move(tempfile.name, filename)
