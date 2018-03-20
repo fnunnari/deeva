@@ -21,7 +21,7 @@ class ExperimentAdmin(admin.ModelAdmin):
             'fields': ('id', 'name', 'created', 'description')
         }),
         ('Variables', {
-            'fields': ('independent_variables', 'dependent_variables', 'download_header', 'variables',),
+            'fields': ('independent_variables', 'dependent_variables', 'download_header', 'variables', 'content_names',),
             #'fields': ('independent_variables', 'dependent_variables', 'variables',),
         }),
         ('Questions', {
@@ -101,7 +101,7 @@ class IndividualVariableValueInline(admin.TabularInline):
 @admin.register(Individual)
 class IndividualAdmin(admin.ModelAdmin):
     #list
-    list_display = ('id', 'creation_type', 'content_type', 'has_content_files',)
+    list_display = ('id', 'creation_type', 'has_content_files',)
     list_display_links = ('id',)
 
     #page
@@ -115,7 +115,7 @@ class IndividualAdmin(admin.ModelAdmin):
             'fields': ('id',),#TODO
         }),
         ('Content', {
-            'fields': ('content_type', 'categories', 'extensions', 'has_content_files',), #TODO content preview
+            'fields': ('has_content_files',), #TODO content preview
         }),
     )
 
