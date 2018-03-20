@@ -1,3 +1,20 @@
+# Deeva - Character Generation Platform
+# Copyright (C) 2018  Nicolas Erbach, Fabrizio Nunnari
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 import bpy
 from mathutils import Vector
 
@@ -13,17 +30,18 @@ from bpy.types import (Panel,
                        PropertyGroup,
                        )
 
+
 import os
 import math
 
 
 bl_info = {
-    "name": "Deeva - Character Generation Automation Tool",
+    "name": "Deeva - Pictures Generation Tools",
     "description": "Automates import of scripts and generation of pictures from characters for the ManuelbastioniLAB.",
     "author": "Nicolas Erbach",
-    "version": (0, 9),
+    "version": (0, 10),
     "blender": (2, 79, 0),
-    "location": "Toolbox > ManuelBastioniLAB > Automation",
+    "location": "Toolbox > ManuelBastioniLAB > Pictures",
     "category": "Characters",
     }
 
@@ -39,12 +57,12 @@ HEAD_CAMERA_ORTHO_DEFAULT = 0.3
 
 
 class AutomationPanel(bpy.types.Panel):
-    bl_idname = "OBJECT_PT_hello_world"
-    bl_label = "Automated Character Pictures Generation"
+    # bl_idname = "OBJECT_PT_PictureCreationPanel"
+    bl_label = "Pictures Generation Tools (v" + (".".join([str(x) for x in bl_info["version"]])) + ")"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'TOOLS'
     bl_context = 'objectmode'
-    bl_category = "ManuelBastioniLAB"
+    bl_category = "Deeva"
 
     def draw(self, context):
         layout = self.layout
@@ -60,15 +78,6 @@ class AutomationPanel(bpy.types.Panel):
         box.label(text="Preview characters")
         box.prop(context.scene, "character_file_list")
 
-        '''
-        row = box.row(align=True)
-        row.alignment = 'EXPAND'
-        row.operator(LoadScripts.bl_idname, text="|<")
-        row.operator(LoadScripts.bl_idname, text="<")
-        row.operator(LoadScripts.bl_idname, text=">")
-        row.operator(LoadScripts.bl_idname, text=">|")
-        '''
-        
         row = box.row(align=True)
         row.alignment = 'EXPAND'
         row.label(text="Camera")
@@ -102,9 +111,9 @@ class AutomationPanel(bpy.types.Panel):
         row.operator(CreateOneRender.bl_idname, text="current").file_name = context.scene.character_file_list
         row.operator(CreateAllRender.bl_idname, text="all")
         
-        row = layout.row()
-        box = row.box()
-        box.label(text="Version {}.{}".format(bl_info['version'][0], bl_info['version'][1]))
+        # row = layout.row()
+        # box = row.box()
+        # box.label(text="Version {}.{}".format(bl_info['version'][0], bl_info['version'][1]))
         
 
 #
@@ -443,6 +452,7 @@ def unregister():
     del bpy.types.Scene.output_path 
     del bpy.types.Scene.check_head_scale
     del bpy.types.Scene.float_head_scale
+
 
 #
 # Invoke register if started from editor
