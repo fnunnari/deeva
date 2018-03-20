@@ -5,7 +5,7 @@ This sums up the steps to set up a development server for the *Deeva* voting pla
 
 ## Set up a virtual environment
 
-It is strongly recommended to work in a virtual environment while developing for the platform. It ensures an fixed environment of available packages that everyone can rely on.
+It is strongly recommended to work in a virtual environment while developing for the platform. It ensures a fixed environment of available packages that everyone can rely on.
 
 1. Install the virtual environment package if not done yet: `pip3 install virtualenv`
 1. Create a new environment with `python3 -m venv deeva3`
@@ -19,7 +19,7 @@ Install the packages required to run the voting platform by running `pip install
 
 Currently running Ubuntu the `mysqlclient` package is not working correctly, you addiotnally need to install it via the systems package manager: `sudo apt-get install python3-dev libmysqlclient-dev`
 
-## Set up the databse server
+## Set up the database server
 
 The website needs a database and database access in order to work correctely. Currently it is setup to work with *MySQL*. The connection data the system uses can be found in `deeva/deeva/setting.py` in the variable `DATABASES`.
 
@@ -39,6 +39,9 @@ Django will alter table on the MySQL server by issuing the `migrate` and `makemi
 In the project folder `deeva`, where the `manage.py` file is located, run in order:
   * `python manage.py makemigrations`
   * `python manage.py migrate`
+
+Also, every time you alter the DJango tables, you must re-issue the `makemigrations`.
+Finally, every time you pull from git and someone else altered the tables, you must re-issue `migrate`
 
 ## Ceate a django-root user
 
