@@ -1,7 +1,7 @@
 {% for wizard in wizards %}
 	<div class="panel panel-default">
 	  	<div class="panel-heading">
-	    	<a href="TODO"> {{wizard.name}} </a>
+	    	<a href="{% url 'experiments:oneExperiment' wizard.id %}"> {{wizard.name}} </a>
 	    	<div class="pull-right">
 			    &nbsp;</span> {{wizard.created}}
 			</div>

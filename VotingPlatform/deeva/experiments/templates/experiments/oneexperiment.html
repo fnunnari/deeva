@@ -26,6 +26,25 @@
 	 		{% endif %}
 	 		<hr>
 
+	 		{% if user.is_superuser %}
+	 		<h2>Configuration</h2>
+		    	<div class="btn-group btn-block" role="group" aria-label="Settings">
+				 	<a href="{% url 'admin:experiments_votingwizard_change' wizard.id %}" class="btn btn-block btn-default btn-social">
+			    		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Wizard
+		    		</a> 
+		    	</div>
+		    	<div class="btn-group btn-block" role="group" aria-label="Settings">
+				 	<a href="{% url 'admin:experiments_generation_change' wizard.generation.id %}" class="btn btn-block btn-default btn-social">
+			    		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Generation
+		    		</a> 
+		    	</div>
+		    	<div class="btn-group btn-block" role="group" aria-label="Settings">
+				 	<a href="{% url 'admin:experiments_experiment_change' wizard.generation.experiment.id %}" class="btn btn-block btn-default btn-social">
+			    		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Experiment
+		    		</a> 
+		    	</div>
+			{% endif %}
+
 
 
 	 		<h2>Interact</h2>
