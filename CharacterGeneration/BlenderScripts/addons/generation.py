@@ -60,11 +60,13 @@ class IndividualsTable:
     """Support class to load and manage individuals of a generation.
 
     Sample table format:
-    id,277-Cheeks_Mass,287-Chin_Prominence,300-Eyebrows_Angle,323-Eyes_Size
-    1,0.35000000000000003,1.0,0.5,0.775
-    2,0.5750000000000001,0.75,0.875,0.55
-    3,0.42500000000000004,0.75,0.625,0.6625
+    id,creation_type,content_type,categories,extensions,has_content_files,277,287,300,323
+    35,rm,no,,,False,0.35,1.0,0.5,0.775
+    36,rm,no,,,False,0.575,0.75,0.875,0.55
+    37,rm,no,,,False,0.425,0.75,0.625,0.6625
     """
+
+    FIRST_ATTRIBUTE_INDEX = 5
 
     def __init__(self, individuals_filename):
         self._table = pandas.read_csv(filepath_or_buffer=individuals_filename)  # type: pandas.DataFrame
@@ -76,8 +78,12 @@ class IndividualsTable:
     def ids(self) -> List[int]:
         return [int(i) for i in self._table.index]
 
+    def attribute_ids(self) -> List[int]:
+        return [int(i) for i in self._table.columns.values[IndividualsTable.FIRST_ATTRIBUTE_INDEX:].tolist()]
+
     def attribute_values(self, individual_id: int) -> List[float]:
-        attrib_values = self._table.loc[individual_id]
+        table_line = self._table.loc[individual_id]
+        attrib_values = table_line[IndividualsTable.FIRST_ATTRIBUTE_INDEX:]  # self._table.loc[individual_id]
         return [float(a) for a in attrib_values]
 
 
@@ -119,19 +125,39 @@ def create_random_individuals(attributes_table: AttributesTable,
             outfile.write("\n")
 
 
+def consistency_check(individuals: IndividualsTable, attributes: AttributesTable):
+    attrib_ids_1 = individuals.attribute_ids()
+    print(attrib_ids_1)
+
+    attrib_ids_2 = attributes.attribute_ids()
+    print(attrib_ids_2)
+
+    if len(attrib_ids_1) != len(attrib_ids_2):
+        raise Exception("Number of attribute IDs should be the same. Found {} {}"
+                        .format(len(attrib_ids_1), len(attrib_ids_2)))
+
+    attrib_set = set(attrib_ids_1)
+    for attr_id in attrib_ids_2:
+        if attr_id not in attrib_set:
+            raise Exception("Attribute {} from attributes table not found in individuals table".format(attr_id))
+
+
 def create_mblab_chars_dir(individuals: IndividualsTable, attributes: AttributesTable, dirpath: str) -> None:
 
     import os
     import json
 
+    consistency_check(individuals=individuals, attributes=attributes)
+
     if not os.path.exists(dirpath):
         os.makedirs(dirpath)
 
+    attr_ids = attributes.attribute_ids()
+
     for individual_id in individuals.ids():
-        attr_ids = attributes.attribute_ids()
         attr_vals = individuals.attribute_values(individual_id=individual_id)
         if len(attr_ids) != len(attr_vals):
-            raise Exception("Number of attribute IDs should be the same of Attrobute values. Found {} {}"
+            raise Exception("Number of attribute IDs should be the same of Attribute values. Found {} {}"
                             .format(len(attr_ids), len(attr_vals)))
 
         attributes_dict = {}
