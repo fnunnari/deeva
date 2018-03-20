@@ -54,7 +54,7 @@ def download_individuals_data(request, generation_id):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
 
-    fieldnames = ['id', 'creation_type', 'content_type', 'categories', 'extensions', 'has_content_files']
+    fieldnames = ['id', 'creation_type', 'has_content_files']
     variables = [] #used variables
 
     for vr in vs.variablerange_set.all():
@@ -76,9 +76,6 @@ def download_individuals_data(request, generation_id):
         d = {}
         d['id'] = i.id
         d['creation_type'] = i.creation_type
-        d['content_type'] = i.content_type
-        d['categories'] = i.categories
-        d['extensions'] = i.extensions
         d['has_content_files'] = i.has_content_files
         for v in variables:
             ivv = IndividualVariableValue.objects.get(individual=i, variable=v)
