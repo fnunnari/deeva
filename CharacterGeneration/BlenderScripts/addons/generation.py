@@ -60,13 +60,13 @@ class IndividualsTable:
     """Support class to load and manage individuals of a generation.
 
     Sample table format:
-    id,creation_type,content_type,categories,extensions,has_content_files,277,287,300,323
-    35,rm,no,,,False,0.35,1.0,0.5,0.775
-    36,rm,no,,,False,0.575,0.75,0.875,0.55
-    37,rm,no,,,False,0.425,0.75,0.625,0.6625
+    id,creation_type,has_content_files,277,287,300,323
+    35,rm,False,0.35,1.0,0.5,0.775
+    36,rm,False,0.575,0.75,0.875,0.55
+    37,rm,False,0.425,0.75,0.625,0.6625
     """
 
-    FIRST_ATTRIBUTE_INDEX = 5
+    FIRST_ATTRIBUTE_INDEX = 2
 
     def __init__(self, individuals_filename):
         self._table = pandas.read_csv(filepath_or_buffer=individuals_filename)  # type: pandas.DataFrame
