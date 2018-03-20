@@ -32,6 +32,9 @@ class Experiment(models.Model):
     from questions.models import QuestionSet
     questions = models.ForeignKey(QuestionSet, default=None, null=True, blank=True, on_delete=models.PROTECT)
 
+    #definition of the content needed for this experiment
+    content_names = models.TextField(help_text="Type the filenames (comma seperated) including the extension of the content files the system has to look for (e.g. 'name1.ext1,name2.ext2'). The system will append the provided names to the individual's id with a hyphen inbetween (e.g. 123-name1.ext1).")
+
     def __str__(self):
         return "{}".format(self.name)
 
@@ -185,9 +188,9 @@ class Individual(models.Model):
     variables = models.ManyToManyField('Variable', through='IndividualVariableValue')
     creation_type = models.CharField(max_length=2, choices=CREATION_TYPE_CHOICES, default=RANDOM, help_text="Change to 'Handmade' if individual is edited manually")
 
-    content_type = models.CharField(max_length=2, choices=CONTENT_TYPE_CHOICES, default=NONE, help_text="Select the type of content, so it will be rendered accordingly. Choose cutom code if you want to inject your own html code.")
-    categories = models.TextField(help_text="Type the names (comma seperated) of the content files the system has to look for. The system will append the provided names to the individual's id with a hyphen inbetween (e.g. 123-name).")
-    extensions = models.TextField(help_text="Type the fiel extensions (comma seperated) for the content files the system has to look for. The system will append the extensions to the name generated from the categories field (e.g. 123-name.ext).")
+    #content_type = models.CharField(max_length=2, choices=CONTENT_TYPE_CHOICES, default=NONE, help_text="Select the type of content, so it will be rendered accordingly. Choose cutom code if you want to inject your own html code.")
+    #categories = models.TextField(help_text="Type the names (comma seperated) of the content files the system has to look for. The system will append the provided names to the individual's id with a hyphen inbetween (e.g. 123-name).")
+    #extensions = models.TextField(help_text="Type the fiel extensions (comma seperated) for the content files the system has to look for. The system will append the extensions to the name generated from the categories field (e.g. 123-name.ext).")
     has_content_files = models.BooleanField(default=False, help_text="The needed content files were stored on the server.")
     
    
