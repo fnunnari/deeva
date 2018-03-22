@@ -16,6 +16,7 @@
 
 
 import bpy
+from bpy.path import abspath
 from mathutils import Vector
 
 from bpy.props import (StringProperty,
@@ -138,7 +139,7 @@ class LoadScripts(bpy.types.Operator):
         del context.scene.character_file_list_items[:]
         
         # print(" path" , context.scene.conf_path)
-        os.chdir(context.scene.conf_path)
+        os.chdir(abspath(context.scene.conf_path))
         
         # fill list with filenames
         for file in glob.glob("*.json"):
@@ -214,9 +215,6 @@ class CreateOneRender(bpy.types.Operator):
     file_name = bpy.props.StringProperty()
 
     def execute(self, context):
-        scene = context.scene
-        cursor = scene.cursor_location
-        obj = scene.objects.active
 
         if not context.scene.check_head_render and not context.scene.check_body_render:
             raise Exception("No picture type selected!")
@@ -275,12 +273,11 @@ class CreateAllRender(bpy.types.Operator):
         print("Rendering all characters...")
         for file_name in bpy.types.Scene.character_file_list_items:
             filepath = os.path.join(context.scene.conf_path, file_name[0])
-            print(filepath)
-            # bpy.ops.mbast_import.character(filepath=filepath)
+            filepath = abspath(filepath)
+            print("Importing", filepath)
             bpy.ops.mbast.import_character(filepath=filepath)
-            print("rendering", file_name[0])
+            print("Rendering", file_name[0])
             bpy.ops.mbastauto.create_one_render(file_name=file_name[0])
-            # bpy.ops.mbastauto.create_one_render().file_name=file_name[0]
 
         return {'FINISHED'}
 
@@ -414,6 +411,7 @@ def register():
     
     def change_preview(self, context):
         filepath = os.path.join(context.scene.conf_path, context.scene.character_file_list)
+        filepath = abspath(filepath)
         print("Loading MBLab character definitions from {}".format(filepath))
         bpy.ops.mbast.import_character(filepath=filepath)
     
