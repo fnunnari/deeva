@@ -31,10 +31,7 @@ class Experiment(models.Model):
     dependent_variables = models.ForeignKey('VariableSet', related_name='experiment_dependant_variables', on_delete=models.PROTECT,
         help_text=mark_safe('The dependent variables represent the output or outcome whose variation is being studied. <b>This setting cannot be changed after creating a generation!</b>'))
     
-    #questions to be answered by the user
-    from questions.models import QuestionSet
-    questions = models.ForeignKey(QuestionSet, default=None, null=True, blank=True, on_delete=models.PROTECT)
-
+    
     #definition of the content needed for this experiment
     content_names = models.TextField(help_text="Type the filenames (comma seperated) including the extension of the content files the system has to look for (e.g. 'name1.ext1,name2.ext2'). The system will append the provided names to the individual's id with a hyphen inbetween (e.g. 123-name1.ext1). <b>This setting cannot be changed after creating a generation!</b>")
 
@@ -60,15 +57,19 @@ class VotingWizard(models.Model):
     exit_html = models.TextField(null=True, blank=True)
 
     #Enable or disable differnet voting modes
-    enable_rating_mode = models.BooleanField(default=False)
-    enable_compare_mode = models.BooleanField(default=False)
+    enable_rating_mode = models.BooleanField(default=False, help_text='Enable rating mode for this wizard.')
+    enable_compare_mode = models.BooleanField(default=False, help_text='Enable paired comparison mode for this wizard.')
     enable_anonymous_mode = models.BooleanField(default=False, help_text='Allow not registeres (anonymous) user to vote.')
 
     #number of required votes
-    number_of_votes = models.IntegerField(default=10)
+    number_of_votes = models.IntegerField(default=10, help_text='Number of votes a user has to submit.')
 
     #select if wizard is shown on the overview page
     shown_on_overview_page = models.BooleanField(default=False, help_text='Determines if the wizard is advertised publically on the page.')
+
+    #questions to be answered by the user
+    from questions.models import QuestionSet
+    questions = models.ForeignKey(QuestionSet, default=None, null=True, blank=True, on_delete=models.PROTECT, help_text='Question set the user will be required to fill out.')
 
     def __str__(self):
         if self.name:

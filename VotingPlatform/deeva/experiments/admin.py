@@ -10,7 +10,7 @@ from .models import Experiment, Generation, Individual, VotingWizard, VariableSe
 @admin.register(Experiment)
 class ExperimentAdmin(admin.ModelAdmin):
     #list
-    list_display = ('id', 'name', 'created', 'independent_variables', 'dependent_variables', 'questions')
+    list_display = ('id', 'name', 'created', 'independent_variables', 'dependent_variables',)
     list_display_links = ('id', 'name')
 
     #page
@@ -30,9 +30,6 @@ class ExperimentAdmin(admin.ModelAdmin):
         ('Variables', {
             'fields': ('independent_variables', 'dependent_variables', 'download_header', 'variables', 'content_names',),
             #'fields': ('independent_variables', 'dependent_variables', 'variables',),
-        }),
-        ('Questions', {
-            'fields': ('questions', ),
         }),
     )
 
@@ -131,7 +128,24 @@ class IndividualAdmin(admin.ModelAdmin):
 
 @admin.register(VotingWizard)
 class VotingWizardAdmin(admin.ModelAdmin):
-    pass
+    #list
+    list_display = ('id', 'name', 'generation', 'enable_rating_mode', 'enable_compare_mode', 'number_of_votes', 'shown_on_overview_page', 'shown_on_overview_page', 'questions',)
+    list_display_links = ('id', 'name')
+
+    #page
+    readonly_fields = ('id',)
+
+    fieldsets = (
+        ('General Information', {
+            'fields': ('id', 'name', 'generation',)
+        }),
+        ('Configuration', {
+            'fields': ('enable_rating_mode', 'enable_compare_mode', 'enable_anonymous_mode', 'number_of_votes', 'shown_on_overview_page','questions',),
+        }),
+        ('HTML override', {
+            'fields': ('welcome_html', 'disclaimer_html', 'example_html', 'personalinfos_html', 'exit_html',),
+        }),
+    )
 
 class VariableRangeInline(admin.TabularInline):
     model = VariableRange
