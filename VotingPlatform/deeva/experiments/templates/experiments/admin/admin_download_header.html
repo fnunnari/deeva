@@ -4,13 +4,13 @@
 
 {% if experiment.id %}
 	<a class="" href="{% url 'experiments_admin:variables_header' experiment.independent_variables.id %}" role="button">
-	  <span class="fa fa-file-excel-o"></span><span class="fa fa-long-arrow-down"></span> Independant Variables Header/Ranges
+	  <span class="fa fa-file-excel-o"></span><span class="fa fa-long-arrow-down"></span> Independant Variables
 	</a>
 
 	<br>
 
 	<a class="" href="{% url 'experiments_admin:variables_header' experiment.dependent_variables.id %}" role="button">
-	  <span class="fa fa-file-excel-o"></span><span class="fa fa-long-arrow-down"></span> Dependant Variables Header/Ranges
+	  <span class="fa fa-file-excel-o"></span><span class="fa fa-long-arrow-down"></span> Dependant Variables
 	</a>
 
 {% else %}

@@ -16,6 +16,13 @@ class ExperimentAdmin(admin.ModelAdmin):
     #page
     readonly_fields = ('id', 'created', 'variables', 'download_header')
 
+    #add more readonly fields if there is already a generation
+    def get_readonly_fields(self, request, obj=None):
+            if Generation.objects.filter(experiment=obj):
+                return super(ExperimentAdmin, self).get_readonly_fields(request, obj) + ('independent_variables', 'dependent_variables', 'content_names')
+            else:
+                return super(ExperimentAdmin, self).get_readonly_fields(request, obj)
+
     fieldsets = (
         ('General Information', {
             'fields': ('id', 'name', 'created', 'description')

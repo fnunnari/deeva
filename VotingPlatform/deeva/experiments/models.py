@@ -7,6 +7,7 @@ from django.forms import widgets
 
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from django.utils.safestring import mark_safe
 
 
 
@@ -23,17 +24,19 @@ class Experiment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     
     #varibale set from which the individuals are created
-    independent_variables = models.ForeignKey('VariableSet', related_name='experiment_independant_variables', on_delete=models.PROTECT)
+    independent_variables = models.ForeignKey('VariableSet', related_name='experiment_independant_variables', on_delete=models.PROTECT,
+        help_text=mark_safe('The independent variables represent inputs or causes, i.e., potential reasons for variation or, in the experimental setting, the variable controlled by the experimenter. <b>This setting cannot be changed after creating a generation!</b>'))
     
     #used variable set the user votes on
-    dependent_variables = models.ForeignKey('VariableSet', related_name='experiment_dependant_variables', on_delete=models.PROTECT)
+    dependent_variables = models.ForeignKey('VariableSet', related_name='experiment_dependant_variables', on_delete=models.PROTECT,
+        help_text=mark_safe('The dependent variables represent the output or outcome whose variation is being studied. <b>This setting cannot be changed after creating a generation!</b>'))
     
     #questions to be answered by the user
     from questions.models import QuestionSet
     questions = models.ForeignKey(QuestionSet, default=None, null=True, blank=True, on_delete=models.PROTECT)
 
     #definition of the content needed for this experiment
-    content_names = models.TextField(help_text="Type the filenames (comma seperated) including the extension of the content files the system has to look for (e.g. 'name1.ext1,name2.ext2'). The system will append the provided names to the individual's id with a hyphen inbetween (e.g. 123-name1.ext1).")
+    content_names = models.TextField(help_text="Type the filenames (comma seperated) including the extension of the content files the system has to look for (e.g. 'name1.ext1,name2.ext2'). The system will append the provided names to the individual's id with a hyphen inbetween (e.g. 123-name1.ext1). <b>This setting cannot be changed after creating a generation!</b>")
 
     def __str__(self):
         return "{}".format(self.name)
