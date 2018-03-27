@@ -1,22 +1,27 @@
 # First time setup
-Export the MBLab variables from Blender.
-See panel: Export MBLab Attribute button.
-Save the variables as csv. E.g.:
- `mblab_attributes-1_6_1.csv`.
+
+* Create an MBLab character and select its mesh.
+* Export the MBLab variables from Blender.
+  * Generation Tools Panel: click `Export MBLab Attributes`
+  * E.g.: `mblab_attributes-1_6_1.csv`.
 
  ![Characters Generation Tools Panel](Pics/GenerationToolsPanel.png "Characters Generation Tools")
 
 
-Import the variables from Blender/MBLab.
-Use: http://localhost:8000/admin/experiments/variable/
-Click on `Import Variables`
+* Import the variables from Blender/MBLab.
+  * Go to http://localhost:8000/admin/experiments/variable/
+  * Click on `Import Variables +`
+
+![VotingPlatform-VariablesPanel](Pics/VotingPlatform-VariablesPanel.png "Voting Platform: Variables Panel")
 
 # Create a new experiment
 
-# Create two variable set
+## Create two variable set
 
-# Add variables to the set
+## Add variables to the set
 It means adding entries in the variable range table.
+
+## Add variables set to the experiment
 
 
 # Create individuals for the experiment
@@ -59,3 +64,4 @@ It means adding entries in the variable range table.
 * Render either the currently selected character or all of them.
 
 # Upload the Pictures
+IMPL. IN PROGRESS
