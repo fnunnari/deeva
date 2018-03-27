@@ -1,5 +1,7 @@
 # First time setup
 
+This step requires using the CharacterGeneration project.
+
 * Create an MBLab character and select its mesh.
 * Export the MBLab variables from Blender.
   * Generation Tools Panel: click `Export MBLab Attributes`
@@ -23,8 +25,12 @@ It means adding entries in the variable range table.
 
 ## Add variables set to the experiment
 
+## Create the questions
+
 
 # Create individuals for the experiment
+
+This step requires using the CharacterGeneration project.
 
 ![VotingPlatform-GenerationPanel](Pics/VotingPlatform-GenerationPanel.png "Voting Platform: Generation panel")
 
@@ -52,7 +58,7 @@ It means adding entries in the variable range table.
   - Click `Convert individuals` to MBLAB/JSON dir.
   - This will filla directory with JSON files, one for each individual.
 
-# Create the pictures of the Individuals
+## Create the pictures of the Individuals
 
 ![PicturesGenerationPanel](Pics/PicturesGenerationPanel.png "Pictures Generation Panel")
 
@@ -63,5 +69,35 @@ It means adding entries in the variable range table.
 * Select the resolution
 * Render either the currently selected character or all of them.
 
-# Upload the Pictures
+## Upload the Pictures
 IMPL. IN PROGRESS
+
+
+# Create a Wizard
+
+A Wizard describes the set of pages and the settings for voting.
+
+![WizardEditAttributes](Pics/VotingPlatform-EditWizard.png "Wizard Edit Attributes")
+
+
+A Wizard is a sequence of web pages:
+* Welcome
+* disclaimer
+* instructions
+* example
+* a sequence of pages to express the vote: normally much more than 1.
+* a Questions page to gather information about the voter
+* a goodbye page
+
+Each page can be configured independently using HTM code.
+
+![WizardEditPage](Pics/VotingPlatform-EditWizardPages.png "Wizard Edit Pages")
+
+Each Wizard is associated to a generation. During the vote, the individuals to vote will be taken from the selected generation.
+
+Voting can be performed in two modes: Rating and Paired Comparison.
+A Voting page:
+* in Rating mode, only one individual is shown and the voter must select a value for each independent variable of the experiment using a scale.
+* in Paired comparison mode, two individuals are shown next to the other and the voter must express a preference for one of the two.
+
+If the anonymous mode is checked, users can vote without logging in the django platform.
