@@ -123,17 +123,17 @@ def upload_individuals(request, generation_id):
                 try:
                     valid = check_import_file_header(uploadfile_fullname, generation)
                     if not valid: #header was not correct
-                        messages.error(request, "(ERROR VA03) The header of the uploaded did not contain all variables needed for this experiment configuration. Please compare the header with the example table below.")
+                        messages.error(request, "(ERROR VA06) The header of the uploaded did not contain all variables needed for this experiment configuration. Please compare the header with the example table below.")
                         return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
 
                 except Exception as e:
-                    messages.error(request, "(ERROR VA02) There was an error handling the uploaded file concerning the header. Error message was:\n\r {}".format(str(e)))
+                    messages.error(request, "(ERROR VA05) There was an error handling the uploaded file concerning the header. Error message was:\n\r {}".format(str(e)))
                     return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
 
                 try:
                     results = handle_import_individuals_file(uploadfile_fullname, generation.id)
                 except Exception as e:
-                    messages.error(request, "(ERROR VA01) There was an error handling the uploaded files content. Error message was:\n\r {}".format(str(e)))
+                    messages.error(request, "(ERROR VA04) There was an error handling the uploaded files content. Error message was:\n\r {}".format(str(e)))
                     return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
 
                 ##OLDredirect user to progress bar
@@ -164,6 +164,132 @@ def upload_individuals_status_progress(request, generation_id, task_id):
     return JsonResponse({'value': n})
 
 
+@staff_member_required
+def upload_content(request, generation_id, json=False):
+    """Provide and handle a form to upload content files for individuals"""
+    generation = get_object_or_404(Generation, pk=generation_id) 
+
+    form = UploadForm(request.POST or None, request.FILES or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            import os
+
+            #find images folder, create if it not exists
+            upload_path = os.path.join(MEDIA_ROOT, 'individual_images')
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
+
+            #get uploaded file
+            uploadfile = request.FILES['file']
+
+            #check if the filename is correct for this generation
+            result, message = check_content_filename(uploadfile.name, generation)
+
+            if result:
+                #save it to hard disk
+                uploadfile_fullname = os.path.join(upload_path, uploadfile.name)
+                with open(uploadfile_fullname, 'wb+') as destination:
+                    for chunk in uploadfile.chunks():
+                        destination.write(chunk)
+                text = "The file '{}' was successfully uploaded and stored.".format(uploadfile.name)
+                if json:
+                    message = {'type' : 'success', 'text' : text}
+                else:    
+                    messages.success(request, text)
+            else:
+                #display error message
+                text = "There was an error with the file '{}' The file was not saved. Error was: {}".format(uploadfile.name, message)
+                if json:
+                    message = {'type' : 'danger', 'text' : text}
+                else:    
+                    messages.error(request, text)
+                
+
+
+            print("json", json)
+            print("result1", result, message)
+
+        else:
+            pass #redisplay form
+
+    if json: #form post with jquery
+        return JsonResponse(message)
+
+
+    else: #normal get request
+
+        context = {
+            'form': form,
+            'generation':generation,
+        }
+
+        template = 'experiments/admin/admin_upload_content.html'
+
+        return render(request, template, context)
+
+
+
+
+
+@staff_member_required
+def upload_individuals(request, generation_id):
+    """Provide and handle a form to upload new or updated individuals"""
+    generation = get_object_or_404(Generation, pk=generation_id) 
+
+    if request.method == 'POST':
+        #handle form
+        form = UploadForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            import os
+
+            #find uplaod folder, create if it not exists
+            upload_path = os.path.join(MEDIA_ROOT, 'uploads')
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
+
+            #get uploaded file
+            uploadfile = request.FILES['file']
+
+            #save it to hard disk
+            uploadfile_fullname = os.path.join(upload_path, uploadfile.name)
+            with open(uploadfile_fullname, 'wb+') as destination:
+                for chunk in uploadfile.chunks():
+                    destination.write(chunk)
+
+            #handle uploaded file
+            try:
+                valid = check_import_file_header(uploadfile_fullname, generation)
+                if not valid: #header was not correct
+                    messages.error(request, "(ERROR VA03) The header of the uploaded did not contain all variables needed for this experiment configuration. Please compare the header with the example table below.")
+                    return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
+
+            except Exception as e:
+                messages.error(request, "(ERROR VA02) There was an error handling the uploaded file concerning the header. Error message was:\n\r {}".format(str(e)))
+                return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
+
+            try:
+                results = handle_import_individuals_file(uploadfile_fullname, generation.id)
+            except Exception as e:
+                messages.error(request, "(ERROR VA01) There was an error handling the uploaded files content. Error message was:\n\r {}".format(str(e)))
+                return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
+
+            ##OLDredirect user to progress bar
+            ##return redirect('experiments_admin:upload_individuals_status', generation_id=generation.id, task_id=111)
+
+            #show results page
+            return render(request, 'experiments/admin/admin_upload_individuals_finished.html', {'generation':generation, 'results':results})
+            
+
+        else:
+            #form filled out incorrect (file missing), redisplay
+            return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
+
+    else: #GET, display form
+        form = UploadForm()
+    return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
+           
 
 @staff_member_required
 def import_variables(request):

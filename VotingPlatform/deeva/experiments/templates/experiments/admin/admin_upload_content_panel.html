@@ -1,0 +1,9 @@
+{% load staticfiles %}
+<link href="{% static "css/font-awesome.css" %}" rel="stylesheet">
+{% if generation.id %}
+	<a class="" href="{% url 'experiments_admin:upload_content' generation.id %}" role="button">
+	  <span class="fa fa-file-image-o"></span><span class="fa fa-long-arrow-up"></span> Upload content files
+	</a>
+{% else %}
+	You need to save the genration before you can upload content files.
+{% endif %}

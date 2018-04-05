@@ -63,14 +63,14 @@ class GenerationAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'nickname')
 
     #page
-    readonly_fields = ('id', 'created', 'individuals', 'import_individuals', 'export_individuals')
+    readonly_fields = ('id', 'created', 'individuals', 'import_individuals', 'export_individuals', 'upload_content')
 
     fieldsets = (
         ('General Information', {
             'fields': ('id', 'nickname', 'experiment', 'created')
         }),
         ('Individuals', {
-            'fields': ('import_individuals', 'export_individuals'),
+            'fields': ('import_individuals', 'export_individuals', 'upload_content',),
         }),
     )
 
@@ -87,6 +87,13 @@ class GenerationAdmin(admin.ModelAdmin):
         return template.render(context)
 
     export_individuals.short_description = "Export"
+
+    def upload_content(self, obj):
+        template = loader.get_template('experiments/admin/admin_upload_content_panel.html')
+        context = {'generation': obj}
+        return template.render(context)
+
+    upload_content.short_description = "Content"
 
     
 

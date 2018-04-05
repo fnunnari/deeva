@@ -38,6 +38,10 @@ class Experiment(models.Model):
     def __str__(self):
         return "{}".format(self.name)
 
+    #content names as a python list
+    def content_list(self):
+        return [x.strip() for x in self.content_names.split(',')]
+
 
 
 
@@ -203,6 +207,10 @@ class Individual(models.Model):
         return "Individual {0}".format(self.id)
 
 
+    class Meta:
+        ordering = ['id']
+
+
 #Connecting model between an individual and a variable with the value the variable has for the individual
 class IndividualVariableValue(models.Model):
     individual = models.ForeignKey('Individual', on_delete=models.CASCADE)
@@ -275,7 +283,7 @@ class Variable(models.Model):
     VARIABLE_TYPE_CHOICES = ((NMDISC, "numerical-discrete"), (NMCONT, "numerical-continous"), (CATEGORY, "categorical"),
                              (ORDINAL, "ordinal"),)
 
-    name = models.CharField(max_length = 128, unique=True)
+    name = models.CharField(max_length=128, unique=True)
     variable_type = models.CharField(max_length=2, choices=VARIABLE_TYPE_CHOICES, default=NMDISC,
                                      help_text="Select the type of the variable.")
 

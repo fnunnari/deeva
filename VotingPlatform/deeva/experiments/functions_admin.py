@@ -5,6 +5,42 @@ from tempfile import NamedTemporaryFile
 import shutil
 import csv
 
+def check_content_filename(filename, generation):
+    """Checks if the uploaded content file is valid for this generation and experiment (i.e. if the id and the content name match)
+    filename -- just the filename of the uploaded file
+    generation -- generation the file corresponds to
+    """
+
+    print("filename", filename)
+
+    number, text = filename.split("-", maxsplit=1)
+
+    try:
+        number = int(number)
+    except ValueError as e:
+        message = "(FA01) The string before the first hyphen (-) could not be interpreted as id. Error message was: {}".format(str(e))
+        return False, message
+
+    print(1.5, number)    
+    print(2, generation.individuals.filter(id=number))
+
+    if not generation.individuals.filter(id=number):
+        message = "(FA02)The given id is not attributed to an individual in this generation."
+        return False, message
+
+    if not text in generation.experiment.content_list():
+        message = "(FA03)The text after the hyphen doesn't match any of the defined content names of this experiment."
+        return False, message
+
+    return True, None #filename is valid, no error message
+
+
+
+
+
+
+
+
 def handle_import_individuals_file(filename, generation_id):
     """Read the uploaded file and create or update the individuals accordingly
     filename -- complete filename of the uploaded file

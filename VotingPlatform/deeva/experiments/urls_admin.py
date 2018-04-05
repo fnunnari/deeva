@@ -18,6 +18,11 @@ urlpatterns = [
     url(r'^experiments/generation/(?P<generation_id>[0-9]+)/export_individuals_data$',
         views_admin.download_individuals_data, name='export_individuals_data'),  
 
+    url(r'^experiments/generation/(?P<generation_id>[0-9]+)/upload_content/json$',
+        views_admin.upload_content, {'json': True}, name='upload_content_json'),
+    url(r'^experiments/generation/(?P<generation_id>[0-9]+)/upload_content$',
+        views_admin.upload_content, name='upload_content'),   
+
     url(r'^experiments/variable/import_variables$',
         views_admin.import_variables, name='import_variables'),   
 ]
