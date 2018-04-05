@@ -64,3 +64,33 @@ Remember to crete a new package list when adding required packages by running `p
 
 This is needed if you want to create new experiments.
 With your browser, go to: `http://localhost:8000/admin`
+
+# Development extras
+
+## Generate UML graphs
+
+How to create Entity-Relation Diagrams (ERD) from existing Django models.
+Taken from: https://stackoverflow.com/questions/6776592/django-model-graphic-representation-erd
+
+Install the django extensions:
+```
+pip install django-extensions
+```
+
+and graphviz:
+```
+pip install pygraphviz
+```
+
+Update the configuration `deeva/settings.py`:
+```
+INSTALLED_APPS = (
+    ...
+    'django_extensions',
+)
+```
+
+Now run:
+```
+python manage.py graph_models experiments questions news | dot -Tpdf > ../Docs/VotingPlatform-ERD.pdf
+```
