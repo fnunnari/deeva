@@ -56,7 +56,7 @@ This step requires using the CharacterGeneration project.
   - Select the freshly crated individuals file.
   - Select an output directory
   - Click `Convert individuals` to MBLAB/JSON dir.
-  - This will filla directory with JSON files, one for each individual.
+  - This will fill a directory with JSON files, one for each individual.
 
 ## Create the pictures of the Individuals
 
@@ -100,4 +100,4 @@ A Voting page:
 * in Rating mode, only one individual is shown and the voter must select a value for each independent variable of the experiment using a scale.
 * in Paired comparison mode, two individuals are shown next to the other and the voter must express a preference for one of the two.
 
-If the anonymous mode is checked, users can vote without logging in the django platform.
+If the anonymous mode is checked, users can vote without logging in the Django platform.

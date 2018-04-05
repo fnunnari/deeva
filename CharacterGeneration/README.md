@@ -11,7 +11,7 @@ The generator is based of the [ManuelBastioniLAB](http://www.manuelbastioni.com/
 
 ## MBLab
 
-Dowload and install the ManuelBastioniLab add-on.
+Download and install the ManuelBastioniLab add-on.
 
 ## PIP and Python packages
 
