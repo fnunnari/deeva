@@ -188,11 +188,14 @@ def upload_content(request, generation_id, json=False):
 
             if result:
                 #save it to hard disk
-                uploadfile_fullname = os.path.join(upload_path, uploadfile.name)
+                new_filename = uploadfile.name.lstrip("0") #remove prefix 0
+
+                uploadfile_fullname = os.path.join(upload_path, new_filename)
+                print(uploadfile_fullname)
                 with open(uploadfile_fullname, 'wb+') as destination:
                     for chunk in uploadfile.chunks():
                         destination.write(chunk)
-                text = "The file '{}' was successfully uploaded and stored.".format(uploadfile.name)
+                text = "The file '{}' was successfully uploaded and stored.".format(new_filename)
                 if json:
                     message = {'type' : 'success', 'text' : text}
                 else:    
