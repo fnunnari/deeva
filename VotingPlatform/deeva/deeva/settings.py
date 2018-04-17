@@ -163,3 +163,7 @@ BROKER_URL = 'django://'
 MEDIA_ROOT = os.path.expanduser('~/deeva_storage/deeva3')
 MEDIA_URL = '/storage/'
 
+#folders
+MEDIA_CONTENT_FILES = 'ind_content'
+MEDIA_INDIVIDUALS_VARIABLES = 'ind_vars' 
+

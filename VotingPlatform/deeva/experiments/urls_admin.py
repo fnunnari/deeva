@@ -22,6 +22,8 @@ urlpatterns = [
         views_admin.upload_content, {'json': True}, name='upload_content_json'),
     url(r'^experiments/generation/(?P<generation_id>[0-9]+)/upload_content$',
         views_admin.upload_content, name='upload_content'),   
+    url(r'^experiments/generation/(?P<generation_id>[0-9]+)/check_content_availability$',
+        views_admin.check_content_availability, name='check_content_availability'),
 
     url(r'^experiments/variable/import_variables$',
         views_admin.import_variables, name='import_variables'),   

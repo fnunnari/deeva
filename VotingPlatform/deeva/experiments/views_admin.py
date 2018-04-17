@@ -106,7 +106,7 @@ def upload_individuals(request, generation_id):
                 import os
 
                 #find uplaod folder, create if it not exists
-                upload_path = os.path.join(MEDIA_ROOT, 'uploads')
+                upload_path = os.path.join(MEDIA_ROOT, MEDIA_INDIVIDUALS_VARIABLES)
                 if not os.path.exists(upload_path):
                     os.makedirs(upload_path)
 
@@ -176,7 +176,7 @@ def upload_content(request, generation_id, json=False):
             import os
 
             #find images folder, create if it not exists
-            upload_path = os.path.join(MEDIA_ROOT, 'individual_images')
+            upload_path = os.path.join(MEDIA_ROOT, MEDIA_CONTENT_FILES)
             if not os.path.exists(upload_path):
                 os.makedirs(upload_path)
 
@@ -248,7 +248,7 @@ def upload_individuals(request, generation_id):
             import os
 
             #find uplaod folder, create if it not exists
-            upload_path = os.path.join(MEDIA_ROOT, 'uploads')
+            upload_path = os.path.join(MEDIA_ROOT, MEDIA_INDIVIDUALS_VARIABLES)
             if not os.path.exists(upload_path):
                 os.makedirs(upload_path)
 
@@ -306,7 +306,7 @@ def import_variables(request):
                 import os
 
                 #find uplaod folder, create if it not exists
-                upload_path = os.path.join(MEDIA_ROOT, 'uploads')
+                upload_path = os.path.join(MEDIA_ROOT, MEDIA_INDIVIDUALS_VARIABLES)
                 if not os.path.exists(upload_path):
                     os.makedirs(upload_path)
 
@@ -333,3 +333,21 @@ def import_variables(request):
     else: #GET, display form
         form = UploadForm()
     return render(request, 'experiments/admin/admin_import_variables.html', {'form':form})
+
+
+
+@staff_member_required
+def check_content_availability(request, generation_id):
+    """checks if the individuals in this generation have all their content files and updates the corresponding boolean"""
+
+    g = get_object_or_404(Generation, pk=generation_id)
+
+    result, message = check_content_availability_generation(g)
+
+    if result:
+        messages.success(request, message)
+    else:
+        messages.warning(request, message)
+
+    #redirect user to admin site
+    return redirect('admin:experiments_generation_change', generation_id)
