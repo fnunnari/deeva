@@ -2,7 +2,10 @@
 <link href="{% static "css/font-awesome.css" %}" rel="stylesheet">
 {% if generation.id %}
 	<a class="" href="{% url 'experiments_admin:upload_content' generation.id %}" role="button">
-	  <span class="fa fa-file-image-o"></span><span class="fa fa-long-arrow-up"></span> Upload content files
+		<span class="fa fa-file-image-o"></span><span class="fa fa-long-arrow-up"></span> Upload content files
+	</a><br>
+	<a class="" href="{% url 'experiments_admin:check_content_availability' generation.id %}" role="button">
+		<span class="fa fa-search"></span> Scan filesystem &amp; Update database
 	</a>
 {% else %}
 	You need to save the genration before you can upload content files.

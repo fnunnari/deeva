@@ -1,9 +1,12 @@
 from .models import *
 from django.shortcuts import get_object_or_404
 
+from deeva.settings import *
+
 from tempfile import NamedTemporaryFile
 import shutil
 import csv
+import os
 
 def check_content_filename(filename, generation):
     """Checks if the uploaded content file is valid for this generation and experiment (i.e. if the id and the content name match)
@@ -13,7 +16,11 @@ def check_content_filename(filename, generation):
 
     print("filename", filename)
 
-    number, text = filename.split("-", maxsplit=1)
+    try:
+        number, text = filename.split("-", maxsplit=1)
+    except ValueError as e:
+        message = "(FA04) The string could not be split into id and category name. Is there a hyphen (-) missing? Error message was: {}".format(str(e))
+        return False, message
 
     try:
         number = int(number)
@@ -35,9 +42,64 @@ def check_content_filename(filename, generation):
     return True, None #filename is valid, no error message
 
 
+def check_content_availability_generation(generation):
+    """Checks if the individuals in this generation have all content files available.
+    generation -- generation to check
+    """
+    c_ready = 0 #count individuals with all files
+    c_missing = 0 #c. i. w. missing files
 
+    c_gain = 0 #c. i. that now have all files
+    c_lost = 0 #c. i. that somehow lost files
 
+    for i in generation.individuals.all():
+        ready, change = check_content_availability_individual(generation, i)
+        print("ind", i.id, ready, change)
+        if ready:
+            c_ready += 1
+        else:
+            c_missing += 1
+        if change > 0:
+            c_gain += 1
+        elif change < 0:
+            c_lost += 1
 
+    all_ready = (c_missing == 0)
+
+    message = "{} individuals have all their content files, {} are missing at least some, {} got their content files during this check, and {} somehow lost content files.".format(c_ready, c_missing, c_gain, c_lost)
+
+    return all_ready, message
+
+def check_content_availability_individual(generation, individual):
+    """Checks if the individual has all content files in the specified generation available.
+    generation -- generation, individual is in, to check
+    individual -- individual to check
+    """
+    all_available = True #variable to store if individual has all files
+
+    upload_path = os.path.join(MEDIA_ROOT, MEDIA_CONTENT_FILES)
+
+    before = individual.has_content_files
+
+    for name in generation.experiment.content_list():
+        filepath = os.path.join(upload_path, str(individual.id) + "-" + name)
+        if not os.path.isfile(filepath):
+            all_available = False
+
+    after = all_available
+
+    individual.has_content_files = after
+    individual.save()
+
+    #detect if a change happended in which direction
+    if before == after:
+        change = 0
+    elif after == True:
+        change = 1
+    else:
+        change = -1
+
+    return after, change 
 
 
 

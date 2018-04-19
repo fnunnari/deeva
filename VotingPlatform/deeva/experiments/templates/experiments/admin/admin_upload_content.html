@@ -29,11 +29,10 @@
 
   <p>The content file names need to have the following format: 
 
-  {% for i in generation.individuals.all  %}
+  {% for i in generation.individuals.all %}
     {% if forloop.first or forloop.last %}
       {% for n in generation.experiment.content_list %}
         <i>{{i.id}}-{{n}}</i>,
-        
       {% endfor %}
     {% endif %}
     
@@ -100,8 +99,8 @@
 </a>
 
 
-<a href="{% url 'admin:experiments_generation_change' generation.id %}" class="btn btn-primary" role="button" aria-pressed="true">
-  <i class="fa fa-chevron-right"></i> Update database (TODO!) &amp; go to the Generation's Page
+<a href="{% url 'experiments_admin:check_content_availability' generation.id %}" class="btn btn-primary" role="button" aria-pressed="true">
+  <i class="fa fa-chevron-right"></i> Update database &amp; go to the Generation's Page
 </a>
 
 </div>
