@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap3',
     #'djcelery', 
-    #'kombu.transport.django', 
+    #'kombu.transport.django',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
