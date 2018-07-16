@@ -140,9 +140,7 @@ class LoadScripts(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        cursor = scene.cursor_location
-        obj = scene.objects.active
-        
+
         import glob
         
         # clear current list
@@ -163,8 +161,13 @@ class LoadScripts(bpy.types.Operator):
 
     
 class ChangeCamera(bpy.types.Operator):
+    """Position the samera and set its rendering paramentes.
+    The position can be the head of the full body of the character"""
+
     bl_idname = "mbastauto.change_camera"
     bl_label = "Change Camera"
+
+    # Set this at either "head" or "body"
     view = bpy.props.StringProperty()
  
     def execute(self, context):
@@ -180,7 +183,7 @@ class ChangeCamera(bpy.types.Operator):
             head_middle = (bone_head_end + bone_neck_start)/2
             head_length = (bone_head_end - bone_neck_start).length
             
-            t = head_middle - Vector([0, 1, 0])  # Moves the camera aaway from the body
+            t = head_middle - Vector([0, 1, 0])  # Moves the camera away from the body
             r = [90, 0, 0]  # the camera must point horizontally
             o = head_length * HEAD_CAMERA_ORTHO_SCALE
             if scene.check_head_scale:
@@ -268,8 +271,6 @@ class CreateAllRender(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        cursor = scene.cursor_location
-        obj = scene.objects.active
 
         if not context.scene.check_head_render and not context.scene.check_body_render:
             raise Exception("No picture type selected!")
@@ -292,18 +293,8 @@ class CreateAllRender(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class LoadFaceMask(bpy.types.Operator):
-    """Append into this scene the 'FaceMask' object from another scene"""
-    bl_idname = "mbastauto.load_face_mask_object"
-    bl_label = "Load Face Mask Object"
-    bl_options = {'REGISTER'}
-
-    def execute(self, context):
-        bpy.ops.wm.append(directory="HeadMask.blend/Object/", filename="MBlab_Male_HeadMask")
-
-        return {'FINISHED'}
-
-
+#
+# MASKING
 BLACK_DULL_MATERIAL_PREFIX = "BlackDull"
 
 
@@ -371,15 +362,13 @@ class ApplyFaceMaskMaterial(bpy.types.Operator):
 
 
 class ReplaceLights(bpy.types.Operator):
-    """Replace current lights with optimal lights"""
+    """Replace all the lights in the scene with optimal lights for face/body rendering."""
     bl_idname = "mbastauto.replace_lights"
     bl_label = "Replace Lights"
     bl_options = {'REGISTER'}
 
     def execute(self, context):
         scene = context.scene
-        # cursor = scene.cursor_location
-        # obj = scene.objects.active
 
         #
         # Remove all lamps in current scene
@@ -428,7 +417,7 @@ class ReplaceLights(bpy.types.Operator):
         # Create new lamp datablock
         lamp_data = bpy.data.lamps.new(name="Lamp Front", type='HEMI')
 
-        # Create new object with our lamp datablock
+        # Create new object with our lamp data block
         lamp_object = bpy.data.objects.new(name="Lamp Front", object_data=lamp_data)
 
         # Link lamp object to the scene so it'll appear in this scene
@@ -436,7 +425,7 @@ class ReplaceLights(bpy.types.Operator):
 
         # Place lamp to a specified location
         lamp_object.location = (0.72, -1.6, 0.86)
-        lamp_data.energy=15
+        lamp_data.energy = 15
         
         r = [108, 66, 38]
         r = [value * (math.pi/180.0) for value in r]
@@ -463,7 +452,6 @@ def register():
     bpy.utils.register_class(ChangeCamera)
     bpy.utils.register_class(CreateOneRender)
     bpy.utils.register_class(CreateAllRender)
-    bpy.utils.register_class(LoadFaceMask)
     bpy.utils.register_class(ApplyFaceMaskMaterial)
     bpy.utils.register_class(ReplaceLights)
     
@@ -515,7 +503,6 @@ def unregister():
     bpy.utils.unregister_class(ChangeCamera)
     bpy.utils.unregister_class(CreateOneRender)
     bpy.utils.unregister_class(CreateAllRender)
-    bpy.utils.unregister_class(LoadFaceMask)
     bpy.utils.unregister_class(ApplyFaceMaskMaterial)
     bpy.utils.unregister_class(ReplaceLights)
     del bpy.types.Scene.conf_path
