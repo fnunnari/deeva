@@ -94,11 +94,6 @@ class AutomationPanel(bpy.types.Panel):
         row = box.row()
         row.alignment = 'EXPAND'
         row.label(text="Face Mask")
-        row.prop(context.scene, "check_use_face_mask")
-        #op = row.operator("wm.append")
-        #op.directory = "//HeadMask.blend/Objects/"
-        #op.filename = "MBlab_Male_HeadMask"
-        #row.operator(LoadFaceMask.bl_idname)
         row.operator(ApplyFaceMaskMaterial.bl_idname)
 
         row = box.row()
@@ -139,18 +134,18 @@ class LoadScripts(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        scene = context.scene
 
         import glob
         
         # clear current list
         del context.scene.character_file_list_items[:]
         
-        # print(" path" , context.scene.conf_path)
-        os.chdir(abspath(context.scene.conf_path))
-        
-        # fill list with filenames
-        for file in glob.glob("*.json"):
+        files = glob.glob(abspath(context.scene.conf_path) + os.path.sep + "*.json")
+        # print("List of files: " + str(files))
+
+        # fill list with file names
+        for file in files:
+            dirname, file = os.path.split(file)
             # print(file)
             # print("enum m", context.scene.character_file_list_items)
             context.scene.character_file_list_items.append((file, file, file))
@@ -487,8 +482,6 @@ def register():
     bpy.types.Scene.check_head_render = bpy.props.BoolProperty(name="head")
     bpy.types.Scene.check_body_render = bpy.props.BoolProperty(name="body")
 
-    bpy.types.Scene.check_use_face_mask = bpy.props.BoolProperty(name="Face Mask", default=False)
-
     bpy.types.Scene.output_path = bpy.props.StringProperty(
           name="Images Path",
           default="",
@@ -512,8 +505,7 @@ def unregister():
     del bpy.types.Scene.float_head_scale
     del bpy.types.Scene.check_head_render
     del bpy.types.Scene.check_body_render
-    del bpy.types.Scene.check_use_face_mask
-    del bpy.types.Scene.output_path 
+    del bpy.types.Scene.output_path
 
 
 #
