@@ -94,6 +94,7 @@ class AutomationPanel(bpy.types.Panel):
         row = box.row()
         row.alignment = 'EXPAND'
         row.label(text="Face Mask")
+        row.prop(context.scene, "check_black_background")
         row.operator(ApplyFaceMaskMaterial.bl_idname)
 
         row = box.row()
@@ -238,9 +239,15 @@ class CreateOneRender(bpy.types.Operator):
         name = script_name.replace(".json", "")
         
         # set background transparent
-        bpy.context.scene.cycles.film_transparent = True
-        bpy.context.scene.render.alpha_mode = 'TRANSPARENT'
-        
+        if context.scene.check_black_background:
+            bpy.context.scene.cycles.film_transparent = False
+            bpy.context.scene.world.horizon_color = 0, 0, 0
+        else:
+            bpy.context.scene.cycles.film_transparent = True
+            bpy.context.scene.world.horizon_color = 0.050876, 0.050876, 0.050876
+
+            bpy.context.scene.render.alpha_mode = 'TRANSPARENT'
+
         if context.scene.check_head_render:
             bpy.ops.mbastauto.change_camera(view="head")
             bpy.data.scenes['Scene'].render.filepath = os.path.join(context.scene.output_path,
@@ -484,6 +491,8 @@ def register():
     bpy.types.Scene.check_head_render = bpy.props.BoolProperty(name="head")
     bpy.types.Scene.check_body_render = bpy.props.BoolProperty(name="body")
 
+    bpy.types.Scene.check_black_background = bpy.props.BoolProperty(name="Black Background")
+
     bpy.types.Scene.output_path = bpy.props.StringProperty(
           name="Images Path",
           default="",
@@ -507,6 +516,7 @@ def unregister():
     del bpy.types.Scene.float_head_scale
     del bpy.types.Scene.check_head_render
     del bpy.types.Scene.check_body_render
+    del bpy.types.Scene.check_black_background
     del bpy.types.Scene.output_path
 
 
