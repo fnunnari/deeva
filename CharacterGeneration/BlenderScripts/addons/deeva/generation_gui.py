@@ -19,10 +19,10 @@ import bpy
 from bpy_extras.io_utils import ExportHelper
 from bpy.path import abspath
 
-from generation import create_random_individuals
-from generation import AttributesTable
-from generation import IndividualsTable
-from generation import create_mblab_chars_dir
+from deeva.generation import create_random_individuals
+from deeva.generation import AttributesTable
+from deeva.generation import IndividualsTable
+from deeva.generation import create_mblab_chars_dir
 
 
 bl_info = {

@@ -312,12 +312,14 @@ class ApplyFaceMaskMaterial(bpy.types.Operator):
     def execute(self, context):
         import json
 
+        from deeva import DEEVA_DATA_DIR
+
         mesh_obj = context.active_object  # type: bpy.types.Object
         mesh = mesh_obj.data  # type: bpy.types.Mesh
 
         #
         # Load vertices list
-        with open("face_mask_vertices.json", "r") as vertex_list_file:
+        with open(os.path.join(DEEVA_DATA_DIR, "face_mask_vertices.json"), "r") as vertex_list_file:
             vertices = json.load(vertex_list_file)
 
         print("Loaded {} vertices".format(len(vertices)))
