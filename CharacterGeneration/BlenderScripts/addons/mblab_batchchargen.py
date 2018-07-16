@@ -90,7 +90,17 @@ class AutomationPanel(bpy.types.Panel):
         row.label(text="Camera Ortho Scale")
         row.prop(context.scene, "check_head_scale")
         row.prop(context.scene, "float_head_scale")
-        
+
+        row = box.row()
+        row.alignment = 'EXPAND'
+        row.label(text="Face Mask")
+        row.prop(context.scene, "check_use_face_mask")
+        #op = row.operator("wm.append")
+        #op.directory = "//HeadMask.blend/Objects/"
+        #op.filename = "MBlab_Male_HeadMask"
+        #row.operator(LoadFaceMask.bl_idname)
+        row.operator(ApplyFaceMaskMaterial.bl_idname)
+
         row = box.row()
         row.alignment = 'EXPAND'
         row.label(text="Lights")
@@ -282,24 +292,82 @@ class CreateAllRender(bpy.types.Operator):
         return {'FINISHED'}
 
 
-"""
-#camera settings
-bpy.context.scene.render.resolution_x = 500
-bpy.context.scene.render.resolution_y = 500
-bpy.context.scene.render.resolution_percentage = 100
+class LoadFaceMask(bpy.types.Operator):
+    """Append into this scene the 'FaceMask' object from another scene"""
+    bl_idname = "mbastauto.load_face_mask_object"
+    bl_label = "Load Face Mask Object"
+    bl_options = {'REGISTER'}
 
-#set background transparent
-bpy.context.scene.cycles.film_transparent = True
-bpy.context.scene.render.alpha_mode = 'TRANSPARENT'
+    def execute(self, context):
+        bpy.ops.wm.append(directory="HeadMask.blend/Object/", filename="MBlab_Male_HeadMask")
 
-#set render preset?
-bpy.ops.script.execute_preset(filepath="C:\\Program Files\\Blender Foundation\\Blender\\2.78\\scripts\\presets\\cycles/sampling\\final.py", menu_idname="CYCLES_MT_sampling_presets")
+        return {'FINISHED'}
 
-#save image
-home/t_image.png'
-bpy.ops.render.render( write_still=True ) 
 
-"""
+BLACK_DULL_MATERIAL_PREFIX = "BlackDull"
+
+
+class ApplyFaceMaskMaterial(bpy.types.Operator):
+    """Create a new Dull Black material (if needed) and apply it to all the polygons
+    covering the face. The list of polygons is taken from the list of vertices saved in a json file."""
+    bl_idname = "mbastauto.apply_face_mask_material"
+    bl_label = "Apply Face Mask Material"
+    bl_options = {'REGISTER'}
+
+    @classmethod
+    def poll(cls, context):
+        ao = context.active_object
+        if ao is not None:
+            if ao.type == 'MESH':
+                return True
+
+        return False
+
+    def execute(self, context):
+        import json
+
+        mesh_obj = context.active_object  # type: bpy.types.Object
+        mesh = mesh_obj.data  # type: bpy.types.Mesh
+
+        #
+        # Load vertices list
+        with open("face_mask_vertices.json", "r") as vertex_list_file:
+            vertices = json.load(vertex_list_file)
+
+        print("Loaded {} vertices".format(len(vertices)))
+
+        #
+        # Create a black dull material, if not already existing
+        black_dull_material = None
+        for m in bpy.data.materials:
+            if m.name.startswith(BLACK_DULL_MATERIAL_PREFIX):
+                black_dull_material = m
+                break
+
+        if black_dull_material is None:
+            black_dull_material = bpy.data.materials.new(BLACK_DULL_MATERIAL_PREFIX)
+            black_dull_material.use_shadeless = True
+            black_dull_material.diffuse_color = 0, 0, 0
+            print("Generated Material '{}'".format(m.name))
+            mesh.materials.append(black_dull_material)
+
+        black_dull_material_index = mesh_obj.material_slots.find(BLACK_DULL_MATERIAL_PREFIX)
+        assert black_dull_material != -1
+
+        #
+        # For each polygon, check if all vertices belong to the vertex list
+        for p in mesh.polygons:  # type: bpy.types.MeshPolygon
+            polygon_is_mask = True  # optimistic approach
+            for v in p.vertices:
+                if v not in vertices:
+                    polygon_is_mask = False
+                    break
+
+            # If so, apply the dull material
+            if polygon_is_mask:
+                p.material_index = black_dull_material_index
+
+        return {'FINISHED'}
 
 
 class ReplaceLights(bpy.types.Operator):
@@ -324,10 +392,12 @@ class ReplaceLights(bpy.types.Operator):
         
         # Create new lamp datablock
         bpy.ops.object.lamp_add(type='SUN')
-        sun = bpy.data.lamps["Sun"]
+        sun = bpy.data.lamps["Sun"]  # type: bpy.types.Lamp
         sun.shadow_soft_size = 5
-        sun.node_tree.nodes["Emission"].inputs[1].default_value = 15.0
+        sun.node_tree.nodes["Emission"].inputs[1].default_value = 5.0
         # sun.location = (-1.96, 1.59, 1.39)
+        sun_object = bpy.data.objects['Sun']  # type: bpy.types.Object
+        sun_object.rotation_euler = math.radians(30), 0, math.radians(-45)
         
         """
         lamp_data = bpy.data.lamps.new(name="Lamp Back", type='SUN')
@@ -393,6 +463,8 @@ def register():
     bpy.utils.register_class(ChangeCamera)
     bpy.utils.register_class(CreateOneRender)
     bpy.utils.register_class(CreateAllRender)
+    bpy.utils.register_class(LoadFaceMask)
+    bpy.utils.register_class(ApplyFaceMaskMaterial)
     bpy.utils.register_class(ReplaceLights)
     
     #
@@ -417,7 +489,7 @@ def register():
     
     bpy.types.Scene.character_file_list = bpy.props.EnumProperty(
             items=fill_items,
-            name="character",
+            name="Character",
             update=change_preview,
         )
         
@@ -426,6 +498,8 @@ def register():
                                                                default=HEAD_CAMERA_ORTHO_DEFAULT)
     bpy.types.Scene.check_head_render = bpy.props.BoolProperty(name="head")
     bpy.types.Scene.check_body_render = bpy.props.BoolProperty(name="body")
+
+    bpy.types.Scene.check_use_face_mask = bpy.props.BoolProperty(name="Face Mask", default=False)
 
     bpy.types.Scene.output_path = bpy.props.StringProperty(
           name="Images Path",
@@ -441,15 +515,18 @@ def unregister():
     bpy.utils.unregister_class(ChangeCamera)
     bpy.utils.unregister_class(CreateOneRender)
     bpy.utils.unregister_class(CreateAllRender)
+    bpy.utils.unregister_class(LoadFaceMask)
+    bpy.utils.unregister_class(ApplyFaceMaskMaterial)
     bpy.utils.unregister_class(ReplaceLights)
     del bpy.types.Scene.conf_path
     del bpy.types.Scene.character_file_list 
     del bpy.types.Scene.character_file_list_items
-    del bpy.types.Scene.check_head_render 
-    del bpy.types.Scene.check_body_render 
-    del bpy.types.Scene.output_path 
     del bpy.types.Scene.check_head_scale
     del bpy.types.Scene.float_head_scale
+    del bpy.types.Scene.check_head_render
+    del bpy.types.Scene.check_body_render
+    del bpy.types.Scene.check_use_face_mask
+    del bpy.types.Scene.output_path 
 
 
 #
