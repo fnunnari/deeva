@@ -171,6 +171,7 @@ class ChangeCamera(bpy.types.Operator):
 
         if self.view == 'head':
             # get correct skeleton
+            # TODO -- take skeleton from selection, not from name.
             skeleton = next(v for k, v in bpy.data.armatures.items() if k.find('skeleton'))
     
             # calculate head position and size
