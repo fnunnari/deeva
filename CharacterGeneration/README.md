@@ -27,7 +27,7 @@ cd path/to/BlenderScenes
 
 Setup the required python packages using the list provided in the `Docs/` directory
 ```
-../BlenderExe/blender.app/Contents/Resources/2.79/python/bin/pip install -r ../Docs/python_packages.txt
+../BlenderExe/blender.app/Contents/Resources/2.79/python/bin/pip install -r python_packages.txt
 ```
 
 ## Enable add-ons
