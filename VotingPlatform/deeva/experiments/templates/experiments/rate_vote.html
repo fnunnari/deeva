@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block content %}
+	
+	<h1>Please vote on the following individual.</h1>
+
+	
+	ID: {{individual.id}}
+
+	<!-- individual content -->
+	<div class="row">
+		
+		{% for content_name in wizard.generation.experiment.content_list %}
+		<div class="col-sm-6 col-md-6 text-center">
+			<img class="img-responsive img-vote" src="{% url 'experiments:send_individual_content' individual.id content_name %}">
+		</div>
+		{% endfor %}
+	</div>
+
+	<!-- fake form for the user -->
+	<div class="text-center">
+		<form id="fake-form" class="">
+			
+			{% for vg in dependent_variables_table %}
+			<table class="table table-striped text-center">
+				
+				<thead>
+				<tr>
+					<th></th>
+					{% for label in vg.header %}
+					<th>{{label}}</th>
+					{% endfor %}
+					<th></th>
+				</tr>
+				</thead>
+				<tbody>
+					{% for vr in vg.vrs %}
+					<tr>
+						<td>{{vr.variable.left}}</td>
+						{% for label in vg.header %}
+						<td><input type="radio" data-variable-id="{{vr.variable.id}}" data-label="{{label}}" id='{{vr.variable.id}}-{{label}}' name="var{{vr.variable.id}}"></td>
+						{% endfor %}
+						<td>{{vr.variable.right}}</td>
+
+					</tr>
+					{% endfor %}
+				</tbody>
+				
+			</table>
+			{% endfor %}
+
+		</form>
+
+		<button id="fake-send-btn" type="button" class="btn btn-primary">
+			<span class="fa fa-chevron-right"></span> Save & Continue
+		</button>
+		<button id="fake-send-btn" type="button" class="btn btn-warning disabled">
+			<span class="fa fa-pulse fa-spinner"></span> Saving...
+		</button>
+		<button id="fake-send-btn" type="button" class="btn btn-success disabled">
+			<span class="fa fa-check"></span> Saved! Loading next page...
+		</button>
+	</div>
+
+
+
+
+
+
+
+
+
+
+
+
+		
+	<!-- real form to submit -->
+	<div class="d-none">
+		<form action="" method="post" autocomplete="off" id="real-form">
+		    {% csrf_token %}
+		    {{ formset.as_p }}
+		    <input type="submit" value="Submit" />
+		</form>
+	</div>
+	
+
+         
+{% endblock %}
+
+
+
+{% block scripts %}
+	<script>
+		$("#fake-form")[0].reset(); //reset fake form on page load
+
+		$("#fake-form").change(function() {
+			//get total number of variables to fill and iterate through them
+			var total_forms = $('input[name=form-TOTAL_FORMS]').val();
+
+			for (i = 0; i < total_forms; i++) {
+
+				//get variable id for current form
+				vid = $('#id_form-'+i+'-variable').val();
+
+				//get selected label from the fake form
+				var label = $('input[name=var'+vid+']:checked', '#fake-form').data('label');
+				
+				//paste value in real form
+				$('#id_form-'+i+'-text_value').val(label);
+			} ;
+
+		});
+
+
+	</script>
+{% endblock %}	
+
+

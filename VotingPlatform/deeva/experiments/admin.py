@@ -4,7 +4,7 @@ from django.forms import widgets
 
 
 from .models import Experiment, Generation, Individual, VotingWizard, VariableSet, Variable, VariableRange,\
-    PromotedWizard, IndividualVariableValue
+    PromotedWizard, IndividualVariableValue, CompareVote, RateVote
 
 
 @admin.register(Experiment)
@@ -189,3 +189,5 @@ class IndividualVariableValueAdmin(admin.ModelAdmin):
 
 
 admin.site.register(PromotedWizard)
+admin.site.register(CompareVote)
+admin.site.register(RateVote)

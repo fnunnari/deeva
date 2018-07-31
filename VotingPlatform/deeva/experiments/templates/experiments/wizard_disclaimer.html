@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block content %}
+	{% load staticfiles %}
+
+	{% block titletext %}
+		<h3>Disclaimer</h3>
+	{% endblock %}
+
+	{% block text %}
+		<p>[Legal terms]</p>
+		<p>Please check the checkbox and click on the button to continiue.</p>
+	{% endblock %}
+
+
+	{% block input %}
+		<p><input type="checkbox" name="TOS" value="Accept" onClick="EnableButton(this)"> I have read and agree to the terms.</p>
+		
+		<a id="next_button" class="btn btn-primary disabled" href="{% url 'experiments:wizard_example' wizard.id %}">
+			<span class="fa fa-chevron-right"></span> Confirm &amp; Continiue
+		</a>
+	{% endblock %}
+
+
+
+{% endblock %}
+
+
+{% block scripts %}
+	<script>
+	EnableButton = function(checkbox) {
+	    var next_button = $("#next_button");
+	    if (checkbox.checked == true) {
+	        next_button.removeClass("disabled");
+	    } else {
+	        next_button.addClass("disabled");
+	    }
+	}  
+
+	</script>
+{% endblock %}

@@ -7,7 +7,23 @@ app_name = 'experiments'
 urlpatterns = [
     url(r'^experiments/all', views.allExperiments, name='allExperiments'),
     url(r'^experiments/(?P<wizard_id>[0-9]+)$', views.oneExperiment, name='oneExperiment'),
+
     url(r'^vote/(?P<wizard_id>[0-9]+)$', views.vote, name='vote'),
+    
+    url(r'^wiz/(?P<wizard_id>[0-9]+)/comp_vote$', views.comp_vote, name='comp_vote'),
+    url(r'^wiz/(?P<wizard_id>[0-9]+)/rate_vote$', views.rate_vote, name='rate_vote'),
+
+
+	#url(r'wiz/(?P<wizard_id>\w+)/end', views.wizard_end, name='wizard_end'),
+	#url(r'wiz/(?P<wizard_id>\w+)/infos', views.wizard_personalinfos, name='wizard_personalinfos'),
+	#url(r'wiz/(?P<wizard_id>\w+)/vote', views.wizard_vote, name='wizard_vote'),
+	url(r'wiz/(?P<wizard_id>\w+)/example', views.wizard_example, name='wizard_example'),
+	url(r'wiz/(?P<wizard_id>\w+)/disclaimer', views.wizard_disclaimer,
+	name='wizard_disclaimer'),
+	url(r'wiz/(?P<wizard_id>\w+)/welcome', views.wizard_welcome, name='wizard_welcome'),
+	url(r'wiz/(?P<wizard_id>\w+)', views.wizard_start, name='wizard_start'),
+    
+    url(r'^individuals/content/(?P<individual_id>[0-9]+)/(?P<content_name>[\w.]+)$', views.send_individual_content, name='send_individual_content'),
 
     url(r'^$', views.index, name='index'),
 ]

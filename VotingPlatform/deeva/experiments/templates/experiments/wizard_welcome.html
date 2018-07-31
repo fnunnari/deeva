@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block content %}
+	{% load staticfiles %}
+
+	{% block titletext %}
+		<h3>Welcome</h3>
+	{% endblock %}
+
+	{% block noscript_warning %}
+		<noscript>
+			<div class="card bg-danger text-white">
+    			<div class="card-body">Your browser does not support Java script or you have disabled it in your browser settings. The following sites do not work without Java script. Please enable Java script or use a different browser with Java script capability to continue.</div>
+  			</div>
+		</noscript>
+	{% endblock %}
+	
+	{% block text %}
+		<p>Click on the button to continue.</p>
+	{% endblock %}
+
+	{% block input %}
+		<p>
+		<noscript>
+			<a id="nojsbtn" class="btn btn-primary disabled" href="{% url 'experiments:wizard_disclaimer' wizard.id %}">
+				<span class="fa fa-chevron-right"></span> <st>Continue</st> (please enable Java script and reload the page)
+			</a>
+		</noscript>
+		<a id="withjsbtn" class="btn btn-primary d-none" href="{% url 'experiments:wizard_disclaimer' wizard.id %}">
+			<span class="fa fa-chevron-right"></span> Continue
+		</a>
+		
+		</p>
+
+	{% endblock %}
+
+
+	{% block scripts %}
+		<script>
+			$(document).ready(function () {
+			    var next_button = $("#withjsbtn");
+			    next_button.removeClass("d-none");
+			});
+		    
+
+		</script>
+	{% endblock %}
+
+{% endblock %}

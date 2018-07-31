@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block content %}
+	{% load staticfiles %}
+
+
+	{% block titletext %}
+		<h3>Example</h3>
+	{% endblock %}
+
+	{% block introduction %}
+		<p>Please read the following text carefully. It will tell you what you need to do in the experiment on the following pages.</p>
+	{% endblock %}
+
+	{% if mode == "rate" %}
+		{% block rate_example %}
+			<p>Please do ... [rate example]</p>
+		{% endblock %}
+
+	{% elif mode == "comp" %}
+		{% block comp_example %}
+			<p>Please do ... [comp example]</p>
+		{% endblock %}
+
+	{% else %}
+		{% block nomode_example %}
+			<p>There was an error loading the example. This may be caused by the experiment being disabled. If you not see a red error message on top of the page try reloading.</p>
+		{% endblock %}	
+
+	{% endif %}
+
+	{% block input %}
+		<a class="btn btn-primary" href="{% url 'experiments:rate_vote' wizard.id %}">
+			<span class="fa fa-chevron-right"></span> Continiue
+		</a>
+	{% endblock %}
+
+  
+{% endblock %}

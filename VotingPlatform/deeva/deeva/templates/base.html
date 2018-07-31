@@ -28,10 +28,10 @@
 	<body>
 		<!-- Top Navigation Bar -->
 		{% block navbar %}
-			<nav class="navbar navbar-inverse navbar-static-top">
+			<!--nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
 				<div class="container">
 					<div class="navbar-header">
-						<!-- Following lines create the 'hamburger' menu button fro small screens -->
+						
 						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
 							<span class="sr-only">Toggle navigation</span>
 							<span class="icon-bar"></span>
@@ -40,20 +40,59 @@
 						</button>
 						<a class="navbar-brand" href="#">Deeva<small> a Depot of Evolving Avatars</small></a>
 					</div>
-					<div id="navbar" class="navbar-collapse collapse">
-						<ul class="nav navbar-nav navbar-right">
-							<li><a href="{% url 'experiments:index' %}">Home</a></li>
-							<li><a href="#about">About</a></li>
-							<li><a href="{% url 'experiments:allExperiments' %}">Experiments</a></li>
-							<li><a href="#contact">Documentation</a></li>
+					<div id="navbar" class="navbar-collapse collapse ml-auto">
+						<ul class="nav navbar-nav navbar-right ml-auto">
+							<li class="nav-item"><a class="nav-link" href="{% url 'experiments:index' %}">Home</a></li>
+							<li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+							<li class="nav-item"><a class="nav-link" href="{% url 'experiments:allExperiments' %}">Experiments</a></li>
+							<li class="nav-item"><a class="nav-link" href="#contact">Documentation</a></li>
 						</ul>
-					</div><!--/.nav-collapse -->
+					</div>
 				</div>
-			</nav>
+			</nav-->
+
+
+
+
+		<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+			<div class="container">
+				<a class="navbar-brand" href="#">Deeva<small> a Depot of Evolving Avatars</small></a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav ml-auto">
+						<li class="nav-item active">
+							<a class="nav-link" href="{% url 'experiments:index' %}">
+								Home
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'experiments:allExperiments' %}">
+								Experiments
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#">
+								About
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#">
+								Documentation
+							</a>
+						</li>
+						
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
 		{% endblock %}
 
 		<!-- Main Content -->
-		<div class="container">
+		<div class="container mt-3">
 		{% block messageblock %}		  
 			  {% bootstrap_messages %}
 		{% endblock %}
