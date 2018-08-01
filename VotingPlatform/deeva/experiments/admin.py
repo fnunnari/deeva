@@ -74,6 +74,8 @@ class GenerationAdmin(admin.ModelAdmin):
         }),
     )
 
+    # TODO -- insert generation function
+
     def import_individuals(self, obj):
         template = loader.get_template('experiments/admin/admin_upload_individuals_panel.html')
         context = {'generation': obj}

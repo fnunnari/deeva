@@ -92,69 +92,70 @@ def download_individuals_data(request, generation_id):
     return response
 
 
+# @staff_member_required
+# def upload_individuals(request, generation_id):
+#     """Provide and handle a form to upload new or updated individuals"""
+#     generation = get_object_or_404(Generation, pk=generation_id)
+#
+#     if request.method == 'POST':
+#             #handle form
+#             form = UploadForm(request.POST, request.FILES)
+#
+#             if form.is_valid():
+#                 import os
+#
+#                 #find uplaod folder, create if it not exists
+#                 upload_path = os.path.join(MEDIA_ROOT, MEDIA_INDIVIDUALS_VARIABLES)
+#                 if not os.path.exists(upload_path):
+#                     os.makedirs(upload_path)
+#
+#                 #get uploaded file
+#                 uploadfile = request.FILES['file']
+#
+#                 #save it to hard disk
+#                 uploadfile_fullname = os.path.join(upload_path, uploadfile.name)
+#                 with open(uploadfile_fullname, 'wb+') as destination:
+#                     for chunk in uploadfile.chunks():
+#                         destination.write(chunk)
+#
+#                 #handle uploaded file
+#                 try:
+#                     valid = check_import_file_header(uploadfile_fullname, generation)
+#                     if not valid: #header was not correct
+#                         messages.error(request, "(ERROR VA06) The header of the uploaded did not contain all variables needed for this experiment configuration. Please compare the header with the example table below.")
+#                         return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
+#
+#                 except Exception as e:
+#                     messages.error(request, "(ERROR VA05) There was an error handling the uploaded file concerning the header. Error message was:\n\r {}".format(str(e)))
+#                     return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
+#
+#                 try:
+#                     results = handle_import_individuals_file(uploadfile_fullname, generation.id)
+#                 except Exception as e:
+#                     messages.error(request, "(ERROR VA04) There was an error handling the uploaded files content. Error message was:\n\r {}".format(str(e)))
+#                     return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
+#
+#                 ##OLDredirect user to progress bar
+#                 ##return redirect('experiments_admin:upload_individuals_status', generation_id=generation.id, task_id=111)
+#
+#                 #show results page
+#                 return render(request, 'experiments/admin/admin_upload_individuals_finished.html', {'generation':generation, 'results':results})
+#
+#
+#             else:
+#                 #form filled out incorrect (file missing), redisplay
+#                 return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
+#
+#     else: #GET, display form
+#         form = UploadForm()
+#     return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
 
-@staff_member_required
-def upload_individuals(request, generation_id):
-    """Provide and handle a form to upload new or updated individuals"""
-    generation = get_object_or_404(Generation, pk=generation_id) 
-
-    if request.method == 'POST':
-            #handle form
-            form = UploadForm(request.POST, request.FILES)
-
-            if form.is_valid():
-                import os
-
-                #find uplaod folder, create if it not exists
-                upload_path = os.path.join(MEDIA_ROOT, MEDIA_INDIVIDUALS_VARIABLES)
-                if not os.path.exists(upload_path):
-                    os.makedirs(upload_path)
-
-                #get uploaded file
-                uploadfile = request.FILES['file']
-
-                #save it to hard disk
-                uploadfile_fullname = os.path.join(upload_path, uploadfile.name)
-                with open(uploadfile_fullname, 'wb+') as destination:
-                    for chunk in uploadfile.chunks():
-                        destination.write(chunk)
-
-                #handle uploaded file
-                try:
-                    valid = check_import_file_header(uploadfile_fullname, generation)
-                    if not valid: #header was not correct
-                        messages.error(request, "(ERROR VA06) The header of the uploaded did not contain all variables needed for this experiment configuration. Please compare the header with the example table below.")
-                        return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
-
-                except Exception as e:
-                    messages.error(request, "(ERROR VA05) There was an error handling the uploaded file concerning the header. Error message was:\n\r {}".format(str(e)))
-                    return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
-
-                try:
-                    results = handle_import_individuals_file(uploadfile_fullname, generation.id)
-                except Exception as e:
-                    messages.error(request, "(ERROR VA04) There was an error handling the uploaded files content. Error message was:\n\r {}".format(str(e)))
-                    return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
-
-                ##OLDredirect user to progress bar
-                ##return redirect('experiments_admin:upload_individuals_status', generation_id=generation.id, task_id=111)
-
-                #show results page
-                return render(request, 'experiments/admin/admin_upload_individuals_finished.html', {'generation':generation, 'results':results})
-                
-
-            else:
-                #form filled out incorrect (file missing), redisplay
-                return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
-
-    else: #GET, display form
-        form = UploadForm()
-    return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
 
 @staff_member_required
 def upload_individuals_status(request, generation_id, task_id):
     generation = get_object_or_404(Generation, pk=generation_id) 
     return render(request, 'experiments/admin/admin_upload_individuals_status.html', {'generation':generation, 'task_id':task_id})
+
 
 @staff_member_required
 def upload_individuals_status_progress(request, generation_id, task_id):
@@ -232,7 +233,74 @@ def upload_content(request, generation_id, json=False):
         return render(request, template, context)
 
 
+# TODO -- re-implement
+@staff_member_required
+def generate_individuals(request, generation_id):
+    """Provide and handle a form to upload new or updated individuals"""
+    generation = get_object_or_404(Generation, pk=generation_id)
 
+    if request.method == 'POST':
+        # handle form
+        form = UploadForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            import os
+
+            # find uplaod folder, create if it not exists
+            upload_path = os.path.join(MEDIA_ROOT, MEDIA_INDIVIDUALS_VARIABLES)
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
+
+            # get uploaded file
+            uploadfile = request.FILES['file']
+
+            # save it to hard disk
+            uploadfile_fullname = os.path.join(upload_path, uploadfile.name)
+            with open(uploadfile_fullname, 'wb+') as destination:
+                for chunk in uploadfile.chunks():
+                    destination.write(chunk)
+
+            # handle uploaded file
+            try:
+                valid = check_import_file_header(uploadfile_fullname, generation)
+                if not valid:  # header was not correct
+                    messages.error(request,
+                                   "(ERROR VA03) The header of the uploaded did not contain all variables needed for this experiment configuration. Please compare the header with the example table below.")
+                    return render(request, 'experiments/admin/admin_upload_individuals.html',
+                                  {'form': form, 'generation': generation})
+
+            except Exception as e:
+                messages.error(request,
+                               "(ERROR VA02) There was an error handling the uploaded file concerning the header. Error message was:\n\r {}".format(
+                                   str(e)))
+                return render(request, 'experiments/admin/admin_upload_individuals.html',
+                              {'form': form, 'generation': generation})
+
+            try:
+                results = handle_import_individuals_file(uploadfile_fullname, generation.id)
+            except Exception as e:
+                messages.error(request,
+                               "(ERROR VA01) There was an error handling the uploaded files content. Error message was:\n\r {}".format(
+                                   str(e)))
+                return render(request, 'experiments/admin/admin_upload_individuals.html',
+                              {'form': form, 'generation': generation})
+
+            ##OLDredirect user to progress bar
+            ##return redirect('experiments_admin:upload_individuals_status', generation_id=generation.id, task_id=111)
+
+            # show results page
+            return render(request, 'experiments/admin/admin_upload_individuals_finished.html',
+                          {'generation': generation, 'results': results})
+
+
+        else:
+            # form filled out incorrect (file missing), redisplay
+            return render(request, 'experiments/admin/admin_upload_individuals.html',
+                          {'form': form, 'generation': generation})
+
+    else:  # GET, display form
+        form = UploadForm()
+    return render(request, 'experiments/admin/admin_upload_individuals.html', {'form': form, 'generation': generation})
 
 
 @staff_member_required

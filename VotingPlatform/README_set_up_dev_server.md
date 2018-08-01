@@ -15,13 +15,26 @@ It is strongly recommended to work in a virtual environment while developing for
 
 ## Install required packages
 
-Install the packages required to run the voting platform by running `pip install -r requirements.txt`
+Install the packages required to run the voting platform by running:
+```
+pip install -r requirements.txt
+```
 
-Currently running Ubuntu the `mysqlclient` package is not working correctly, you addiotnally need to install it via the systems package manager: `sudo apt-get install python3-dev libmysqlclient-dev`
+Remember to crete a new package list when adding required packages by running:
+```
+pip freeze > requirements.txt` and pushing the file to the repository.
+```
+
+Currently running Ubuntu the `mysqlclient` package is not working correctly, you additionally need to install it via the systems package manager:
+```
+sudo apt-get install python3-dev libmysqlclient-dev
+```
 
 ## Set up the database server
 
-The website needs a database and database access in order to work correctely. Currently it is setup to work with *MySQL*. The connection data the system uses can be found in `deeva/deeva/setting.py` in the variable `DATABASES`.
+The website needs a database and database access in order to work correctly.
+Currently it is setup to work with *MySQL*.
+The connection data the system uses can be found in `deeva/deeva/setting.py` in the variable `DATABASES`.
 
 In order to set up the database with the current code proceed as follows:
 
@@ -34,16 +47,16 @@ In order to set up the database with the current code proceed as follows:
 
 ## Create tables on the server
 
-Django will alter table on the MySQL server by issuing the `migrate` and `makemigrations` command. On the first run it will create them:
-
-In the project folder `deeva`, where the `manage.py` file is located, run in order:
+Django will alter table on the MySQL server by issuing the `migrate` and `makemigrations` command.
+On the first run it will create them.
+In the project folder `deeva`, where the `manage.py` file is located, run, in order:
   * `python manage.py makemigrations`
   * `python manage.py migrate`
 
 Also, every time you alter the DJango tables, you must re-issue the `makemigrations`.
 Finally, every time you pull from git and someone else altered the tables, you must re-issue `migrate`
 
-## Ceate a django-root user
+## Create a django-root user
 
 ```
 $ python manage.py createsuperuser
@@ -53,11 +66,18 @@ Password:
 Password (again):
 ```
 
-## Run the developmnent server
+## Run the development server
 
-Finally to run the development server run `python manage.py runserver` and it will create a locally accessible server on port 8000. You can specify that it accessible from other computers or change the port like so: `pyhton manage.py runserver 0.0.0.0:8000`.
+Finally to run the development server run:
+```
+python manage.py runserver
+```
+and it will create a locally accessible server on port 8000.
+You can specify that it accessible from other computers or change the port like so:
+```
+pyhton manage.py runserver 0.0.0.0:8000
+```
 
-Remember to crete a new package list when adding required packages by running `pip freeze > requirements.txt` and pushing the file to the repository.
 
 
 ## Login as administrator
