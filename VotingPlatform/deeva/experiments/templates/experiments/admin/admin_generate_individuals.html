@@ -1,0 +1,58 @@
+{% extends 'base.html'  %}
+{% load staticfiles %}
+
+
+{% block content %}
+
+{# Load the tag library for django-bootstrap3 #}
+{% load bootstrap3 %}
+
+{# Load Bootstrap CSS #}
+{% bootstrap_css %}
+
+<link href="{% static "css/font-awesome.css" %}" rel="stylesheet">
+
+<h1>Generate new individuals</h1>
+
+<p>Generate new individuals for this generation.</p>
+
+<dl class="dl-horizontal">
+	<dt>Experiment</dt>
+	<dd><a href="{% url 'admin:experiments_experiment_change' generation.experiment.id %}">{{generation.experiment.name}}</a></dd>
+	<dt>Generation</dt>
+	<dd><a href="{% url 'admin:experiments_generation_change' generation.id %}">{{generation.nickname}}</a></dd>
+</dl>
+
+<h2>Variables Info</h2>
+
+Random numbers will be generated for the following variables:
+<ol>
+{% for variablerange in generation.experiment.independent_variables.variablerange_set.all %}
+    <li>{{ variablerange.variable.name }} [{{variablerange.min_value}},{{variablerange.max_value}}]</li>
+{% endfor %}
+</ol>
+
+<h2>Generate Individuals</h2>
+
+<p>Please, provide the number of individuals you want to add to this generation.</p>
+
+<form enctype="multipart/form-data" action="" method="post" class="form">
+  {% csrf_token %}
+  {% bootstrap_form_errors form %}
+  {% bootstrap_form form %}
+   TODO -- finish implementation
+    <ul>
+      <li>Number of individuals. TODO --  Insert a text field here!
+      <li>Number of divisions in the randomization. TODO --  Insert a text field here!
+    </ul>
+  {% buttons %}
+    <button type="submit" class="btn btn-primary">
+      <span class="fa fa-file-excel-o"></span><span class="fa fa-long-arrow-up"></span> Generate
+    </button>
+  {% endbuttons %}
+</form>
+
+
+
+
+{% endblock %}

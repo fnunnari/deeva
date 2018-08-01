@@ -63,18 +63,23 @@ class GenerationAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'nickname')
 
     #page
-    readonly_fields = ('id', 'created', 'individuals', 'import_individuals', 'export_individuals', 'upload_content')
+    readonly_fields = ('id', 'created', 'individuals', 'generate_individuals', 'import_individuals', 'export_individuals', 'upload_content')
 
     fieldsets = (
         ('General Information', {
             'fields': ('id', 'nickname', 'experiment', 'created')
         }),
         ('Individuals', {
-            'fields': ('import_individuals', 'export_individuals', 'upload_content',),
+            'fields': ('generate_individuals', 'import_individuals', 'export_individuals', 'upload_content',),
         }),
     )
 
-    # TODO -- insert generation function
+    def generate_individuals(self, obj):
+        template = loader.get_template('experiments/admin/admin_generate_individuals_panel.html')
+        context = {'generation': obj}
+        return template.render(context)
+
+    generate_individuals.short_description = "Generate"
 
     def import_individuals(self, obj):
         template = loader.get_template('experiments/admin/admin_upload_individuals_panel.html')
@@ -97,15 +102,12 @@ class GenerationAdmin(admin.ModelAdmin):
 
     upload_content.short_description = "Content"
 
-    
-
     def get_readonly_fields(self, request, obj=None):
         if obj: # editing an existing object
             return self.readonly_fields + ('experiment',)
         return self.readonly_fields
 
     
-
 class IndividualVariableValueInline(admin.TabularInline):
     model = IndividualVariableValue
     extra = 0

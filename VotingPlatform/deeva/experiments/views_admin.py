@@ -7,10 +7,11 @@ from .functions_admin import *
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from .forms_admin import UploadForm
+from .forms_admin import IndividualsGenerationForm
 from deeva.settings import *
 
 
-
+#
 # Create your views here.
 
 @staff_member_required
@@ -90,65 +91,6 @@ def download_individuals_data(request, generation_id):
 
     #send cvs
     return response
-
-
-# @staff_member_required
-# def upload_individuals(request, generation_id):
-#     """Provide and handle a form to upload new or updated individuals"""
-#     generation = get_object_or_404(Generation, pk=generation_id)
-#
-#     if request.method == 'POST':
-#             #handle form
-#             form = UploadForm(request.POST, request.FILES)
-#
-#             if form.is_valid():
-#                 import os
-#
-#                 #find uplaod folder, create if it not exists
-#                 upload_path = os.path.join(MEDIA_ROOT, MEDIA_INDIVIDUALS_VARIABLES)
-#                 if not os.path.exists(upload_path):
-#                     os.makedirs(upload_path)
-#
-#                 #get uploaded file
-#                 uploadfile = request.FILES['file']
-#
-#                 #save it to hard disk
-#                 uploadfile_fullname = os.path.join(upload_path, uploadfile.name)
-#                 with open(uploadfile_fullname, 'wb+') as destination:
-#                     for chunk in uploadfile.chunks():
-#                         destination.write(chunk)
-#
-#                 #handle uploaded file
-#                 try:
-#                     valid = check_import_file_header(uploadfile_fullname, generation)
-#                     if not valid: #header was not correct
-#                         messages.error(request, "(ERROR VA06) The header of the uploaded did not contain all variables needed for this experiment configuration. Please compare the header with the example table below.")
-#                         return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
-#
-#                 except Exception as e:
-#                     messages.error(request, "(ERROR VA05) There was an error handling the uploaded file concerning the header. Error message was:\n\r {}".format(str(e)))
-#                     return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
-#
-#                 try:
-#                     results = handle_import_individuals_file(uploadfile_fullname, generation.id)
-#                 except Exception as e:
-#                     messages.error(request, "(ERROR VA04) There was an error handling the uploaded files content. Error message was:\n\r {}".format(str(e)))
-#                     return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
-#
-#                 ##OLDredirect user to progress bar
-#                 ##return redirect('experiments_admin:upload_individuals_status', generation_id=generation.id, task_id=111)
-#
-#                 #show results page
-#                 return render(request, 'experiments/admin/admin_upload_individuals_finished.html', {'generation':generation, 'results':results})
-#
-#
-#             else:
-#                 #form filled out incorrect (file missing), redisplay
-#                 return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
-#
-#     else: #GET, display form
-#         form = UploadForm()
-#     return render(request, 'experiments/admin/admin_upload_individuals.html', {'form':form, 'generation':generation})
 
 
 @staff_member_required
@@ -233,74 +175,36 @@ def upload_content(request, generation_id, json=False):
         return render(request, template, context)
 
 
-# TODO -- re-implement
 @staff_member_required
 def generate_individuals(request, generation_id):
-    """Provide and handle a form to upload new or updated individuals"""
+    """Provide and handle a form to generate new individuals"""
     generation = get_object_or_404(Generation, pk=generation_id)
 
     if request.method == 'POST':
         # handle form
-        form = UploadForm(request.POST, request.FILES)
+        form = IndividualsGenerationForm(request.POST)
 
         if form.is_valid():
             import os
 
-            # find uplaod folder, create if it not exists
-            upload_path = os.path.join(MEDIA_ROOT, MEDIA_INDIVIDUALS_VARIABLES)
-            if not os.path.exists(upload_path):
-                os.makedirs(upload_path)
+            num_individuals = request.POST['num_individuals']
+            num_randomization_segments = request.POST['num_randomization_segments']
 
-            # get uploaded file
-            uploadfile = request.FILES['file']
+            handle_generate_individuals(num_individuals=num_individuals,
+                                        random_segments=num_randomization_segments,
+                                        generation=generation)
 
-            # save it to hard disk
-            uploadfile_fullname = os.path.join(upload_path, uploadfile.name)
-            with open(uploadfile_fullname, 'wb+') as destination:
-                for chunk in uploadfile.chunks():
-                    destination.write(chunk)
-
-            # handle uploaded file
-            try:
-                valid = check_import_file_header(uploadfile_fullname, generation)
-                if not valid:  # header was not correct
-                    messages.error(request,
-                                   "(ERROR VA03) The header of the uploaded did not contain all variables needed for this experiment configuration. Please compare the header with the example table below.")
-                    return render(request, 'experiments/admin/admin_upload_individuals.html',
-                                  {'form': form, 'generation': generation})
-
-            except Exception as e:
-                messages.error(request,
-                               "(ERROR VA02) There was an error handling the uploaded file concerning the header. Error message was:\n\r {}".format(
-                                   str(e)))
-                return render(request, 'experiments/admin/admin_upload_individuals.html',
-                              {'form': form, 'generation': generation})
-
-            try:
-                results = handle_import_individuals_file(uploadfile_fullname, generation.id)
-            except Exception as e:
-                messages.error(request,
-                               "(ERROR VA01) There was an error handling the uploaded files content. Error message was:\n\r {}".format(
-                                   str(e)))
-                return render(request, 'experiments/admin/admin_upload_individuals.html',
-                              {'form': form, 'generation': generation})
-
-            ##OLDredirect user to progress bar
-            ##return redirect('experiments_admin:upload_individuals_status', generation_id=generation.id, task_id=111)
-
-            # show results page
-            return render(request, 'experiments/admin/admin_upload_individuals_finished.html',
-                          {'generation': generation, 'results': results})
-
+            # Redirect user to form page
+            return redirect('experiments_admin:generate_individuals', generation_id=generation.id)
 
         else:
-            # form filled out incorrect (file missing), redisplay
-            return render(request, 'experiments/admin/admin_upload_individuals.html',
+            # form filled out incorrect, redisplay
+            return render(request, 'experiments/admin/admin_generate_individuals.html',
                           {'form': form, 'generation': generation})
 
     else:  # GET, display form
-        form = UploadForm()
-    return render(request, 'experiments/admin/admin_upload_individuals.html', {'form': form, 'generation': generation})
+        form = IndividualsGenerationForm()
+    return render(request, 'experiments/admin/admin_generate_individuals.html', {'form': form, 'generation': generation})
 
 
 @staff_member_required

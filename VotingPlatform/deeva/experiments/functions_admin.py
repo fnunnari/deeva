@@ -8,6 +8,9 @@ import shutil
 import csv
 import os
 
+from typing import List
+
+
 def check_content_filename(filename, generation):
     """Checks if the uploaded content file is valid for this generation and experiment (i.e. if the id and the content name match)
     filename -- just the filename of the uploaded file
@@ -70,6 +73,7 @@ def check_content_availability_generation(generation):
 
     return all_ready, message
 
+
 def check_content_availability_individual(generation, individual):
     """Checks if the individual has all content files in the specified generation available.
     generation -- generation, individual is in, to check
@@ -101,6 +105,41 @@ def check_content_availability_individual(generation, individual):
 
     return after, change 
 
+
+# TODO -- finish this
+def handle_generate_individuals(num_individuals: int, random_segments: int, generation) -> List[str]:
+    from random import random
+
+    messages = []
+
+    # generation = Generation.objects.get(pk=generation_id)
+
+    variable_ranges = generation.experiment.independent_variables.variablerange_set.all
+
+    # Retrieve list of variables for this experiment
+    # Retrieve ranges
+
+    for i in range(num_individuals):
+
+        # Create the individual
+
+        for var_range in variable_ranges:  # type: VariableRange
+             low = var_range.min_value
+             hi = var_range.max_value
+             var = var_range.variable  # type: Variable
+
+             segment = random.randint(0, random_segments - 1)
+             k = segment / (random_segments - 1)
+
+             attr_val = low + (hi - low) * k
+
+        #     entry.append(str(attr_val))
+        #
+        # entry_line = ",".join(entry)
+        # outfile.write(entry_line)
+        # outfile.write("\n")
+
+    return messages
 
 
 def handle_import_individuals_file(filename, generation_id):
