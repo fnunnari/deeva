@@ -168,3 +168,5 @@ MEDIA_URL = '/storage/'
 MEDIA_CONTENT_FILES = 'ind_content'
 MEDIA_INDIVIDUALS_VARIABLES = 'ind_vars' 
 
+#django-sendfile to send files
+SENDFILE_BACKEND = 'sendfile.backends.simple'

@@ -189,7 +189,7 @@ def upload_content(request, generation_id, json=False):
 
             if result:
                 #save it to hard disk
-                new_filename = uploadfile.name.lstrip("0") #remove prefix 0
+                new_filename = uploadfile.name.lstrip("0") #remove prefix zeroes
 
                 uploadfile_fullname = os.path.join(upload_path, new_filename)
                 print(uploadfile_fullname)

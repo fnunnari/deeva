@@ -31,7 +31,6 @@ class Experiment(models.Model):
     dependent_variables = models.ForeignKey('VariableSet', related_name='experiment_dependant_variables', on_delete=models.PROTECT,
         help_text=mark_safe('The dependent variables represent the output or outcome whose variation is being studied. <b>This setting cannot be changed after creating a generation!</b>'))
     
-    
     #definition of the content needed for this experiment
     content_names = models.TextField(help_text="Type the filenames (comma seperated) including the extension of the content files the system has to look for (e.g. 'name1.ext1,name2.ext2'). The system will append the provided names to the individual's id with a hyphen inbetween (e.g. 123-name1.ext1). <b>This setting cannot be changed after creating a generation!</b>")
 
@@ -54,9 +53,12 @@ class VotingWizard(models.Model):
     generation = models.ForeignKey('Generation', on_delete=models.PROTECT)
 
     #HTML replacement texts
-    welcome_html = models.TextField(null=True, blank=True)
-    disclaimer_html = models.TextField(null=True, blank=True)
-    example_html = models.TextField(null=True, blank=True)
+    welcome_html = models.TextField(null=True, blank=True, 
+        help_text='Use {% extends "experiments/wizard_welcome.html" %} and the following blocks: titletext, noscript_warning, text, input, scripts')
+    disclaimer_html = models.TextField(null=True, blank=True,
+        help_text='Use {% extends "experiments/wizard_disclaimer.html" %} and the following blocks: titletext, text, input, scripts')
+    example_html = models.TextField(null=True, blank=True,
+        help_text='Use {% extends "experiments/wizard_example.html" %} and the following blocks: titletext, introduction, rate_example, comp_example, nomode_example, input, scripts')
     personalinfos_html = models.TextField(null=True, blank=True)
     exit_html = models.TextField(null=True, blank=True)
 
@@ -269,6 +271,13 @@ class VariableRange(models.Model):
         from django.core.exceptions import ValidationError
         if (self.min_value and self.max_value) and (self.min_value > self.max_value):
             raise ValidationError("The minimum value must be equal or less than the maximum value.")
+        if len(self.labels_list()) > 0:
+            if not len(self.labels_list()) == len(set(self.labels_list())):
+                raise ValidationError("Having duplicates in labels/categories is not allowed.")
+
+    def save(self, *args, **kwargs):
+        self.labels = ", ".join(self.labels_list()) #get rid of whitespace for consistent look
+        super().save(*args, **kwargs) 
           
     def __str__(self):
         return "{vs} - {v}".format(vs=self.variable_set, v=self.variable)
