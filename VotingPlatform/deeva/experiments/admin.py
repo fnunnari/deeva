@@ -144,7 +144,7 @@ class VotingWizardAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'name')
 
     #page
-    readonly_fields = ('id',)
+    readonly_fields = ('id','export_rate_votes','wizard_links',)
 
     fieldsets = (
         ('General Information', {
@@ -156,7 +156,21 @@ class VotingWizardAdmin(admin.ModelAdmin):
         ('HTML override', {
             'fields': ('welcome_html', 'disclaimer_html', 'example_html', 'personalinfos_html', 'exit_html',),
         }),
+        ('Other', {
+            'fields': ('export_rate_votes','wizard_links',),
+        }),
+
     )
+
+    def export_rate_votes(self, obj):
+        template = loader.get_template('experiments/admin/admin_export_ratevotes_panel.html')
+        context = {'wizard': obj}
+        return template.render(context)
+
+    def wizard_links(self, obj):
+        template = loader.get_template('experiments/admin/admin_wizard_links_panel.html')
+        context = {'wizard': obj}
+        return template.render(context)
 
 class VariableRangeInline(admin.TabularInline):
     model = VariableRange
@@ -192,6 +206,15 @@ class IndividualVariableValueAdmin(admin.ModelAdmin):
 
 
 
-admin.site.register(PromotedWizard)
+
+@admin.register(RateVote)
+class RateVoteAdmin(admin.ModelAdmin):
+    #list
+    list_display = ('id', 'user', 'individual', 'variable', 'text_value', 'int_value', 'float_value', 'generation', 'wizard')
+    list_display_links = ('id',)
+
+    list_filter = ('wizard', 'generation',)
+
+
 admin.site.register(CompareVote)
-admin.site.register(RateVote)
+admin.site.register(PromotedWizard)

@@ -1,0 +1,13 @@
+{% load staticfiles %}
+<link href="{% static "css/font-awesome.css" %}" rel="stylesheet">
+{% if wizard.id %}
+	<a class="" href="{% url 'experiments:wizard_start' wizard.id %}" role="button">
+	  <span class="fa fa-link"></span></span> Normal start page
+	</a>
+	<br>
+	<a class="" href="{% url 'experiments:wizard_checkuser' wizard.id %}" role="button">
+	  <span class="fa fa-link"></span></span> Check user and browser page
+	</a>
+{% else %}
+	You need to save the wizard before you can see any links.
+{% endif %}
