@@ -26,11 +26,11 @@
 		<p>
 		<noscript>
 			<a id="nojsbtn" class="btn btn-primary disabled" href="{% url 'experiments:wizard_disclaimer' wizard.id %}">
-				<span class="fa fa-chevron-right"></span> <st>Continue</st> (please enable Java script and reload the page)
+				<span class="fa fa-chevron-right"></span> {% block fakebutton_text %}<st>Continue</st> (please enable Java script and reload the page){% endblock %}
 			</a>
 		</noscript>
 		<a id="withjsbtn" class="btn btn-primary d-none" href="{% url 'experiments:wizard_disclaimer' wizard.id %}">
-			<span class="fa fa-chevron-right"></span> Continue
+			<span class="fa fa-chevron-right"></span> {% block button_text %}Continue{% endblock %}
 		</a>
 		
 		</p>
