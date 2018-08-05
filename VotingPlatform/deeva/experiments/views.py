@@ -206,7 +206,8 @@ def vote(request, wizard_id):
 
     #check, if user has a valid session
     if hasattr(request, 'session') and not request.session.session_key:
-        messages.error(request, "(VE03) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.") 
+        messages.error(request, "(VE03) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.")
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
     
     session_id = request.session.session_key
 
@@ -215,7 +216,8 @@ def vote(request, wizard_id):
     if users:
         vote_user = users[0]
     else:
-        essages.error(request, "(VE04) This session didn't have a valid user account and therefore was redirected to this page.") 
+        messages.error(request, "(VE04) This session didn't have a valid user account and therefore was redirected to this page.") 
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
 
     mode = request.session.get('wizard_mode', 'error')
    
@@ -308,6 +310,7 @@ def rate_vote(request, wizard_id):
     #check, if user has a valid session
     if hasattr(request, 'session') and not request.session.session_key:
         messages.error(request, "(VE01) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.") 
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
     
     session_id = request.session.session_key
 
@@ -316,7 +319,8 @@ def rate_vote(request, wizard_id):
     if users:
         vote_user = users[0]
     else:
-        essages.error(request, "(VE02) This session didn't have a valid user account and therefore was redirected to this page.") 
+        messages.error(request, "(VE02) This session didn't have a valid user account and therefore was redirected to this page.") 
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
 
     #prefill form with information relevant for storing in database
     initial = []
