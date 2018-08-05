@@ -7,6 +7,7 @@ from django.forms import widgets
 
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.safestring import mark_safe
 
 
@@ -54,17 +55,19 @@ class VotingWizard(models.Model):
 
     #HTML replacement texts
     welcome_html = models.TextField(null=True, blank=True, 
-        help_text='Use {% extends "experiments/wizard_welcome.html" %} and the following blocks: titletext, noscript_warning, text, input, scripts')
+        help_text='Use {% extends "experiments/wizard_welcome.html" %} and the following blocks: titletext, noscript_warning, text, input, fakebutton_text (shown if js is disabled), button_text, scripts')
     disclaimer_html = models.TextField(null=True, blank=True,
-        help_text='Use {% extends "experiments/wizard_disclaimer.html" %} and the following blocks: titletext, text, input, scripts')
+        help_text='Use {% extends "experiments/wizard_disclaimer.html" %} and the following blocks: titletext, text, input, checkbox_text, button_text, scripts')
     example_html = models.TextField(null=True, blank=True,
-        help_text='Use {% extends "experiments/wizard_example.html" %} and the following blocks: titletext, introduction, rate_example, comp_example, nomode_example, input, scripts')
-    personalinfos_html = models.TextField(null=True, blank=True)
-    exit_html = models.TextField(null=True, blank=True)
+        help_text='Use {% extends "experiments/wizard_example.html" %} and the following blocks: titletext, introduction, rate_example, comp_example, nomode_example, input, button_text, scripts')
+    personalinfos_html = models.TextField(null=True, blank=True,
+        help_text='Use {% extends "experiments/wizard_personalinfos.html" %} and the following blocks: titletext, text, questions, input, button_text, scripts')
+    exit_html = models.TextField(null=True, blank=True,
+        help_text='Use {% extends "experiments/wizard_exit.html" %} and the following blocks: titletext, text, scripts')
 
     #Enable or disable differnet voting modes
     enable_rating_mode = models.BooleanField(default=False, help_text='Enable rating mode for this wizard.')
-    enable_compare_mode = models.BooleanField(default=False, help_text='Enable paired comparison mode for this wizard.')
+    enable_compare_mode = models.BooleanField(default=False, help_text='TODO Enable paired comparison mode for this wizard.')
     enable_anonymous_mode = models.BooleanField(default=False, help_text='Allow not registeres (anonymous) user to vote.')
 
     #number of required votes
@@ -149,6 +152,7 @@ class RateVote(models.Model):
     #other information
     date_time = models.DateTimeField(auto_now_add=True)
     generation = models.ForeignKey('Generation', on_delete=models.PROTECT)
+    wizard = models.ForeignKey('VotingWizard', on_delete=models.PROTECT)
 
 
     def clean(self):
@@ -174,7 +178,7 @@ class CompareVote(models.Model):
     
     date_time = models.DateTimeField(auto_now_add=True)
     generation = models.ForeignKey('Generation', on_delete=models.PROTECT)
-
+    wizard = models.ForeignKey('VotingWizard', on_delete=models.PROTECT)
 
 
 
@@ -310,26 +314,29 @@ class Variable(models.Model):
 #
 
 
-class UserProfile(models.Model):
-    """User Profile to save additional information about a user
-    """
+# class UserProfile(models.Model):
+#     """User Profile to save additional information about a user
+#     """
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    # last anonymous session id
-    session_id = models.CharField(max_length=40)
+#     # last anonymous session id
+#     session_id = models.CharField(max_length=40, unique=True)
     
-    # last time the system was used
-    # TODO update
-    last_access = models.DateTimeField(auto_now_add=True)
+#     # last time the system was used
+#     # TODO update
+#     last_access = models.DateTimeField(auto_now_add=True)
 
 
-# automatically create a profile if a new user is created
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
+# # automatically create a profile if a new user is created
+# @receiver(post_save, sender=User)
+# def create_user_profile(sender, instance, created, **kwargs):
+#     if created:
+#         UserProfile.objects.create(user=instance)
 
-post_save.connect(create_user_profile, sender=User)
+# @receiver(post_save, sender=User)
+# def save_user_profile(sender, instance, **kwargs):
+#     instance.userprofile.save()
 
 
 #
