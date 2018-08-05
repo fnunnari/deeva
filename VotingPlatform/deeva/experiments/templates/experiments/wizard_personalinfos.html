@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block content %}
+	{% load staticfiles %}
+
+	{% block titletext %}
+		<h3>Almost done...</h3>
+	{% endblock %}
+
+	
+	{% block text %}
+		<p>Please fill out the following questionaire.</p>
+	{% endblock %}
+
+	{% block questions %}
+		<p>TODO (form will be here)</p>
+	{% endblock %}
+
+	{% block input %}
+		<p>
+			<a class="btn btn-primary" href="{% url 'experiments:wizard_exit' wizard.id %}">
+				<span class="fa fa-chevron-right"></span> {% block button_text %}Save &amp; Continiue{% endblock %}
+			</a>
+		</p>
+
+	{% endblock %}
+
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block content %}
+	{% load staticfiles %}
+
+	{% block titletext %}
+		<h3>User Session / Browser Compatibility Test</h3>
+	{% endblock %}
+
+	{% block noscript_test %}
+		<p> 
+			<b>Javascript:</b>
+			<span id="textenabled" class="d-none">
+				<span class="fa fa-check"></span> enabled
+			</span>
+
+			<noscript>
+				<span class="fa fa-times"></span> disabled
+				<div class="card bg-danger text-white">
+	    			<div class="card-body">Your browser does not support Java script or you have disabled it in your browser settings. The following sites do not work without Java script. Please enable Java script or use a different browser with Java script capability to continue.</div>
+	  			</div>
+			</noscript>
+		</p>
+	{% endblock %}
+
+
+
+	{% block loggedin_test %}
+		<p> 
+			<b>User logged in:</b>
+			
+			{% if request.user.is_authenticated %}
+			<span class="fa fa-times"></span> yes
+			<div class="card bg-danger text-white">
+    			<div class="card-body">The current session belongs to a logged in user ({{user.username}}). Use a private browser window or delete cookies to generate a new session.</div>
+  			</div>
+  			{% else %}
+  			<span class="fa fa-check"></span> no
+  			{% endif %}
+  		</p>
+	{% endblock %}
+
+	{% if not request.user.is_authenticated %}
+	
+
+		{% block sessionid_test %}
+			<p> 
+				<b>session id newly created:</b>
+				
+				{% if session_id_created %}
+				<span class="fa fa-check"></span> yes
+	  			{% else %}
+	  			<span class="fa fa-question"></span> no (for some reason there was already a session)
+	  			<form action="" method="post">
+	  				{% csrf_token %}
+	  				<button type="submit" value="flush_button" name="flush_button" class="btn btn-sm btn-secondary">Reset session</button>
+	  				
+	  			</form>
+	  			{% endif %}
+	  		</p>
+		{% endblock %}
+
+		{% block user_test %}
+			<p> 
+				<b>session_id:</b>
+				
+				{{vote_user.username}}
+	  		</p>
+		{% endblock %}
+
+		{% block votes_count %}
+			<p> 
+				<b>existing votes (rate/comp):</b>
+
+				{% if rate_votes %}
+					{{rate_votes}} TODO continiue
+				{% else %}
+					<span class="fa fa-check"></span> no
+				{% endif %}/
+				{% if comp_votes %}
+					{{comp_votes}} TODO continiue
+				{% else %}
+					<span class="fa fa-check"></span> no
+				{% endif %}
+				
+	  		</p>
+		{% endblock %}
+
+		{% block input %}
+			<p>
+			<noscript>
+				<a id="nojsbtn" class="btn btn-primary disabled" href="{% url 'experiments:wizard_welcome' wizard.id %}">
+					<span class="fa fa-chevron-right"></span> <st>Continue</st> (please enable Java script and reload the page)
+				</a>
+			</noscript>
+			<a id="withjsbtn" class="btn btn-primary d-none" href="{% url 'experiments:wizard_welcome' wizard.id %}">
+				<span class="fa fa-chevron-right"></span> Continue
+			</a>
+			
+			</p>
+
+		{% endblock %}
+
+	{% else %}
+
+		<p>Log out to see more information!</p>
+
+	{% endif %}
+
+	{% block scripts %}
+		<script>
+			$(document).ready(function () {
+			    var next_button = $("#withjsbtn");
+			    next_button.removeClass("d-none");
+			    var text_enabled = $("#textenabled");
+			    text_enabled.removeClass("d-none");
+			});
+		    
+
+		</script>
+	{% endblock %}
+
+{% endblock %}
