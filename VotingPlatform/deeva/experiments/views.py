@@ -1,9 +1,11 @@
-from django.shortcuts import render, get_object_or_404, HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404, HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse
 from django.contrib import messages
 from django.forms import modelformset_factory
 from deeva.settings import *
 
 from .models import VotingWizard, CompareVote, RateVote
+from django.contrib.auth.models import User
 
 from sendfile import sendfile
 
@@ -36,6 +38,71 @@ def oneExperiment(request, wizard_id):
 
 def wizard_start(request, wizard_id):
     return wizard_welcome(request, wizard_id)
+
+
+def wizard_checkuser(request, wizard_id):
+    if request.method == 'POST':
+        print('a')
+        if request.POST.get("flush_button")=="flush_button":
+            print('b')
+            request.session.flush()
+            return HttpResponseRedirect("")
+
+    #check if wizard exists
+    try:
+        wizard = VotingWizard.objects.get(pk=wizard_id)
+    except VotingWizard.DoesNotExist:
+        messages.error(request, 'The requested experiment does not exist. You were redirected to the homepage.')
+        return redirect('experiments:index') 
+
+    #check that user is not logged in
+    if not request.user.is_authenticated:
+
+        #check, if the user has session_keys or create them
+        if hasattr(request, 'session') and not request.session.session_key:
+            session_id_created = True
+            request.session.save()
+            request.session.modified = True
+        else:
+            session_id_created = False
+
+        session_id = request.session.session_key
+        #check, if the user already exists in the db and create a new one if needed
+        users = User.objects.filter(username=session_id)
+        if users:
+            user = users[0]
+        else:
+            user = User.objects.create_user(username=session_id, password=None, email=None)
+            user.save()
+
+        #check number of votes for this wizard and generation
+        #check number of votes for this wizard and generation
+        dependent_variables = wizard.generation.experiment.dependent_variables.attributes.all().count()
+        rate_votes = RateVote.objects.filter(generation=wizard.generation, wizard=wizard, user=user).count()/dependent_variables
+        comp_votes = CompareVote.objects.filter(generation=wizard.generation, wizard=wizard, user=user).count()/dependent_variables
+
+
+
+    else:
+        session_id_created = None
+        user = request.user
+        rate_votes = 0
+        comp_votes = 0
+
+
+    template = 'experiments/wizard_checkuser.html'
+
+    context = {
+        'wizard':wizard,
+        'session_id_created': session_id_created,
+        'vote_user': user,
+        'rate_votes': rate_votes,
+        'comp_votes': comp_votes,
+
+    }
+
+    return render(request, template, context)
+    
 
 def wizard_welcome(request, wizard_id):
     from django.template import Context, Template, loader
@@ -135,7 +202,41 @@ def wizard_example(request, wizard_id):
     return HttpResponse(template.render(context))
 
 def vote(request, wizard_id):
-    return rate_vote(request, wizard_id)
+    wizard = get_object_or_404(VotingWizard, pk=wizard_id)
+
+    #check, if user has a valid session
+    if hasattr(request, 'session') and not request.session.session_key:
+        messages.error(request, "(VE03) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.")
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
+    
+    session_id = request.session.session_key
+
+    #check, if the user exists in the db
+    users = User.objects.filter(username=session_id)
+    if users:
+        vote_user = users[0]
+    else:
+        messages.error(request, "(VE04) This session didn't have a valid user account and therefore was redirected to this page.") 
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
+
+    mode = request.session.get('wizard_mode', 'error')
+   
+    if mode == 'rate':
+        #check number of votes for this wizard and generation
+        dependent_variables = wizard.generation.experiment.dependent_variables.attributes.all().count()
+        rate_votes = RateVote.objects.filter(generation=wizard.generation, wizard=wizard, user=vote_user).count()/dependent_variables
+
+        print('number', rate_votes)
+
+        if rate_votes >= wizard.number_of_votes:
+            return redirect('experiments:wizard_personalinfos', wizard_id=wizard.id)
+        else:
+            return redirect('experiments:rate_vote', wizard_id=wizard.id)
+
+    else:
+        pass
+
+    
 
 
 def comp_vote(request, wizard_id):
@@ -174,6 +275,7 @@ def comp_vote(request, wizard_id):
             for c_vote in c_votes:
                 c_vote.user = request.user
                 c_vote.generation = wizard.generation
+                c_vote.wizard = wizard
                 c_vote.save()
 
             return HttpResponse('supi') #TODO replace by json/http
@@ -205,6 +307,21 @@ def rate_vote(request, wizard_id):
 
     dependent_variables_ranges = wizard.generation.experiment.dependent_variables.variablerange_set.all()
 
+    #check, if user has a valid session
+    if hasattr(request, 'session') and not request.session.session_key:
+        messages.error(request, "(VE01) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.") 
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
+    
+    session_id = request.session.session_key
+
+    #check, if the user exists in the db
+    users = User.objects.filter(username=session_id)
+    if users:
+        vote_user = users[0]
+    else:
+        messages.error(request, "(VE02) This session didn't have a valid user account and therefore was redirected to this page.") 
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
+
     #prefill form with information relevant for storing in database
     initial = []
     for variable in dependent_variables:
@@ -231,13 +348,16 @@ def rate_vote(request, wizard_id):
             r_votes = formset.save(commit=False) #do not commit as we need to add to fields
 
             for r_vote in r_votes:
-                r_vote.user = request.user
+                r_vote.user = vote_user
                 r_vote.generation = wizard.generation
+                r_vote.wizard = wizard
                 r_vote.save()
 
-            return HttpResponse('supi') #TODO replace by json/http
+            return JsonResponse({'success': True})
         else:
-            messages.error(request, 'not valid') #TODO replace by json/http
+            return JsonResponse({'success': False})
+
+            
 
 
     #create datastructure with information about variable ranges and ids to build fake-form table
@@ -260,6 +380,11 @@ def rate_vote(request, wizard_id):
         last_labels = vr.labels_list()
     dependent_variables_table.append(current_group)
 
+    #get progress
+    dependent_variables = wizard.generation.experiment.dependent_variables.attributes.all().count()
+    rate_votes = RateVote.objects.filter(generation=wizard.generation, wizard=wizard, user=vote_user).count()/dependent_variables
+
+
 
     template = 'experiments/rate_vote.html'
 
@@ -270,13 +395,70 @@ def rate_vote(request, wizard_id):
         'individual':individual,
 
         'dependent_variables':dependent_variables,
-
         'dependent_variables_ranges': dependent_variables_ranges,
-
         'dependent_variables_table': dependent_variables_table,
+
+        'current_vote': int(rate_votes+1),
     }
 
     return render(request, template, context)
+
+
+def wizard_personalinfos(request, wizard_id):
+    from django.template import Context, Template, loader
+    #check if wizard exists
+    try:
+        wizard = VotingWizard.objects.get(pk=wizard_id)
+    except VotingWizard.DoesNotExist:
+        messages.error(request, 'The requested experiment does not exist. You were redirected to the homepage.')
+        return redirect('experiments:index')  
+
+    #check if any mode is enabled
+    if not wizard.enable_rating_mode and not wizard.enable_compare_mode:
+        messages.error(request, "This experiment is currently disabled. You will not be able to complete this experiment! Sorry for the inconvenience caused.")
+
+
+    #write context
+    context = {'wizard': wizard, 'currentpage': 1, 'totalpages': wizard.number_of_votes + 5}
+
+    #check if alternative website is present
+    if wizard.exit_html == "":
+        template = loader.get_template('experiments/wizard_personalinfos.html')
+    else:
+        template = Template(wizard.epersonalinfos_html)
+        context = Context(context)
+    
+    #return page
+    return HttpResponse(template.render(context))
+
+
+
+def wizard_exit(request, wizard_id):
+    from django.template import Context, Template, loader
+    #check if wizard exists
+    try:
+        wizard = VotingWizard.objects.get(pk=wizard_id)
+    except VotingWizard.DoesNotExist:
+        messages.error(request, 'The requested experiment does not exist. You were redirected to the homepage.')
+        return redirect('experiments:index')  
+
+    #check if any mode is enabled
+    if not wizard.enable_rating_mode and not wizard.enable_compare_mode:
+        messages.error(request, "This experiment is currently disabled. You will not be able to complete this experiment! Sorry for the inconvenience caused.")
+
+
+    #write context
+    context = {'wizard': wizard, 'currentpage': 1, 'totalpages': wizard.number_of_votes + 5}
+
+    #check if alternative website is present
+    if wizard.exit_html == "":
+        template = loader.get_template('experiments/wizard_exit.html')
+    else:
+        template = Template(wizard.exit_html)
+        context = Context(context)
+    
+    #return page
+    return HttpResponse(template.render(context))
 
 
 def send_individual_content(request, individual_id, content_name):

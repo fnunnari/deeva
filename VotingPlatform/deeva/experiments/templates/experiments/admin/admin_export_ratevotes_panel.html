@@ -1,0 +1,9 @@
+{% load staticfiles %}
+<link href="{% static "css/font-awesome.css" %}" rel="stylesheet">
+{% if wizard.id %}
+	<a class="" href="{% url 'experiments_admin:export_ratevotes' wizard.id %}" role="button">
+	  <span class="fa fa-file-excel-o"></span><span class="fa fa-long-arrow-down"></span> Export rate votes
+	</a>
+{% else %}
+	You need to save the wizard before you can export data.
+{% endif %}

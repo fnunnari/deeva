@@ -4,21 +4,22 @@
 {% load staticfiles %}
 
 {% block content %}
-	
-	<h1>Please vote on the following individual.</h1>
 
+	Progress: {{current_vote}} of {{wizard.number_of_votes}}
 	
-	ID: {{individual.id}}
-
 	<!-- individual content -->
 	<div class="row">
 		
 		{% for content_name in wizard.generation.experiment.content_list %}
-		<div class="col-sm-12 col-md-12 text-center">
+
+		<-- div class="col-sm-12 col-md-12 text-center">
 			<img class="img-responsive img-vote" style="width:50%;" src="{% url 'experiments:send_individual_content' individual.id content_name %}">
+		-->
+		<div class="col-sm-6 col-md-6 text-center">
+			<img class="img-responsive img-vote" src="{% url 'experiments:send_individual_content' individual.id content_name %}" alt="{{content_name}} of individual #{{individual.id}}">
 		</div>
 		{% endfor %}
-	</div>
+	</--div>
 
 	<!-- fake form for the user -->
 	<div class="text-center">
@@ -54,13 +55,13 @@
 
 		</form>
 
-		<button id="fake-send-btn" type="button" class="btn btn-primary">
-			<span class="fa fa-chevron-right"></span> Save & Continue
+		<button id="fake-send-btn-click" type="button" class="btn btn-primary">
+			<span class="fa fa-chevron-right"></span> Save &amp; Continue
 		</button>
-		<button id="fake-send-btn" type="button" class="btn btn-warning disabled">
+		<button id="fake-send-btn-spinner" type="button" class="btn btn-warning disabled d-none">
 			<span class="fa fa-pulse fa-spinner"></span> Saving...
 		</button>
-		<button id="fake-send-btn" type="button" class="btn btn-success disabled">
+		<button id="fake-send-btn-finished" type="button" class="btn btn-success disabled d-none">
 			<span class="fa fa-check"></span> Saved! Loading next page...
 		</button>
 	</div>
@@ -113,6 +114,42 @@
 			} ;
 
 		});
+
+
+		$("#fake-send-btn-click").click(function() {
+			var form = $("#real-form");
+		    var url = form.attr('action');
+
+		    $('#fake-send-btn-click').addClass("d-none");
+		    $('#fake-send-btn-spinner').removeClass("d-none");
+
+		    $.ajax({
+		           type: "POST",
+		           url: url,
+		           data: form.serialize(),
+		        }).done(function(data){
+		        	if(data.success){
+		        		//proceed
+		        		$('#fake-send-btn-spinner').addClass("d-none");
+		    			$('#fake-send-btn-finished').removeClass("d-none");
+		    			window.location.href = "{% url 'experiments:vote' wizard.id %}";
+		        	} else {
+		        		//re-do form
+		        		$('#fake-send-btn-spinner').addClass("d-none");
+		    			$('#fake-send-btn-click').removeClass("d-none");
+		    			alert("Please fill out the form before clicking on continue.");
+		        	}
+		        	
+		        }).fail(function(jqXHR, textStatus, errorThrown){
+		        	$('#fake-send-btn-spinner').addClass("d-none");
+		    		$('#fake-send-btn-click').removeClass("d-none");
+		        	alert(textStatus);
+		        })
+		});
+
+
+
+		
 
 
 	</script>

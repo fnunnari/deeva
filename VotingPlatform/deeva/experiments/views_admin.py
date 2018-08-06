@@ -323,3 +323,45 @@ def check_content_availability(request, generation_id):
 
     #redirect user to admin site
     return redirect('admin:experiments_generation_change', generation_id)
+
+
+
+
+@staff_member_required
+def download_ratevotes(request, wizard_id):
+    """Return a csv that contains the individual variable value for all individuals in the selected generation"""
+        
+    #get generation and variables set and create filename
+    w = get_object_or_404(VotingWizard, id=wizard_id)
+    filename = 'WIZ-{id}-{name}'.format(id=w.id, name=w.name)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
+
+    fieldnames = ['id', 'user', 'individual', 'variable', 'text_value', 'int_value', 'float_value', 'generation', 'wizard', 'date_time']
+   
+    #write header
+    writer = csv.DictWriter(response, fieldnames=fieldnames)
+
+    writer.writeheader()
+
+    #write rows
+    for rv in RateVote.objects.filter(wizard=w, generation=w.generation):
+        d = {}
+        d['id'] = rv.id
+        d['user'] = rv.user.username
+        d['individual'] = rv.individual.id
+        d['variable'] = rv.variable.id
+        d['text_value'] = rv.text_value
+        d['int_value'] = rv.int_value
+        d['float_value'] = rv.float_value
+        d['generation'] = rv.generation.id
+        d['wizard'] = rv.wizard.id
+        d['date_time'] = rv.date_time
+
+
+        writer.writerow(d)
+
+    #send cvs
+    return response
