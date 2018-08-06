@@ -157,7 +157,7 @@ class LoadScripts(bpy.types.Operator):
 
     
 class ChangeCamera(bpy.types.Operator):
-    """Position the samera and set its rendering paramentes.
+    """Position the camera and set its rendering parameters.
     The position can be the head of the full body of the character"""
 
     bl_idname = "mbastauto.change_camera"
@@ -206,7 +206,7 @@ class ChangeCamera(bpy.types.Operator):
         scene.camera.data.ortho_scale = o
         
         # set render size (to get correct preview)
-        scene.render.resolution_percentage = 100
+        # scene.render.resolution_percentage = 100
         
         # render settings
         scene.cycles.samples = 1000
