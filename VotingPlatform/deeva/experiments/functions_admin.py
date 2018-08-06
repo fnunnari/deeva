@@ -108,13 +108,13 @@ def check_content_availability_individual(generation, individual):
 
 # TODO -- finish this
 def handle_generate_individuals(num_individuals: int, random_segments: int, generation) -> List[str]:
-    from random import random
+    import random
 
     messages = []
 
     # generation = Generation.objects.get(pk=generation_id)
 
-    variable_ranges = generation.experiment.independent_variables.variablerange_set.all
+    variable_ranges = generation.experiment.independent_variables.variablerange_set.all()
 
     # Retrieve list of variables for this experiment
     # Retrieve ranges

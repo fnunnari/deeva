@@ -187,8 +187,8 @@ def generate_individuals(request, generation_id):
         if form.is_valid():
             import os
 
-            num_individuals = request.POST['num_individuals']
-            num_randomization_segments = request.POST['num_randomization_segments']
+            num_individuals = form.cleaned_data['num_individuals']
+            num_randomization_segments = form.cleaned_data['num_randomization_segments']
 
             handle_generate_individuals(num_individuals=num_individuals,
                                         random_segments=num_randomization_segments,
