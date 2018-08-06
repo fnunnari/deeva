@@ -14,8 +14,8 @@
 	<div class="row">
 		
 		{% for content_name in wizard.generation.experiment.content_list %}
-		<div class="col-sm-6 col-md-6 text-center">
-			<img class="img-responsive img-vote" src="{% url 'experiments:send_individual_content' individual.id content_name %}">
+		<div class="col-sm-12 col-md-12 text-center">
+			<img class="img-responsive img-vote" style="width:50%;" src="{% url 'experiments:send_individual_content' individual.id content_name %}">
 		</div>
 		{% endfor %}
 	</div>
