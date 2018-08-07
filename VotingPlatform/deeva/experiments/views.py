@@ -425,7 +425,7 @@ def wizard_personalinfos(request, wizard_id):
     if wizard.exit_html == "":
         template = loader.get_template('experiments/wizard_personalinfos.html')
     else:
-        template = Template(wizard.epersonalinfos_html)
+        template = Template(wizard.personalinfos_html)
         context = Context(context)
     
     #return page
