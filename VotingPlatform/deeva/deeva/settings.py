@@ -43,8 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bootstrap3',
-    #'djcelery', 
-    #'kombu.transport.django',
     'django_extensions'
 ]
 

@@ -1,12 +1,10 @@
 from django.contrib import admin
 
-from .models import Question, AnswerPossibility, Answer, QuestionSet
+from .models import Question, Answer, QuestionSet
 
 # Register your models here.
 
 admin.site.register(Question)
-
-admin.site.register(AnswerPossibility)
 
 admin.site.register(Answer)
 
