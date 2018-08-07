@@ -140,7 +140,7 @@ class IndividualAdmin(admin.ModelAdmin):
 @admin.register(VotingWizard)
 class VotingWizardAdmin(admin.ModelAdmin):
     #list
-    list_display = ('id', 'name', 'generation', 'enable_rating_mode', 'enable_compare_mode', 'number_of_votes', 'shown_on_overview_page', 'shown_on_overview_page', 'questions',)
+    list_display = ('id', 'name', 'generation', 'enable_rating_mode', 'enable_compare_mode', 'number_of_votes', 'shown_on_overview_page', 'questions',)
     list_display_links = ('id', 'name')
 
     #page
