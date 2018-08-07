@@ -11,22 +11,18 @@
 	<div class="row">
 		
 		{% for content_name in wizard.generation.experiment.content_list %}
-
-		<-- div class="col-sm-12 col-md-12 text-center">
-			<img class="img-responsive img-vote" style="width:50%;" src="{% url 'experiments:send_individual_content' individual.id content_name %}">
-		-->
-		<div class="col-sm-6 col-md-6 text-center">
-			<img class="img-responsive img-vote" src="{% url 'experiments:send_individual_content' individual.id content_name %}" alt="{{content_name}} of individual #{{individual.id}}">
+		<div class="col-sm-12 col-md-12 text-center">
+			<img class="img-responsive img-vote" style="width:10cm;" src="{% url 'experiments:send_individual_content' individual.id content_name %}" alt="{{content_name}} of individual #{{individual.id}}">
 		</div>
 		{% endfor %}
-	</--div>
+	</div>
 
 	<!-- fake form for the user -->
 	<div class="text-center">
 		<form id="fake-form" class="">
 			
 			{% for vg in dependent_variables_table %}
-			<table class="table table-striped text-center">
+			<table class="table table-striped text-center" style="font-size:12pt;padding:5pt;">
 				
 				<thead>
 				<tr>
