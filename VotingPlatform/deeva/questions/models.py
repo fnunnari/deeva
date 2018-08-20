@@ -10,7 +10,7 @@ from django.db import models
 class Question(models.Model):
     Question_Choices = [('B', 'boolean'), ('L', 'list'), ('D', 'date'), ('T', 'text'), ('C', 'country')]
     
-    internal_name = models.CharField(unique=True, max_length=64, help_text="A short internal name to easily select questions.") 
+    internal_name = models.CharField(unique=False, max_length=64, help_text="A short internal name to easily select questions.")
     title = models.TextField(help_text="The question to be asked.")
     help_text = models.TextField(null=True, blank=True, help_text="An optional help text, to clear up what is expected from the user.")
     qtype = models.CharField(max_length=1, choices=Question_Choices, help_text="Boolean: will be rendered as 'Yes/No'. List displays a drop-down menu. Text is a free-text answer.") 

@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='question',
             name='internal_name',
-            field=models.CharField(default='bla', help_text='A short internal name to easily select questions.', max_length=64, unique=True),
+            field=models.CharField(default='bla', help_text='A short internal name to easily select questions.', max_length=64),
             preserve_default=False,
         ),
     ]
