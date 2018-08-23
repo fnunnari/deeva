@@ -1,13 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse, HttpResponseRedirect
+from django.template import RequestContext
 from django.http import JsonResponse
 from django.contrib import messages
 from django.forms import modelformset_factory
 from deeva.settings import *
 
 from .models import VotingWizard, CompareVote, RateVote
+from questions.models import Answer
 from django.contrib.auth.models import User
 
 from sendfile import sendfile
+
+from questions.countries import COUNTRIES
 
 # Create your views here.
 
@@ -417,19 +421,74 @@ def wizard_personalinfos(request, wizard_id):
     if not wizard.enable_rating_mode and not wizard.enable_compare_mode:
         messages.error(request, "This experiment is currently disabled. You will not be able to complete this experiment! Sorry for the inconvenience caused.")
 
+    #check, if user has a valid session
+    if hasattr(request, 'session') and not request.session.session_key:
+        messages.error(request, "(VE01) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.") 
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
+    
+    session_id = request.session.session_key
+
+    #check, if the user exists in the db
+    users = User.objects.filter(username=session_id)
+    if users:
+        vote_user = users[0]
+    else:
+        messages.error(request, "(VE02) This session didn't have a valid user account and therefore was redirected to this page.") 
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
+
+    #prefill form with information relevant for storing in database
+    initial = []
+    for question in wizard.questions.questions.all():
+        initial.append({
+            'question':question,
+        })
+
+    print('ini', initial)
+
+    #formset of seperate RateVote forms
+    AnswerFormSet = modelformset_factory(Answer, fields=(
+        'question', 'answer',), extra=len(initial))
+
+    print('fs', AnswerFormSet)
+
+    #create or retrieve formset
+    formset = AnswerFormSet(
+        request.POST or None,
+        initial = initial,
+        queryset = Answer.objects.none() #Answer.objects.none() #we don't want to display database entries
+    )
+
+    if request.method == 'POST':
+        if formset.is_valid():
+            answers = formset.save(commit=False) #do not commit as we need to add to fields
+
+            for answer in answers:
+                answer.user = vote_user
+                answer.save()
+
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False})
+    
 
     #write context
-    context = {'wizard': wizard, 'currentpage': 1, 'totalpages': wizard.number_of_votes + 5}
+    context = {
+        'wizard': wizard, 
+        'currentpage': 1, 'totalpages': wizard.number_of_votes + 5,
+        'formset': formset,
+        'sethasquestions': wizard.questions.sethasquestion_set.all(),
+        'countries' : COUNTRIES,
+    }
 
     #check if alternative website is present
     if wizard.exit_html == "":
         template = loader.get_template('experiments/wizard_personalinfos.html')
     else:
         template = Template(wizard.personalinfos_html)
-        context = Context(context)
+        context = context
     
     #return page
-    return HttpResponse(template.render(context))
+    return HttpResponse(template.render(context, request))
 
 
 
