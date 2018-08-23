@@ -12,7 +12,7 @@
 		
 		{% for content_name in wizard.generation.experiment.content_list %}
 		<div class="col-sm-12 col-md-12 text-center">
-			<img class="img-responsive img-vote" style="width:10cm;" src="{% url 'experiments:send_individual_content' individual.id content_name %}" alt="{{content_name}} of individual #{{individual.id}}">
+			<img class="img-responsive img-vote" style="width:20cm;" src="{% url 'experiments:send_individual_content' individual.id content_name %}" alt="{{content_name}} of individual #{{individual.id}}">
 		</div>
 		{% endfor %}
 	</div>
