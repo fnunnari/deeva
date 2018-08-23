@@ -13,19 +13,196 @@
 	
 	{% block text %}
 		<p>Please fill out the following questionaire.</p>
+
+		<p>Questions with an asterisk (*) are required.</p>
 	{% endblock %}
 
 	{% block questions %}
-		<p>TODO (form will be here)</p>
+		<!-- fake form for the user -->
+		<form id="fake-form" class="col-sm-6">
+			
+
+				{% for shq in sethasquestions %}
+
+					{% with q=shq.question %}
+
+					<div class="form-group mt-4">
+				<label for="q{{q.id}}">
+					<strong>
+						{{q.title}}
+						{% if shq.is_required %}*{% endif %}
+					</strong>
+				</label>
+
+					{% if q.qtype == 'B' %}
+
+						<select class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required}}" id="q{{q.id}}" name="q{{q.id}}">
+						{% if shq.is_required %}
+							 <option value="" selected disabled>Please select</option>
+						{% else %}
+							<option value="" selected>Please select (optional)</option>
+						{% endif %}
+							<option value="yes">Yes</option>
+							<option value="no">No</option>
+						</select>
+
+
+					{% elif q.qtype == 'L' %}
+						<select class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required}}" id="q{{q.id}}" name="q{{q.id}}">
+						{% if shq.is_required %}
+							 <option value="" selected disabled>Please select</option>
+						{% else %}
+							<option value="" selected>Please select (optional)</option>
+						{% endif %}
+
+						{% for ap in q.answer_possibilities_list %}
+							<option value="{{ap}}">{{ap}}</option>
+						{% endfor %}
+						</select>
+
+
+
+					{% elif q.qtype == 'L' %}
+						<select class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required}}" id="q{{q.id}}" name="q{{q.id}}">
+						{% if shq.is_required %}
+							 <option value="" selected disabled>Please select</option>
+						{% else %}
+							<option value="" selected>Please select (optional)</option>
+						{% endif %}
+
+						{% for ap in q.answer_possibilities_list %}
+							<option value="{{ap}}">{{ap}}</option>
+						{% endfor %}
+						</select>
+
+
+
+					{% elif q.qtype == 'D' %}
+						<input type="date" class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required}}" id="q{{q.id}}" name="q{{q.id}}">
+					</div>
+
+					{% elif q.qtype == 'T' %}
+						<textarea type="text" rows="3" class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required}}" id="q{{q.id}}" name="q{{q.id}}" placeholder="{{q.title}}"></textarea>
+
+					{% elif q.qtype == 'C' %}
+						<select class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required}}" id="q{{q.id}}" name="q{{q.id}}">
+						{% if shq.is_required %}
+							 <option value="" selected disabled>Please select</option>
+						{% else %}
+							<option value="" selected>Please select (optional)</option>
+						{% endif %}
+
+						{% for short, long in countries %}
+							<option value="{{long}}">{{long}}</option>
+						{% endfor %}
+						</select>
+
+					{% endif %}
+
+					<small class="form-text text-muted">{{q.help_text}}</small>
+
+					{% endwith %}
+				{% endfor %}
+
+				
+				
+			</div>
+
+
+		</form>
+
+
+
+
+
+		<!-- real form to submit -->
+		<div class="d-none">
+			<form action="" method="post" autocomplete="off" id="real-form">
+			    {% csrf_token %}
+			    {{ formset.as_p }}
+			    <input type="submit" value="Submit" />
+			</form>
+		</div>
+	
 	{% endblock %}
 
 	{% block input %}
 		<p>
-			<a class="btn btn-primary" href="{% url 'experiments:wizard_exit' wizard.id %}">
-				<span class="fa fa-chevron-right"></span> {% block button_text %}Save &amp; Continiue{% endblock %}
-			</a>
+			<button id="fake-send-btn-click" type="button" class="btn btn-primary">
+				<span class="fa fa-chevron-right"></span> Save &amp; Continue
+			</button>
+			<button id="fake-send-btn-spinner" type="button" class="btn btn-warning disabled d-none">
+				<span class="fa fa-pulse fa-spinner"></span> Saving...
+			</button>
+			<button id="fake-send-btn-finished" type="button" class="btn btn-success disabled d-none">
+				<span class="fa fa-check"></span> Saved! Loading next page...
+			</button>
 		</p>
 
 	{% endblock %}
 
 {% endblock %}
+
+{% block scripts %}
+	<script>
+		$("#fake-form")[0].reset(); //reset fake form on page load
+
+		$("#fake-form").change(function() {
+			//get total number of variables to fill and iterate through them
+			var total_forms = $('input[name=form-TOTAL_FORMS]').val();
+
+			for (i = 0; i < total_forms; i++) {
+
+				//get question id for current form
+				qid = $('#id_form-'+i+'-question').val();
+				//alert('qid ' +  qid);
+
+				//get value from the fake form
+				var text = $('#q'+qid, '#fake-form').val();
+				//alert('text ' + text);
+				
+				//paste value in real form
+				$('#id_form-'+i+'-answer').val(text);
+			} ;
+
+		});
+
+
+		$("#fake-send-btn-click").click(function() {
+			var form = $("#real-form");
+		    var url = form.attr('action');
+
+		    $('#fake-send-btn-click').addClass("d-none");
+		    $('#fake-send-btn-spinner').removeClass("d-none");
+
+		    $.ajax({
+		           type: "POST",
+		           url: url,
+		           data: form.serialize(),
+		        }).done(function(data){
+		        	if(data.success){
+		        		//proceed
+		        		$('#fake-send-btn-spinner').addClass("d-none");
+		    			$('#fake-send-btn-finished').removeClass("d-none");
+		    			window.location.href = "{% url 'experiments:wizard_exit' wizard.id %}";
+		        	} else {
+		        		//re-do form
+		        		$('#fake-send-btn-spinner').addClass("d-none");
+		    			$('#fake-send-btn-click').removeClass("d-none");
+		    			alert("Please fill out the form before clicking on continue.");
+		        	}
+		        	
+		        }).fail(function(jqXHR, textStatus, errorThrown){
+		        	$('#fake-send-btn-spinner').addClass("d-none");
+		    		$('#fake-send-btn-click').removeClass("d-none");
+		        	alert(textStatus);
+		        })
+		});
+
+
+
+		
+
+
+	</script>
+{% endblock %}	
