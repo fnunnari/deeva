@@ -36,7 +36,7 @@
 
 					{% if q.qtype == 'B' %}
 
-						<select class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required}}" id="q{{q.id}}" name="q{{q.id}}">
+						<select class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required|yesno:'true,false'}}" id="q{{q.id}}" name="q{{q.id}}">
 						{% if shq.is_required %}
 							 <option value="" selected disabled>Please select</option>
 						{% else %}
@@ -48,7 +48,7 @@
 
 
 					{% elif q.qtype == 'L' %}
-						<select class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required}}" id="q{{q.id}}" name="q{{q.id}}">
+						<select class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required|yesno:'true,false'}}" id="q{{q.id}}" name="q{{q.id}}">
 						{% if shq.is_required %}
 							 <option value="" selected disabled>Please select</option>
 						{% else %}
@@ -63,7 +63,7 @@
 
 
 					{% elif q.qtype == 'L' %}
-						<select class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required}}" id="q{{q.id}}" name="q{{q.id}}">
+						<select class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required|yesno:'true,false'}}" id="q{{q.id}}" name="q{{q.id}}">
 						{% if shq.is_required %}
 							 <option value="" selected disabled>Please select</option>
 						{% else %}
@@ -78,14 +78,14 @@
 
 
 					{% elif q.qtype == 'D' %}
-						<input type="date" class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required}}" id="q{{q.id}}" name="q{{q.id}}">
+						<input type="date" class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required|yesno:'true,false'}}" id="q{{q.id}}" name="q{{q.id}}">
 					</div>
 
 					{% elif q.qtype == 'T' %}
-						<textarea type="text" rows="3" class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required}}" id="q{{q.id}}" name="q{{q.id}}" placeholder="{{q.title}}"></textarea>
+						<textarea type="text" rows="3" class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required|yesno:'true,false'}}" id="q{{q.id}}" name="q{{q.id}}" placeholder="{{q.title}}"></textarea>
 
 					{% elif q.qtype == 'C' %}
-						<select class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required}}" id="q{{q.id}}" name="q{{q.id}}">
+						<select class="form-control" data-question-id="{{q.id}}" data-required="{{shq.is_required|yesno:'true,false'}}" id="q{{q.id}}" name="q{{q.id}}">
 						{% if shq.is_required %}
 							 <option value="" selected disabled>Please select</option>
 						{% else %}
@@ -175,6 +175,15 @@
 		    $('#fake-send-btn-click').addClass("d-none");
 		    $('#fake-send-btn-spinner').removeClass("d-none");
 
+		    if (!checkRequired()){
+		    	alert("Please fill out all required fields.");
+		        $('#fake-send-btn-spinner').addClass("d-none");
+		    	$('#fake-send-btn-click').removeClass("d-none");
+		    	return;
+
+		    }
+
+
 		    $.ajax({
 		           type: "POST",
 		           url: url,
@@ -198,6 +207,34 @@
 		        	alert(textStatus);
 		        })
 		});
+
+		function checkRequired() {
+			//get total number of variables to fill and iterate through them
+			var total_forms = $('input[name=form-TOTAL_FORMS]').val();
+
+			for (i = 0; i < total_forms; i++) {
+
+				//get question id for current form
+				qid = $('#id_form-'+i+'-question').val();
+				//alert('qid ' +  qid);
+
+				//check if field is required
+				var required = $('#q'+qid, '#fake-form').data('required');
+				//alert('req ' + required);
+
+
+				//check if filled
+				var empty = ($('#id_form-'+i+'-answer').val().length <= 0);
+				//alert('empty' + empty)
+
+
+				if (required && empty ) {
+					return false;
+				}
+			}
+
+			return true;
+		}
 
 
 
