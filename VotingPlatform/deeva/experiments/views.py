@@ -410,25 +410,25 @@ def rate_vote(request, wizard_id):
 
 def wizard_personalinfos(request, wizard_id):
     from django.template import Context, Template, loader
-    #check if wizard exists
+    # check if wizard exists
     try:
         wizard = VotingWizard.objects.get(pk=wizard_id)
     except VotingWizard.DoesNotExist:
         messages.error(request, 'The requested experiment does not exist. You were redirected to the homepage.')
         return redirect('experiments:index')  
 
-    #check if any mode is enabled
+    # check if any mode is enabled
     if not wizard.enable_rating_mode and not wizard.enable_compare_mode:
         messages.error(request, "This experiment is currently disabled. You will not be able to complete this experiment! Sorry for the inconvenience caused.")
 
-    #check, if user has a valid session
+    # check, if user has a valid session
     if hasattr(request, 'session') and not request.session.session_key:
         messages.error(request, "(VE01) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.") 
         return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
     
     session_id = request.session.session_key
 
-    #check, if the user exists in the db
+    # check, if the user exists in the db
     users = User.objects.filter(username=session_id)
     if users:
         vote_user = users[0]
@@ -436,31 +436,31 @@ def wizard_personalinfos(request, wizard_id):
         messages.error(request, "(VE02) This session didn't have a valid user account and therefore was redirected to this page.") 
         return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
 
-    #prefill form with information relevant for storing in database
+    # prefill form with information relevant for storing in database
     initial = []
     for question in wizard.questions.questions.all():
         initial.append({
-            'question':question,
+            'question': question,
         })
 
     print('ini', initial)
 
-    #formset of seperate RateVote forms
+    # formset of seperate RateVote forms
     AnswerFormSet = modelformset_factory(Answer, fields=(
         'question', 'answer',), extra=len(initial))
 
     print('fs', AnswerFormSet)
 
-    #create or retrieve formset
+    # create or retrieve formset
     formset = AnswerFormSet(
         request.POST or None,
-        initial = initial,
-        queryset = Answer.objects.none() #Answer.objects.none() #we don't want to display database entries
+        initial=initial,
+        queryset=Answer.objects.none()  # Answer.objects.none() #we don't want to display database entries
     )
 
     if request.method == 'POST':
         if formset.is_valid():
-            answers = formset.save(commit=False) #do not commit as we need to add to fields
+            answers = formset.save(commit=False)  # do not commit as we need to add to fields
 
             for answer in answers:
                 answer.user = vote_user
@@ -469,25 +469,24 @@ def wizard_personalinfos(request, wizard_id):
             return JsonResponse({'success': True})
         else:
             return JsonResponse({'success': False})
-    
 
-    #write context
+    # write context
     context = {
         'wizard': wizard, 
         'currentpage': 1, 'totalpages': wizard.number_of_votes + 5,
         'formset': formset,
         'sethasquestions': wizard.questions.sethasquestion_set.all(),
-        'countries' : COUNTRIES,
+        'countries': COUNTRIES,
     }
 
-    #check if alternative website is present
+    # check if alternative website is present
     if wizard.exit_html == "":
         template = loader.get_template('experiments/wizard_personalinfos.html')
     else:
         template = Template(wizard.personalinfos_html)
         context = context
     
-    #return page
+    # return page
     return HttpResponse(template.render(context, request))
 
 
@@ -530,7 +529,6 @@ def send_individual_content(request, individual_id, content_name):
     #get specific file
     filename = f"{individual_id}-{content_name}"
     fullpath = os.path.join(upload_path, filename)
-
 
     return sendfile(request, fullpath, attachment=False)
 
