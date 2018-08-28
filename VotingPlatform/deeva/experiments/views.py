@@ -481,12 +481,14 @@ def wizard_personalinfos(request, wizard_id):
     }
 
     #check if alternative website is present
-    if wizard.exit_html == "":
+    if wizard.personalinfos_html == "":
         template = loader.get_template('experiments/wizard_personalinfos.html')
     else:
-        template = Template(wizard.personalinfos_html)
-        context = context
-    
+
+        from django.template import engines
+        django_engine = engines['django']
+        template = django_engine.from_string(wizard.personalinfos_html)
+
     #return page
     return HttpResponse(template.render(context, request))
 
