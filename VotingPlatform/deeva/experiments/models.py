@@ -60,6 +60,8 @@ class VotingWizard(models.Model):
         help_text='Use {% extends "experiments/wizard_disclaimer.html" %} and the following blocks: titletext, text, input, checkbox_text, button_text, scripts')
     example_html = models.TextField(null=True, blank=True,
         help_text='Use {% extends "experiments/wizard_example.html" %} and the following blocks: titletext, introduction, rate_example, comp_example, nomode_example, input, button_text, scripts')
+    rate_vote_html = models.TextField(null=True, blank=True,
+        help_text='Use {% extends "experiments/rate_vote.html" %} and the following blocks: titletext, text, progress, ind_content, fake_form, buttons, button_cnt, button_save, button_load, real_form, scripts')
     personalinfos_html = models.TextField(null=True, blank=True,
         help_text='Use {% extends "experiments/wizard_personalinfos.html" %} and the following blocks: titletext, text, questions, input, button_cnt, button_save, button_load, scripts')
     exit_html = models.TextField(null=True, blank=True,
@@ -72,6 +74,9 @@ class VotingWizard(models.Model):
 
     #number of required votes
     number_of_votes = models.IntegerField(default=10, help_text='Number of votes a user has to submit.')
+
+    #content size
+    size_of_content = models.CharField(max_length = 128, default='10cm', null=True, blank=True, help_text='Size on page for the content files. Need to be a valid css size.')
 
     #select if wizard is shown on the overview page
     shown_on_overview_page = models.BooleanField(default=False, help_text='Determines if the wizard is advertised publically on the page.')

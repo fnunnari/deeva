@@ -390,7 +390,7 @@ def rate_vote(request, wizard_id):
 
 
 
-    template = 'experiments/rate_vote.html'
+    #template = 'experiments/rate_vote.html'
 
     context = {
         'formset':formset,
@@ -405,7 +405,21 @@ def rate_vote(request, wizard_id):
         'current_vote': int(rate_votes+1),
     }
 
-    return render(request, template, context)
+    #return render(request, template, context)
+
+
+    from django.template import Context, Template, loader
+    #check if alternative website is present
+    if wizard.rate_vote_html == "":
+        template = loader.get_template('experiments/rate_vote.html')
+    else:
+
+        from django.template import engines
+        django_engine = engines['django']
+        template = django_engine.from_string(wizard.rate_vote_html)
+
+    #return page
+    return HttpResponse(template.render(context, request))
 
 
 def wizard_personalinfos(request, wizard_id):
