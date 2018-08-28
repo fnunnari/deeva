@@ -61,7 +61,7 @@ class VotingWizard(models.Model):
     example_html = models.TextField(null=True, blank=True,
         help_text='Use {% extends "experiments/wizard_example.html" %} and the following blocks: titletext, introduction, rate_example, comp_example, nomode_example, input, button_text, scripts')
     personalinfos_html = models.TextField(null=True, blank=True,
-        help_text='Use {% extends "experiments/wizard_personalinfos.html" %} and the following blocks: titletext, text, questions, input, button_text, scripts')
+        help_text='Use {% extends "experiments/wizard_personalinfos.html" %} and the following blocks: titletext, text, questions, input, button_cnt, button_save, button_load, scripts')
     exit_html = models.TextField(null=True, blank=True,
         help_text='Use {% extends "experiments/wizard_exit.html" %} and the following blocks: titletext, text, scripts')
 

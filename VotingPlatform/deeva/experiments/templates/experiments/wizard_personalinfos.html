@@ -129,13 +129,13 @@
 	{% block input %}
 		<p>
 			<button id="fake-send-btn-click" type="button" class="btn btn-primary">
-				<span class="fa fa-chevron-right"></span> Save &amp; Continue
+				<span class="fa fa-chevron-right"></span> {% block button_cnt %}Save &amp; Continue{% endblock %} 
 			</button>
 			<button id="fake-send-btn-spinner" type="button" class="btn btn-warning disabled d-none">
-				<span class="fa fa-pulse fa-spinner"></span> Saving...
+				<span class="fa fa-pulse fa-spinner"></span> {% block button_save %}Saving...{% endblock %} 
 			</button>
 			<button id="fake-send-btn-finished" type="button" class="btn btn-success disabled d-none">
-				<span class="fa fa-check"></span> Saved! Loading next page...
+				<span class="fa fa-check"></span> {% block button_load %}Saved! Loading next page...{% endblock %} 
 			</button>
 		</p>
 
