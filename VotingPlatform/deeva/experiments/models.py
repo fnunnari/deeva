@@ -81,6 +81,9 @@ class VotingWizard(models.Model):
     #select if wizard is shown on the overview page
     shown_on_overview_page = models.BooleanField(default=False, help_text='Determines if the wizard is advertised publically on the page.')
 
+    #remove header and footer for distraction free voting
+    distraction_free_mode = models.BooleanField(default=False, help_text='Hide header and footer for distraction free voting. Remember to show privacy policy at beginning!')
+
     #questions to be answered by the user
     from questions.models import QuestionSet
     questions = models.ForeignKey(QuestionSet, default=None, null=True, blank=True, on_delete=models.PROTECT, help_text='Question set the user will be required to fill out.')
