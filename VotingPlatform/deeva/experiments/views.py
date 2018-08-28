@@ -392,6 +392,8 @@ def rate_vote(request, wizard_id):
 
     #template = 'experiments/rate_vote.html'
 
+    percentage = int(rate_votes+1)*100/wizard.number_of_votes
+
     context = {
         'formset':formset,
 
@@ -403,6 +405,7 @@ def rate_vote(request, wizard_id):
         'dependent_variables_table': dependent_variables_table,
 
         'current_vote': int(rate_votes+1),
+        'percentage': f'{percentage:.1f}',
     }
 
     #return render(request, template, context)

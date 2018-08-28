@@ -15,7 +15,10 @@
 
 
 	{% block progress %}
-		Progress: {{current_vote}} of {{wizard.number_of_votes}}
+		<!-- Progress: {{current_vote}} of {{wizard.number_of_votes}} -->
+		<div class="progress">
+		  <div class="progress-bar" role="progressbar" style="width: {{percentage}}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{percentage}}%</div>
+		</div>
 	{% endblock %}
 	
 	<!-- individual content -->
