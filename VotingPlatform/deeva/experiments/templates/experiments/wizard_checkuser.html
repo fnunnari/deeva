@@ -56,7 +56,9 @@
 	  			<span class="fa fa-question"></span> no (for some reason there was already a session)
 	  			<form action="" method="post">
 	  				{% csrf_token %}
-	  				<button type="submit" value="flush_button" name="flush_button" class="btn btn-sm btn-secondary">Reset session</button>
+	  				<button type="submit" value="flush_button" name="flush_button" class="btn btn-sm btn-secondary">
+	  					<span class="fa fa-undo"></span> Create new session
+	  				</button> (it will not be possible to continiue this session, if button is pressed!)
 	  				
 	  			</form>
 	  			{% endif %}
@@ -76,12 +78,12 @@
 				<b>existing votes (rate/comp):</b>
 
 				{% if rate_votes %}
-					{{rate_votes}} TODO continiue
+					{{rate_votes}}
 				{% else %}
 					<span class="fa fa-check"></span> no
 				{% endif %}/
 				{% if comp_votes %}
-					{{comp_votes}} TODO continiue
+					{{comp_votes}} 
 				{% else %}
 					<span class="fa fa-check"></span> no
 				{% endif %}
@@ -91,14 +93,24 @@
 
 		{% block input %}
 			<p>
-			<noscript>
-				<a id="nojsbtn" class="btn btn-primary disabled" href="{% url 'experiments:wizard_welcome' wizard.id %}">
-					<span class="fa fa-chevron-right"></span> <st>Continue</st> (please enable Java script and reload the page)
-				</a>
-			</noscript>
-			<a id="withjsbtn" class="btn btn-primary d-none" href="{% url 'experiments:wizard_welcome' wizard.id %}">
-				<span class="fa fa-chevron-right"></span> Continue
-			</a>
+			
+
+			{% if rate_votes or comp_votes %}
+					<a class="btn btn-primary" href="{% url 'experiments:vote' wizard.id %}">
+						<span class="fa fa-chevron-right"></span> Continue voting in existing mode
+					</a>
+				{% else %}
+					<noscript>
+						<a id="nojsbtn" class="btn btn-primary disabled" href="{% url 'experiments:wizard_welcome' wizard.id %}">
+							<span class="fa fa-chevron-right"></span> <st>Continue</st> (please enable Java script and reload the page)
+						</a>
+					</noscript>
+					<a id="withjsbtn" class="btn btn-primary d-none" href="{% url 'experiments:wizard_welcome' wizard.id %}">
+						<span class="fa fa-chevron-right"></span> Continue to <i>Welcome</i> page
+					</a>
+				{% endif %}
+				
+			
 			
 			</p>
 

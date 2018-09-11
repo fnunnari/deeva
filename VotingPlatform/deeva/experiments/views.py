@@ -115,7 +115,39 @@ def wizard_welcome(request, wizard_id):
         wizard = VotingWizard.objects.get(pk=wizard_id)
     except VotingWizard.DoesNotExist:
         messages.error(request, 'The requested experiment does not exist. You were redirected to the homepage.')
-        return redirect('experiments:index')  
+        return redirect('experiments:index') 
+
+    #check that user is not logged in
+    if request.user.is_authenticated: 
+        messages.error(request, "(VE01) The current user is logged in and was not eligible to vote and therefore was redirected to this page.")
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
+
+    #check, if user has a valid session
+    if hasattr(request, 'session') and not request.session.session_key:
+        messages.error(request, "(VE02) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.")
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
+
+    session_id = request.session.session_key
+    
+    #check, if the user exists in the db
+    users = User.objects.filter(username=session_id)
+    if users:
+        vote_user = users[0]
+    else:
+        messages.error(request, "(VE03) This session didn't have a valid user account and therefore was redirected to this page.") 
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
+
+    #check number of votes for this wizard and generation
+    dependent_variables = wizard.generation.experiment.dependent_variables.attributes.all().count()
+    rate_votes = RateVote.objects.filter(generation=wizard.generation, wizard=wizard, user=vote_user).count()/dependent_variables
+    comp_votes = CompareVote.objects.filter(generation=wizard.generation, wizard=wizard, user=vote_user).count()/dependent_variables
+
+    if rate_votes > 0 or comp_votes > 0:
+        messages.info(request, "(VE10) This user already has votes and therefore was redirected to this page. Please check on how to continiue.") 
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
+
+
+    mode = request.session.get('wizard_mode', 'error')
 
     #check if any mode is enabled
     if not wizard.enable_rating_mode and not wizard.enable_compare_mode:
