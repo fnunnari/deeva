@@ -6,6 +6,7 @@ from django.forms import modelformset_factory
 from deeva.settings import *
 
 from .models import VotingWizard, CompareVote, RateVote
+from .functions import getRandomIndividualForUser
 from questions.models import Answer
 from django.contrib.auth.models import User
 
@@ -79,7 +80,6 @@ def wizard_checkuser(request, wizard_id):
             user = User.objects.create_user(username=session_id, password=None, email=None)
             user.save()
 
-        #check number of votes for this wizard and generation
         #check number of votes for this wizard and generation
         dependent_variables = wizard.generation.experiment.dependent_variables.attributes.all().count()
         rate_votes = RateVote.objects.filter(generation=wizard.generation, wizard=wizard, user=user).count()/dependent_variables
@@ -242,7 +242,7 @@ def vote(request, wizard_id):
 
     #check, if user has a valid session
     if hasattr(request, 'session') and not request.session.session_key:
-        messages.error(request, "(VE03) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.")
+        messages.error(request, "(VE04) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.")
         return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
     
     session_id = request.session.session_key
@@ -252,7 +252,7 @@ def vote(request, wizard_id):
     if users:
         vote_user = users[0]
     else:
-        messages.error(request, "(VE04) This session didn't have a valid user account and therefore was redirected to this page.") 
+        messages.error(request, "(VE05) This session didn't have a valid user account and therefore was redirected to this page.") 
         return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
 
     mode = request.session.get('wizard_mode', 'error')
@@ -337,7 +337,7 @@ def comp_vote(request, wizard_id):
 
 def rate_vote(request, wizard_id):
     wizard = get_object_or_404(VotingWizard, pk=wizard_id)
-    individual = wizard.generation.individuals.all().order_by('?').first() #TODO replace by special selection function
+    #old individual = wizard.generation.individuals.all().order_by('?').first() #TODO replace by special selection function
     
     dependent_variables = wizard.generation.experiment.dependent_variables.attributes.all()
 
@@ -345,7 +345,7 @@ def rate_vote(request, wizard_id):
 
     #check, if user has a valid session
     if hasattr(request, 'session') and not request.session.session_key:
-        messages.error(request, "(VE01) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.") 
+        messages.error(request, "(VE06) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.") 
         return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
     
     session_id = request.session.session_key
@@ -355,8 +355,16 @@ def rate_vote(request, wizard_id):
     if users:
         vote_user = users[0]
     else:
-        messages.error(request, "(VE02) This session didn't have a valid user account and therefore was redirected to this page.") 
+        messages.error(request, "(VE07) This session didn't have a valid user account and therefore was redirected to this page.") 
         return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
+
+    #get individual to vote on
+    individual, message = getRandomIndividualForUser(wizard, vote_user)
+
+    if not individual:
+        messages.error(request, message)
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
+
 
     #prefill form with information relevant for storing in database
     initial = []
@@ -472,7 +480,7 @@ def wizard_personalinfos(request, wizard_id):
 
     #check, if user has a valid session
     if hasattr(request, 'session') and not request.session.session_key:
-        messages.error(request, "(VE01) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.") 
+        messages.error(request, "(VE08) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.") 
         return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
     
     session_id = request.session.session_key
@@ -482,7 +490,7 @@ def wizard_personalinfos(request, wizard_id):
     if users:
         vote_user = users[0]
     else:
-        messages.error(request, "(VE02) This session didn't have a valid user account and therefore was redirected to this page.") 
+        messages.error(request, "(VE09) This session didn't have a valid user account and therefore was redirected to this page.") 
         return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
 
     #prefill form with information relevant for storing in database

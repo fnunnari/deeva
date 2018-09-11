@@ -67,7 +67,7 @@ class GenerationAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('General Information', {
-            'fields': ('id', 'nickname', 'experiment', 'created')
+            'fields': ('id', 'nickname', 'experiment', 'created',)
         }),
         ('Individuals', {
             'fields': ('generate_individuals', 'import_individuals', 'export_individuals', 'upload_content',),
@@ -214,6 +214,9 @@ class RateVoteAdmin(admin.ModelAdmin):
     list_display_links = ('id',)
 
     list_filter = ('wizard', 'generation',)
+
+    #page
+    readonly_fields = ('date_time',)
 
 
 admin.site.register(CompareVote)
