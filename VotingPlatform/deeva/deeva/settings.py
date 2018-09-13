@@ -168,3 +168,7 @@ MEDIA_INDIVIDUALS_VARIABLES = 'ind_vars'
 
 #django-sendfile to send files
 SENDFILE_BACKEND = 'sendfile.backends.simple'
+
+
+
+from deeva.special_settings import *
