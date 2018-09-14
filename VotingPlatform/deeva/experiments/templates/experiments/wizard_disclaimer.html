@@ -12,7 +12,7 @@
 
 	{% block text %}
 		<p>[Legal terms]</p>
-		<p>Please check the checkbox and click on the button to continiue.</p>
+		<p>Please check the checkbox and click on the button to continue.</p>
 	{% endblock %}
 
 
@@ -20,7 +20,7 @@
 		<p><input type="checkbox" name="TOS" value="Accept" onClick="EnableButton(this)"> {% block checkbox_text %}I have read and agree to the terms.{% endblock %}</p>
 		
 		<a id="next_button" class="btn btn-primary disabled" href="{% url 'experiments:wizard_example' wizard.id %}">
-			<span class="fa fa-chevron-right"></span> {% block button_text %}Confirm &amp; Continiue{% endblock %}
+			<span class="fa fa-chevron-right"></span> {% block button_text %}Confirm &amp; Continue{% endblock %}
 		</a>
 	{% endblock %}
 

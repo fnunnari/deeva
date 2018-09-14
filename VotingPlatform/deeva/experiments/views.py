@@ -143,7 +143,7 @@ def wizard_welcome(request, wizard_id):
     comp_votes = CompareVote.objects.filter(generation=wizard.generation, wizard=wizard, user=vote_user).count()/dependent_variables
 
     if rate_votes > 0 or comp_votes > 0:
-        messages.info(request, "(VE10) This user already has votes and therefore was redirected to this page. Please check on how to continiue.") 
+        messages.info(request, "(VE10) This user already has votes and therefore was redirected to this page. Please check on how to continue.")
         return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
 
 
