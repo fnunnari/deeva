@@ -23,7 +23,7 @@
 	
 	<!-- individual content -->
 	{% block ind_content %}
-		<div class="row">
+		<div class="row m-3">
 			<div class="mx-auto d-block">
 			{% for content_name in wizard.generation.experiment.content_list %}
 			<img class="" style="width:{{wizard.size_of_content}}; max-height:{{wizard.size_of_content}};" src="{% url 'experiments:send_individual_content' individual.id content_name %}" alt="{{content_name}} of individual #{{individual.id}}">
