@@ -2,6 +2,7 @@ import csv
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import *
+from questions.models import Answer
 from .functions import *
 from .functions_admin import *
 from django.contrib.admin.views.decorators import staff_member_required
@@ -333,7 +334,7 @@ def download_ratevotes(request, wizard_id):
         
     #get generation and variables set and create filename
     w = get_object_or_404(VotingWizard, id=wizard_id)
-    filename = 'WIZ-{id}-{name}'.format(id=w.id, name=w.name)
+    filename = 'WIZ-{id}-{name}-RATEVOTES'.format(id=w.id, name=w.name)
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -365,3 +366,41 @@ def download_ratevotes(request, wizard_id):
 
     #send cvs
     return response
+
+
+@staff_member_required
+def download_useranswers(request, wizard_id):
+    """Return a csv that contains the answers of the personal questions from the users in the given wizard"""
+        
+    #get generation and variables set and create filename
+    w = get_object_or_404(VotingWizard, id=wizard_id)
+    filename = 'WIZ-{id}-{name}-USERANSWERS'.format(id=w.id, name=w.name)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
+
+    fieldnames = ['user', 'question', 'answer', 'answered_on']
+   
+    #write header
+    writer = csv.DictWriter(response, fieldnames=fieldnames)
+
+    writer.writeheader()
+
+    users = RateVote.objects.filter(wizard=w, generation=w.generation).values_list('user', flat=True)
+
+
+
+    #write rows
+    for a in Answer.objects.filter(user__in=users):
+        d = {}
+        d['user'] = a.user.username
+        d['question'] = a.question.title
+        d['answer'] = a.answer
+        d['answered_on'] = a.answered_on
+
+        writer.writerow(d)
+
+    #send cvs
+    return response
+

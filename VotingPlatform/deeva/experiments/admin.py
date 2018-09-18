@@ -144,7 +144,7 @@ class VotingWizardAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'name')
 
     #page
-    readonly_fields = ('id','export_rate_votes','wizard_links',)
+    readonly_fields = ('id','export','wizard_links',)
 
     fieldsets = (
         ('General Information', {
@@ -157,12 +157,12 @@ class VotingWizardAdmin(admin.ModelAdmin):
             'fields': ('welcome_html', 'disclaimer_html', 'example_html', 'rate_vote_html', 'personalinfos_html', 'exit_html',),
         }),
         ('Other', {
-            'fields': ('export_rate_votes','wizard_links',),
+            'fields': ('export','wizard_links',),
         }),
 
     )
 
-    def export_rate_votes(self, obj):
+    def export(self, obj):
         template = loader.get_template('experiments/admin/admin_export_ratevotes_panel.html')
         context = {'wizard': obj}
         return template.render(context)

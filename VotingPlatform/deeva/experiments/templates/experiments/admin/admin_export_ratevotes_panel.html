@@ -4,6 +4,10 @@
 	<a class="" href="{% url 'experiments_admin:export_ratevotes' wizard.id %}" role="button">
 	  <span class="fa fa-file-excel-o"></span><span class="fa fa-long-arrow-down"></span> Export rate votes
 	</a>
+	<br>
+	<a class="" href="{% url 'experiments_admin:export_useranswers' wizard.id %}" role="button">
+	  <span class="fa fa-file-excel-o"></span><span class="fa fa-long-arrow-down"></span> Export user answers
+	</a>
 {% else %}
 	You need to save the wizard before you can export data.
 {% endif %}
