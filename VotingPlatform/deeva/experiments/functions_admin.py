@@ -106,40 +106,53 @@ def check_content_availability_individual(generation, individual):
     return after, change 
 
 
-# TODO -- finish this
-def handle_generate_individuals(num_individuals: int, random_segments: int, generation) -> List[str]:
+def handle_generate_individuals(num_individuals: int, random_segments: int, generation: Generation) -> None:
+    """Given a generation and a number of individuals N to create, creates N individuals.
+    The variable value of each individual will be in the range [min,max], but segmented according to the
+    random_segments parameter. E.g., with min=0 and max=1, random_segments=3 means that each variable will have value:
+    0.0, 0.5, or 1.0."""
+
     import random
 
-    messages = []
-
-    # generation = Generation.objects.get(pk=generation_id)
-
+    # Retrieve list of variables ranges for this experiment
     variable_ranges = generation.experiment.independent_variables.variablerange_set.all()
 
-    # Retrieve list of variables for this experiment
-    # Retrieve ranges
-
+    # For each individual
     for i in range(num_individuals):
 
         # Create the individual
+        indiv = Individual()
+        indiv.creation_type = Individual.RANDOM
+        indiv.has_content_files = False
+        # save the individual
+        indiv.save()
 
+        # Add the individual to the list of this generation
+        generation.individuals.add(indiv)
+
+        # For each variable/range
         for var_range in variable_ranges:  # type: VariableRange
-             low = var_range.min_value
-             hi = var_range.max_value
-             var = var_range.variable  # type: Variable
 
-             segment = random.randint(0, random_segments - 1)
-             k = segment / (random_segments - 1)
+            low = var_range.min_value
+            hi = var_range.max_value
+            var = var_range.variable  # type: Variable
 
-             attr_val = low + (hi - low) * k
+            # We support only continuous variables.
+            # This has been checked already in the creation page.
+            if var.variable_type != Variable.NMCONT:
+                raise("Sorry, variable {} must be 'numerical Continuous'. Found {}"
+                      .format(var.name, var.variable_type))
 
-        #     entry.append(str(attr_val))
-        #
-        # entry_line = ",".join(entry)
-        # outfile.write(entry_line)
-        # outfile.write("\n")
+            segment = random.randint(0, random_segments - 1)
+            k = segment / (random_segments - 1)
+            attr_val = low + (hi - low) * k
 
-    return messages
+            # Create the instance of the table associating the individual with the value for a certain variable.
+            ivv = IndividualVariableValue()
+            ivv.individual = indiv
+            ivv.variable = var
+            ivv.float_value = attr_val
+            ivv.save()
 
 
 def handle_import_individuals_file(filename, generation_id):

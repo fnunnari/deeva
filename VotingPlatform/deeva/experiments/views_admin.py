@@ -195,16 +195,31 @@ def generate_individuals(request, generation_id):
                                         random_segments=num_randomization_segments,
                                         generation=generation)
 
+            messages.success(request, "Successfully generated {} individuals.".format(num_individuals))
+
             # Redirect user to form page
             return redirect('experiments_admin:generate_individuals', generation_id=generation.id)
 
         else:
             # form filled out incorrect, redisplay
-            return render(request, 'experiments/admin/admin_generate_individuals.html',
-                          {'form': form, 'generation': generation})
+            pass
+            # return render(request, 'experiments/admin/admin_generate_individuals.html',
+            #              {'form': form, 'generation': generation})
 
     else:  # GET, display form
+        # Retrieve list of variables ranges for this experiment
+        variable_ranges = generation.experiment.independent_variables.variablerange_set.all()
+
+        # For each variable/range
+        for var_range in variable_ranges:  # type: VariableRange
+            var = var_range.variable
+            if var.variable_type != Variable.NMCONT:
+                messages.error(request,
+                               "Sorry, variable {} must be 'numerical Continuous'. Found {}"
+                               .format(var.name, var.variable_type))
+
         form = IndividualsGenerationForm()
+
     return render(request, 'experiments/admin/admin_generate_individuals.html', {'form': form, 'generation': generation})
 
 
