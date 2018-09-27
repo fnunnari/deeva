@@ -87,44 +87,6 @@ class IndividualsTable:
         return [float(a) for a in attrib_values]
 
 
-def create_random_individuals(attributes_table: AttributesTable,
-                              num_individuals: int,
-                              out_filename: str,
-                              random_segments: Optional[int]=None) -> None:
-    import random
-
-    attr_ids = attributes_table.attribute_ids()
-    attr_names = attributes_table.attribute_names()
-
-    header = ['id'] + ["{}-{}".format(index, name) for index, name in zip(attr_ids, attr_names)]
-
-    with open(out_filename, 'w') as outfile:
-        header_line = ','.join(header)
-        outfile.write(header_line)
-        outfile.write("\n")
-
-        for i in range(num_individuals):
-
-            entry = ['']
-
-            for attr_id in attributes_table.attribute_ids():
-                low, hi = attributes_table.attribute_range(attr_id=attr_id)
-
-                if random_segments is None:
-                    k = random.random()
-                else:
-                    segment = random.randint(0, random_segments-1)
-                    k = segment / (random_segments-1)
-
-                attr_val = low + (hi - low) * k
-
-                entry.append(str(attr_val))
-
-            entry_line = ",".join(entry)
-            outfile.write(entry_line)
-            outfile.write("\n")
-
-
 def consistency_check(individuals: IndividualsTable, attributes: AttributesTable):
     attrib_ids_1 = individuals.attribute_ids()
     print(attrib_ids_1)

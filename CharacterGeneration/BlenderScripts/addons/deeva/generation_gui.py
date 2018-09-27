@@ -19,7 +19,6 @@ import bpy
 from bpy_extras.io_utils import ExportHelper
 from bpy.path import abspath
 
-from deeva.generation import create_random_individuals
 from deeva.generation import AttributesTable
 from deeva.generation import IndividualsTable
 from deeva.generation import create_mblab_chars_dir
@@ -57,13 +56,6 @@ class GenerationPanel(bpy.types.Panel):
         row = layout.row()
         box = row.box()
         box.prop(context.scene, "deeva_generation_attributes_file")
-        box.prop(context.scene, "deeva_generation_num_individuals")
-        box.prop(context.scene, "deeva_generation_segments")
-        box.operator(CreateRandomIndividuals.bl_idname)
-
-        row = layout.row()
-        box = row.box()
-        box.prop(context.scene, "deeva_generation_attributes_file")
         box.prop(context.scene, "deeva_generation_individuals_file")
         box.prop(context.scene, "deeva_conversion_outdir")
         box.operator(ConvertIndividualsToMBLabJSon.bl_idname)
@@ -72,28 +64,6 @@ class GenerationPanel(bpy.types.Panel):
 #
 # INDIVIDUALS MANAGEMENT
 #
-class CreateRandomIndividuals(bpy.types.Operator, ExportHelper):
-    """Generates a set of random individuals."""
-    bl_idname = "deeva.create_random_individuals"
-    bl_label = "Generate Individuals"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    # ExportHelper mixin class uses this
-    filename_ext = ".csv"
-
-    def execute(self, context):
-        s = context.scene  # type: bpy.types.Scene
-
-        attrib_table = AttributesTable(table_filename=abspath(s.deeva_generation_attributes_file))
-
-        create_random_individuals(attributes_table=attrib_table,
-                                  num_individuals=s.deeva_generation_num_individuals,
-                                  out_filename=self.filepath,
-                                  random_segments=s.deeva_generation_segments)
-
-        return {'FINISHED'}
-
-
 class ConvertIndividualsToMBLabJSon(bpy.types.Operator):
     """Generates a set of random individuals."""
     bl_idname = "deeva.convert_individuals"
@@ -223,14 +193,12 @@ def register():
 
     bpy.utils.register_class(ExportMBLabAttributes)
     bpy.utils.register_class(GenerationPanel)
-    bpy.utils.register_class(CreateRandomIndividuals)
     bpy.utils.register_class(ConvertIndividualsToMBLabJSon)
 
 
 def unregister():
     bpy.utils.unregister_class(ExportMBLabAttributes)
     bpy.utils.unregister_class(GenerationPanel)
-    bpy.utils.unregister_class(CreateRandomIndividuals)
     bpy.utils.unregister_class(ConvertIndividualsToMBLabJSon)
 
     del bpy.types.Scene.deeva_generation_attributes_file
