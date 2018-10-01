@@ -54,7 +54,11 @@
 						<tr>
 							<td>{{vr.variable.left}}</td>
 							{% for label in vg.header %}
-							<td><input type="radio" data-variable-id="{{vr.variable.id}}" data-label="{{label}}" id='{{vr.variable.id}}-{{label}}' name="var{{vr.variable.id}}" style="width: 1em; height: 1em;"></td>
+							<td style="align: middle; padding: 0.4rem;">
+								<label style="padding: 5pt; margin: 0;">
+									<input type="radio" data-variable-id="{{vr.variable.id}}" data-label="{{label}}" id='{{vr.variable.id}}-{{label}}' name="var{{vr.variable.id}}" style="width: 1em; height: 1em;">
+								</label>
+							</td>
 							{% endfor %}
 							<td>{{vr.variable.right}}</td>
 						</tr>
