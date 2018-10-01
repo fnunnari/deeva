@@ -6,7 +6,7 @@ from django.forms import modelformset_factory
 from deeva.settings import *
 
 from .models import VotingWizard, CompareVote, RateVote
-from .functions import getRandomIndividualForUser
+from .functions import getRandomIndividualForUser, getRateVoteCountForUser, getConsistencyCheckIndividualForUser
 from questions.models import Answer
 from django.contrib.auth.models import User
 
@@ -237,7 +237,35 @@ def wizard_example(request, wizard_id):
     #return page
     return HttpResponse(template.render(context))
 
-def vote(request, wizard_id):
+def wizard_break(request, wizard_id):
+    from django.template import Context, Template, loader
+    #check if wizard exists
+    try:
+        wizard = VotingWizard.objects.get(pk=wizard_id)
+    except VotingWizard.DoesNotExist:
+        messages.error(request, 'The requested experiment does not exist. You were redirected to the homepage.')
+        return redirect('experiments:index')
+
+    #check if any mode is enabled
+    if not wizard.enable_rating_mode and not wizard.enable_compare_mode:
+        messages.error(request, "This experiment is currently disabled. You will not be able to complete this experiment! Sorry for the inconvenience caused.")  
+
+    #write context
+    context = {'wizard': wizard, 'currentpage': 2, 'totalpages': wizard.number_of_votes + 5}
+
+    #check if alternative website is present
+    if wizard.break_html == "":
+        template = loader.get_template('experiments/wizard_break.html')
+    else:
+
+        from django.template import engines
+        django_engine = engines['django']
+        template = django_engine.from_string(wizard.break_html)
+
+    #return page
+    return HttpResponse(template.render(context, request))
+
+def vote(request, wizard_id, had_break=False):
     wizard = get_object_or_404(VotingWizard, pk=wizard_id)
 
     #check, if user has a valid session
@@ -258,16 +286,28 @@ def vote(request, wizard_id):
     mode = request.session.get('wizard_mode', 'error')
    
     if mode == 'rate':
+        rvcr = getRateVoteCountForUser(wizard, vote_user)
         #check number of votes for this wizard and generation
         dependent_variables = wizard.generation.experiment.dependent_variables.attributes.all().count()
         rate_votes = RateVote.objects.filter(generation=wizard.generation, wizard=wizard, user=vote_user).count()/dependent_variables
 
         print('number', rate_votes)
 
-        if rate_votes >= wizard.number_of_votes:
-            return redirect('experiments:wizard_personalinfos', wizard_id=wizard.id)
-        else:
+        #redirect to break page if needed
+        if rvcr.break_needed and not had_break:
+            #don't redirect to break page if there is no vote last
+            if rvcr.normal_count < wizard.number_of_votes:
+                return redirect('experiments:wizard_break', wizard_id=wizard.id)
+
+        #redirect to consistency check
+        if rvcr.cc_needed:
             return redirect('experiments:rate_vote', wizard_id=wizard.id)
+
+        #redirect to vote page or personalinfos if finished
+        if rvcr.normal_count < wizard.number_of_votes:
+            return redirect('experiments:rate_vote', wizard_id=wizard.id)
+        else:
+            return redirect('experiments:wizard_personalinfos', wizard_id=wizard.id)   
 
     else:
         pass
@@ -335,7 +375,7 @@ def comp_vote(request, wizard_id):
     return render(request, template, context)
 
 
-def rate_vote(request, wizard_id):
+def rate_vote(request, wizard_id, consistency=False):
     wizard = get_object_or_404(VotingWizard, pk=wizard_id)
     #old individual = wizard.generation.individuals.all().order_by('?').first() #TODO replace by special selection function
     
@@ -359,7 +399,13 @@ def rate_vote(request, wizard_id):
         return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
 
     #get individual to vote on
-    individual, message = getRandomIndividualForUser(wizard, vote_user)
+    rvcr = getRateVoteCountForUser(wizard, vote_user)
+
+    if rvcr.cc_needed:
+        print("CONSISTENCY CHECK!")
+        individual, message = getConsistencyCheckIndividualForUser(wizard, vote_user)
+    else:
+        individual, message = getRandomIndividualForUser(wizard, vote_user)
 
     if not individual:
         messages.error(request, message)
@@ -372,11 +418,12 @@ def rate_vote(request, wizard_id):
         initial.append({
             'individual':individual,
             'variable':variable,
+            'consistency':rvcr.cc_needed,
         })
 
     #formset of seperate RateVote forms
     RateVoteFormSet = modelformset_factory(RateVote, fields=(
-        'individual', 'text_value', 'int_value', 'float_value', 'variable'), extra=len(initial))
+        'individual', 'text_value', 'int_value', 'float_value', 'variable', 'consistency'), extra=len(initial))
 
     #create or retrieve formset
     formset = RateVoteFormSet(
@@ -447,6 +494,9 @@ def rate_vote(request, wizard_id):
         'current_vote': int(rate_votes+1),
         'percentage': f'{percentage:.1f}',
     }
+
+    print("INDIVIDUAL:",individual.id)
+
 
     #return render(request, template, context)
 

@@ -8,7 +8,11 @@ urlpatterns = [
     url(r'^experiments/all', views.allExperiments, name='allExperiments'),
     url(r'^experiments/(?P<wizard_id>[0-9]+)$', views.oneExperiment, name='oneExperiment'),
 
-    url(r'^vote/(?P<wizard_id>[0-9]+)$', views.vote, name='vote'),
+    url(r'^wiz/(?P<wizard_id>[0-9]+)/vote$', views.vote, name='vote'),
+    url(r'^wiz/(?P<wizard_id>[0-9]+)/vote_after_break_$', views.vote, {'had_break': True}, name='vote_after_break'),
+
+    
+    url(r'^wiz/(?P<wizard_id>[0-9]+)/break$', views.wizard_break, name='wizard_break'),
     
     url(r'^wiz/(?P<wizard_id>[0-9]+)/comp_vote$', views.comp_vote, name='comp_vote'),
     url(r'^wiz/(?P<wizard_id>[0-9]+)/rate_vote$', views.rate_vote, name='rate_vote'),

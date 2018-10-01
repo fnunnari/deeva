@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block content %}
+	{% load staticfiles %}
+
+	{% block titletext %}
+		<h3>Short break</h3>
+	{% endblock %}
+	
+	{% block text %}
+		<p>Please take a short break before proceeding.</p>
+
+		<p>Click on the button to continue.</p>
+	{% endblock %}
+
+	{% block input %}
+		<p>
+			<a id="withjsbtn" class="btn btn-primary" href="{% url 'experiments:vote_after_break' wizard.id %}">
+				<span class="fa fa-chevron-right"></span> {% block button_text %}Continue{% endblock %}
+			</a>
+		
+		</p>
+
+	{% endblock %}
+
+
+{% endblock %}

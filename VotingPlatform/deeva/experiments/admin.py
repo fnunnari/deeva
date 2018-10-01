@@ -151,10 +151,10 @@ class VotingWizardAdmin(admin.ModelAdmin):
             'fields': ('id', 'name', 'generation',)
         }),
         ('Configuration', {
-            'fields': ('enable_rating_mode', 'enable_compare_mode', 'enable_anonymous_mode', 'number_of_votes', 'size_of_content', 'shown_on_overview_page', 'distraction_free_mode', 'questions',),
+            'fields': ('enable_rating_mode', 'enable_compare_mode', 'enable_anonymous_mode', 'number_of_votes', 'consistency_check', 'forced_break', 'size_of_content', 'shown_on_overview_page', 'distraction_free_mode', 'questions',),
         }),
         ('HTML override', {
-            'fields': ('welcome_html', 'disclaimer_html', 'example_html', 'rate_vote_html', 'personalinfos_html', 'exit_html',),
+            'fields': ('welcome_html', 'disclaimer_html', 'example_html', 'rate_vote_html', 'break_html', 'personalinfos_html', 'exit_html',),
         }),
         ('Other', {
             'fields': ('export','wizard_links',),
@@ -210,7 +210,7 @@ class IndividualVariableValueAdmin(admin.ModelAdmin):
 @admin.register(RateVote)
 class RateVoteAdmin(admin.ModelAdmin):
     #list
-    list_display = ('id', 'user', 'individual', 'variable', 'text_value', 'int_value', 'float_value', 'generation', 'wizard')
+    list_display = ('id', 'user', 'individual', 'variable', 'text_value', 'consistency', 'generation', 'wizard')
     list_display_links = ('id',)
 
     list_filter = ('wizard', 'generation',)

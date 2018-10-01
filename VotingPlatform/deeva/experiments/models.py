@@ -62,6 +62,8 @@ class VotingWizard(models.Model):
         help_text='Use {% extends "experiments/wizard_example.html" %} and the following blocks: titletext, introduction, rate_example, comp_example, nomode_example, input, button_text, scripts')
     rate_vote_html = models.TextField(null=True, blank=True,
         help_text='Use {% extends "experiments/rate_vote.html" %} and the following blocks: titletext, text, progress, ind_content, fake_form, buttons, button_cnt, button_save, button_load, real_form, scripts')
+    break_html = models.TextField(null=True, blank=True,
+        help_text='Use {% extends "experiments/wizard_break.html" %} and the following blocks: titletext, text, input, scripts')
     personalinfos_html = models.TextField(null=True, blank=True,
         help_text='Use {% extends "experiments/wizard_personalinfos.html" %} and the following blocks: titletext, text, questions, input, button_cnt, button_save, button_load, scripts')
     exit_html = models.TextField(null=True, blank=True,
@@ -72,8 +74,10 @@ class VotingWizard(models.Model):
     enable_compare_mode = models.BooleanField(default=False, help_text='TODO Enable paired comparison mode for this wizard.')
     enable_anonymous_mode = models.BooleanField(default=False, help_text='Allow not registeres (anonymous) user to vote.')
 
-    #number of required votes
+    #number of required votes and trigger for consistency and breaks
     number_of_votes = models.IntegerField(default=10, help_text='Number of votes a user has to submit.')
+    consistency_check = models.IntegerField(default=0, help_text='Number of votes after which a consistency check will be done. 0 = no check. Only normal votes count towards this trigger.')
+    forced_break = models.IntegerField(default=0, help_text='Number of votes after which a break page will be shown. 0 = no break. All votes, including consistency check vote will be counted.')
 
     #content size
     size_of_content = models.CharField(max_length = 128, default='10cm', null=True, blank=True, help_text='Size on page for the content files. Need to be a valid css size.')
@@ -158,9 +162,12 @@ class RateVote(models.Model):
     variable = models.ForeignKey('Variable', on_delete=models.PROTECT)
 
     #other information
+    consistency = models.BooleanField(default=False)
     date_time = models.DateTimeField(auto_now_add=True)
     generation = models.ForeignKey('Generation', on_delete=models.PROTECT)
     wizard = models.ForeignKey('VotingWizard', on_delete=models.PROTECT)
+
+
 
 
     def clean(self):
@@ -183,7 +190,8 @@ class CompareVote(models.Model):
     from django.core.validators import MinValueValidator, MaxValueValidator
     vote = models.IntegerField(validators= [MinValueValidator(-1), MaxValueValidator(1)])
     variable = models.ForeignKey('Variable', on_delete=models.PROTECT)
-    
+
+    consistency = models.BooleanField(default=False)    
     date_time = models.DateTimeField(auto_now_add=True)
     generation = models.ForeignKey('Generation', on_delete=models.PROTECT)
     wizard = models.ForeignKey('VotingWizard', on_delete=models.PROTECT)
