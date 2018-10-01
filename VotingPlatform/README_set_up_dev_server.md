@@ -2,6 +2,22 @@
 
 This sums up the steps to set up a development server for the *Deeva* voting platform. It is expected that **Python 3** and a **MySQL** server are already installed.
 
+```
+sudo apt-get install mysql-server
+sudo apt-get install mysql-client
+sudo service mysql start
+sudo update-rc.d mysql enable
+sudo mysql_secure_installation
+```
+
+(Currently running Ubuntu the `mysqlclient` package is not working correctly,
+you additionally need to install it via the systems package manager)
+
+```
+sudo apt-get install gcc
+sudo apt-get install python3-dev libmysqlclient-dev
+```
+
 
 ## Set up a virtual environment
 
@@ -25,10 +41,6 @@ Remember to crete a new package list when adding required packages by running:
 pip freeze > requirements.txt` and pushing the file to the repository.
 ```
 
-Currently running Ubuntu the `mysqlclient` package is not working correctly, you additionally need to install it via the systems package manager:
-```
-sudo apt-get install python3-dev libmysqlclient-dev
-```
 
 ## Set up the database server
 
