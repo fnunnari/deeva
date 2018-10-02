@@ -479,7 +479,11 @@ def rate_vote(request, wizard_id, consistency=False):
 
     #template = 'experiments/rate_vote.html'
 
-    percentage = int(rate_votes+1)*100/wizard.number_of_votes
+    import math
+    total_number = wizard.number_of_votes + math.floor(wizard.number_of_votes/wizard.consistency_check)
+
+
+    percentage = int(rate_votes+1)*100/total_number
 
     context = {
         'formset':formset,
