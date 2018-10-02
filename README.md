@@ -1,8 +1,6 @@
 # DeEvA
 
-Virtual characters' generation and voting platform
-
-This is a platform for the procedural generation of characters.
+This is a platform for the procedural generation of characters from personality traits.
 
 It currently consists of several, inter-dependent, projects.
 
