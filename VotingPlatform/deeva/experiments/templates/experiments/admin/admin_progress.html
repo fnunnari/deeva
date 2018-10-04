@@ -1,0 +1,92 @@
+{% extends 'base.html'  %}
+{% load staticfiles %}
+{% load experiments_extra %}
+
+
+
+{% block content %}
+
+{# Load the tag library for django-bootstrap3 #}
+{% load bootstrap3 %}
+
+{# Load Bootstrap CSS #}
+{% bootstrap_css %}
+
+<link href="{% static "css/font-awesome.css" %}" rel="stylesheet">
+
+<h1>Progress overview</h1>
+
+<p>See below the (rate) voting progress of the users in the selected wizard.</p>
+
+<dl class="dl-horizontal">
+  <dt>Wizard</dt>
+  <dd><a href="{% url 'admin:experiments_votingwizard_change' wizard.id %}">{{wizard.name}}</a></dd>
+</dl>
+
+<div id="step1">
+  <h2>Progress</h2>
+
+  {% for p in progresses %}
+
+  <div class="card mb-3">
+      <div class="card-header">
+        {{p.user.username}}
+      </div>
+        
+    <div class="card-body">
+      <div class="progress">
+        {% for b in p.bars %}
+          {% if b.color == 'danger' %}
+            <div class="text-center" role="progressbar" style="width: {{b.size|mult:100}}%" >{{b.count}}</div>
+          {% else %}
+            <div class="progress-bar bg-{{b.color}}" role="progressbar" style="width: {{b.size|mult:100}}%" >{{b.count}}</div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <b>Total Votes: {{p.rvcr.all_distinct_count}}/TODO</b>
+      Normal Votes: {{p.rvcr.normal_count}}/TODO
+      Consistency Votes: {{p.rvcr.consistency_count}}/TODO
+
+
+
+    </div>
+
+
+
+      
+      
+    
+    
+  </div>
+    
+  {% endfor %}
+
+  
+
+ 
+</div>
+
+
+
+<a href="{% url 'experiments_admin:upload_content' wizard.generation.id %}" class="btn btn-default" role="button" aria-pressed="true">
+  <i class="fa fa-chevron-left"></i> Upload more content files
+</a>
+
+
+<a href="{% url 'experiments_admin:check_content_availability' wizard.generation.id %}" class="btn btn-primary" role="button" aria-pressed="true">
+  <i class="fa fa-chevron-right"></i> Update database &amp; go to the Generation's Page
+</a>
+
+</div>
+
+
+
+{% endblock %}
+
+
+{% block scripts %}
+
+</script>
+
+{% endblock %}
+

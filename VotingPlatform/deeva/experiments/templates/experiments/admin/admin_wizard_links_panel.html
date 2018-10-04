@@ -8,6 +8,11 @@
 	<a class="" href="{% url 'experiments:wizard_checkuser' wizard.id %}" role="button">
 	  <span class="fa fa-link"></span></span> Check user and browser page
 	</a>
+	<br>
+	<br>
+	<a class="" href="{% url 'experiments_admin:admin_progress' wizard.id %}" role="button">
+	  <span class="fa fa-eye"></span></span> Watch progress
+	</a>
 {% else %}
 	You need to save the wizard before you can see any links.
 {% endif %}

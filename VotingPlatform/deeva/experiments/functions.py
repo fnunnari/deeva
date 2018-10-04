@@ -1,6 +1,7 @@
 from .models import VotingWizard, Individual, RateVote
 
 
+
 def getOneWizard(id):
     """Returns one specific wizard object
 
@@ -137,22 +138,153 @@ def getRateVoteCountForUser(wizard, user):
 
     rvcr.all_distinct_count = rvcr.normal_count + rvcr.consistency_count
 
-    print("COUNT:", rvcr.all_var_count, rvcr.normal_count, rvcr.consistency_count, rvcr.all_distinct_count)
+    #print("COUNT:", rvcr.all_var_count, rvcr.normal_count, rvcr.consistency_count, rvcr.all_distinct_count)
 
-    print("wiz cc", wizard.consistency_check)
-    print("wiz nc", rvcr.normal_count )
+    #print("wiz cc", wizard.consistency_check)
+    #print("wiz nc", rvcr.normal_count )
 
     if wizard.consistency_check > 0 and rvcr.normal_count > 0:
-        print("B")
+        #print("B")
         last_vote = rvs.last()
         if not last_vote.consistency:       
             rvcr.cc_needed = (rvcr.normal_count % wizard.consistency_check) == 0 
-        print(rvcr.cc_needed)
+        #print(rvcr.cc_needed)
 
     if wizard.forced_break > 0 and rvcr.all_distinct_count > 0:
-        print("A")
+        #print("A")
         rvcr.break_needed = (rvcr.all_distinct_count % wizard.forced_break) == 0
-        print(rvcr.break_needed)
+        #print(rvcr.break_needed)
                 
     return rvcr
+
+def getProgressBarForUser(wizard, user):
+    """returns a dict to pass through to the website to display the current progress as bar
+
+    wizard -- wizard to search votes in
+    user -- user for which progress should be generated
+    """
+
+    import math
+
+    rvcr = getRateVoteCountForUser(wizard, user)
+
+    space_for_beginning = 0.02
+    space_for_end = 0.02
+    space_for_break = 0.01
+
+    number_normal_votes = wizard.number_of_votes
+    number_cc_votes = math.floor(number_normal_votes/wizard.consistency_check)
+ 
+    number_all_votes = number_normal_votes + number_cc_votes
+
+    number_breaks = math.floor(number_all_votes/wizard.forced_break)
+
+    static_percentage = space_for_beginning + space_for_end + (space_for_break*number_breaks)
+    variable_percentage = 1-static_percentage
+
+
+    pbd = []
+
+    #beginning
+    bar = {
+        'color': 'success',
+        'size': space_for_beginning,
+    }
+    pbd.append(bar)
+
+    all_votes_count = number_all_votes
+    done_votes_count = rvcr.all_distinct_count
+    breaks_count = number_breaks
+
+    missing_break = False
+
+    while all_votes_count > 0:
+        #print('all_votes_count', all_votes_count)
+        #print('done_votes_count', done_votes_count)
+        #voting
+        bar = {}
+        print("avc1", all_votes_count)
+
+        all_votes_count -= wizard.forced_break
+        done_votes_count -= wizard.forced_break
+
+        if done_votes_count > 0:
+            bar = {
+                'color': 'info',
+                'size': (wizard.forced_break/number_all_votes)*variable_percentage,
+                'count': wizard.forced_break,
+                'reason': 'voted full',
+            }
+            pbd.append(bar)
+        else:
+            if (wizard.forced_break+done_votes_count) > 0:
+                bar = {
+                    'color': 'info',
+                    'size': ((wizard.forced_break+done_votes_count)/number_all_votes)*variable_percentage,
+                    'count': wizard.forced_break+done_votes_count,
+                    'reason': 'voted partial',
+                }
+                pbd.append(bar)
+
+            print("avc", all_votes_count)
+            if all_votes_count >= 0:
+                remaining = abs(done_votes_count)
+            else:
+                remaining = wizard.forced_break-abs(all_votes_count)-(wizard.forced_break+done_votes_count)
+            
+            bar = {
+                'color': 'danger',
+                'size': (remaining/number_all_votes)*variable_percentage,
+                'count': remaining,
+                'reason': 'remaining',
+            }
+            pbd.append(bar)
+            done_votes_count = 0
+
+        #breaks
+        if all_votes_count > 1:
+            if done_votes_count == 0:
+                color = 'warning'
+            else:
+                color = 'success'
+            bar = {
+                'color': color,
+                'size': space_for_break,
+            }
+            pbd.append(bar)
+            breaks_count -= 1
+        elif all_votes_count > 0:
+            missing_break = True
+
+
+
+
+    #end
+    bar = {
+        'color': 'warning',
+        'size': space_for_end,
+        
+    }
+    pbd.append(bar)
+
+    if missing_break:
+        bar = {
+            'color': 'warning',
+            'size': space_for_break/2,
+        }
+        pbd.append(bar)
+        bar = {
+            'color': 'success',
+            'size': space_for_break/2,
+        }
+        pbd.insert(0, bar)
+
+
+
+
+    
+    print(pbd)
+    return pbd
+
+
 

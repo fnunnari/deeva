@@ -2,6 +2,8 @@
 
 {% load bootstrap3 %}
 {% load staticfiles %}
+{% load experiments_extra %}
+
 
 {% block content %}
 
@@ -16,9 +18,28 @@
 
 	{% block progress %}
 		<!-- Progress: {{current_vote}} of {{wizard.number_of_votes}} -->
-		<div class="progress">
+		<!--div class="progress">
 		  <div class="progress-bar" role="progressbar" style="width: {{percentage}}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{percentage}}%</div>
-		</div>
+		</div-->
+		{% block progress-text %}
+		<p class="mb-0 text-center">
+				{% block progress-percentage %}{{percentage}}%{% endblock %}
+				{% block progress-item %}{{current_vote}}/{{total_votes}}{% endblock %}
+		</p>
+		{% endblock %}
+
+		{% block progress-bar %}
+		<div class="progress">
+        {% for b in progressbars %}
+          {% if b.color == 'danger' %}
+            <div class="text-center" role="progressbar" style="width: {{b.size|mult:100}}%" ></div>
+          {% else %}
+            <div class="progress-bar bg-{{b.color}}" role="progressbar" style="width: {{b.size|mult:100}}%" ></div>
+          {% endif %}
+        {% endfor %}
+      	</div>
+      	{% endblock %}
+
 	{% endblock %}
 	
 	<!-- individual content -->

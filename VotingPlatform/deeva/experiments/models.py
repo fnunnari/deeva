@@ -61,7 +61,7 @@ class VotingWizard(models.Model):
     example_html = models.TextField(null=True, blank=True,
         help_text='Use {% extends "experiments/wizard_example.html" %} and the following blocks: titletext, introduction, rate_example, comp_example, nomode_example, input, button_text, scripts')
     rate_vote_html = models.TextField(null=True, blank=True,
-        help_text='Use {% extends "experiments/rate_vote.html" %} and the following blocks: titletext, text, progress, ind_content, fake_form, buttons, button_cnt, button_save, button_load, real_form, scripts')
+        help_text='Use {% extends "experiments/rate_vote.html" %} and the following blocks: titletext, text, progress, progress-text, progress-percentage, progress-item, progress-bar, ind_content, fake_form, buttons, button_cnt, button_save, button_load, real_form, scripts')
     break_html = models.TextField(null=True, blank=True,
         help_text='Use {% extends "experiments/wizard_break.html" %} and the following blocks: titletext, text, input, scripts')
     personalinfos_html = models.TextField(null=True, blank=True,
@@ -75,7 +75,7 @@ class VotingWizard(models.Model):
     enable_anonymous_mode = models.BooleanField(default=False, help_text='Allow not registeres (anonymous) user to vote.')
 
     #number of required votes and trigger for consistency and breaks
-    number_of_votes = models.IntegerField(default=10, help_text='Number of votes a user has to submit.')
+    number_of_votes = models.IntegerField(default=10, help_text='Number of normal votes a user has to submit. This does not include the additional consistency check!')
     consistency_check = models.IntegerField(default=0, help_text='Number of votes after which a consistency check will be done. 0 = no check. Only normal votes count towards this trigger.')
     forced_break = models.IntegerField(default=0, help_text='Number of votes after which a break page will be shown. 0 = no break. All votes, including consistency check vote will be counted.')
 

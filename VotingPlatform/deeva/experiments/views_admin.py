@@ -419,3 +419,35 @@ def download_useranswers(request, wizard_id):
     #send cvs
     return response
 
+
+@staff_member_required
+def admin_progress(request, wizard_id):
+    wizard = get_object_or_404(VotingWizard, pk=wizard_id)
+
+    rvs = RateVote.objects.filter(generation=wizard.generation, wizard=wizard)
+    users = rvs.values_list('user', flat=True).distinct()
+
+    print(users)
+
+    progresses = []
+
+    for user_id in reversed(users):
+        user = get_object_or_404(User, pk=user_id)
+        progress = {}
+        progress['user'] = user
+        progress['rvcr'] = getRateVoteCountForUser(wizard, user)
+        progress['bars'] = getProgressBarForUser(wizard, user)
+
+        progresses.append(progress)
+
+    template = 'experiments/admin/admin_progress.html'
+
+    context = {
+        'wizard':wizard,
+        'progresses':progresses,
+    }
+
+    return render(request, template, context)
+
+
+

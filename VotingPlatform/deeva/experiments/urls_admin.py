@@ -34,4 +34,7 @@ urlpatterns = [
         views_admin.download_ratevotes, name='export_ratevotes'),   
     url(r'^experiments/wizard/(?P<wizard_id>[0-9]+)/export_useranswers$',
         views_admin.download_useranswers, name='export_useranswers'),  
+
+    url(r'^experiments/wizard/(?P<wizard_id>[0-9]+)/progress$',
+        views_admin.admin_progress, name='admin_progress'), 
 ]

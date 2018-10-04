@@ -6,7 +6,7 @@ from django.forms import modelformset_factory
 from deeva.settings import *
 
 from .models import VotingWizard, CompareVote, RateVote
-from .functions import getRandomIndividualForUser, getRateVoteCountForUser, getConsistencyCheckIndividualForUser
+from .functions import getRandomIndividualForUser, getRateVoteCountForUser, getConsistencyCheckIndividualForUser, getProgressBarForUser
 from questions.models import Answer
 from django.contrib.auth.models import User
 
@@ -483,7 +483,10 @@ def rate_vote(request, wizard_id, consistency=False):
     total_number = wizard.number_of_votes + math.floor(wizard.number_of_votes/wizard.consistency_check)
 
 
-    percentage = int(rate_votes+1)*100/total_number
+    percentage = int(rate_votes)*100/total_number
+
+
+    progressbars = getProgressBarForUser(wizard, vote_user)
 
     context = {
         'formset':formset,
@@ -497,6 +500,8 @@ def rate_vote(request, wizard_id, consistency=False):
 
         'current_vote': int(rate_votes+1),
         'percentage': f'{percentage:.1f}',
+        'progressbars': progressbars,
+        'total_votes': total_number,
     }
 
     print("INDIVIDUAL:",individual.id)
