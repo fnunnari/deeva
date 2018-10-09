@@ -16,16 +16,15 @@
 
 
 import bpy
-from bpy_extras.io_utils import ExportHelper
 from bpy.path import abspath
+from bpy_extras.io_utils import ExportHelper
 
 from deeva.generation import AttributesTable
 from deeva.generation import IndividualsTable
-from deeva.generation import create_mblab_chars_dir
-
+from deeva.generation_tools import export_mblab_attributes, create_mblab_chars_json_dir
 
 bl_info = {
-    "name": "Deeva - Character Generation Tool",
+    "name": "Deeva - Character Generator",
     "description": "Deeva tools to manage attributes and generate random characters.",
     "author": "Fabrizio Nunnari",
     "version": (0, 10),
@@ -36,11 +35,11 @@ bl_info = {
 
 
 #
-# GUI
+# GUIs
 #
-class GenerationPanel(bpy.types.Panel):
+class ToolsPanel(bpy.types.Panel):
     # bl_idname = "OBJECT_PT_GenerationPanel"
-    bl_label = "Generation Tools (v" + (".".join([str(x) for x in bl_info["version"]])) + ")"
+    bl_label = bl_info["name"] + " Tools (v" + (".".join([str(x) for x in bl_info["version"]])) + ")"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'TOOLS'
     bl_context = 'objectmode'
@@ -59,6 +58,27 @@ class GenerationPanel(bpy.types.Panel):
         box.prop(context.scene, "deeva_generation_individuals_file")
         box.prop(context.scene, "deeva_conversion_outdir")
         box.operator(ConvertIndividualsToMBLabJSon.bl_idname)
+
+
+class GenerationPanel(bpy.types.Panel):
+    # bl_idname = "OBJECT_PT_GenerationPanel"
+    bl_label = bl_info["name"] + " (v" + (".".join([str(x) for x in bl_info["version"]])) + ")"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'TOOLS'
+    bl_context = 'objectmode'
+    bl_category = "Deeva"
+
+    def draw(self, context):
+        layout = self.layout
+
+        row = layout.row()
+        box = row.box()
+        box.prop(context.scene, "deeva_generation_attributes_file")
+        box.prop(context.scene, "deeva_generation_individuals_file")
+        box.label("TODO -- select file: the traits table")
+        box.label("TODO -- select file: the votes results (coefficients and p values)")
+        box.label("TODO -- grid: list the traits and select their values")
+        box.label("TODO -- operator: reset/center traits")
 
 
 #
@@ -80,9 +100,9 @@ class ConvertIndividualsToMBLabJSon(bpy.types.Operator):
         individuals_table = IndividualsTable(individuals_filename=abspath(s.deeva_generation_individuals_file))
         attrib_table = AttributesTable(table_filename=abspath(s.deeva_generation_attributes_file))
 
-        create_mblab_chars_dir(individuals=individuals_table,
-                               attributes=attrib_table,
-                               dirpath=abspath(s.deeva_conversion_outdir))
+        create_mblab_chars_json_dir(individuals=individuals_table,
+                                    attributes=attrib_table,
+                                    dirpath=abspath(s.deeva_conversion_outdir))
 
         return {'FINISHED'}
 
@@ -117,41 +137,6 @@ class ExportMBLabAttributes(bpy.types.Operator, ExportHelper):
         return {'FINISHED'}
 
 
-def export_mblab_attributes(mesh_obj: bpy.types.Object, outfilepath: str) -> None:
-    import inspect
-    import csv
-
-    #
-    # List attributes
-    print("Start gathering attributes...")
-
-    attributes = []
-
-    # Filter for float only attributes
-    for attr in inspect.getmembers(mesh_obj, lambda a: isinstance(a, float)):
-        attribute_name = attr[0]  # type: str
-        # filter for uppercase only attributes
-        if attribute_name[0].isupper():
-            # print(attr[0])
-            if not attribute_name.startswith("Expressions_"):
-                attributes.append({'name': attr[0], 'type': 'nc'})  # 'nc' stands for 'numerical continuous'
-
-    print("Found {} attributes.".format(len(attributes)))
-
-    #
-    # Write attribute list to a file
-    print("Writing csv file '{}'...".format(outfilepath))
-    with open(outfilepath, 'w') as csvfile:
-        fieldnames = ['name', 'type']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
-        writer.writeheader()
-        for attribute in attributes:
-            writer.writerow(attribute)
-
-    print("Finished.")
-
-
 #
 # Register & Unregister ###
 #
@@ -171,19 +156,6 @@ def register():
         subtype='FILE_PATH'
     )
 
-    bpy.types.Scene.deeva_generation_num_individuals = bpy.props.IntProperty(
-        name="generation_num_individuals",
-        default=100,
-        description="Number of individuals to generate."
-    )
-
-    bpy.types.Scene.deeva_generation_segments = bpy.props.IntProperty(
-        name="generation_segments",
-        default=9,
-        min=2,
-        description="Number of segments to use for segmentation of randomization."
-    )
-
     bpy.types.Scene.deeva_conversion_outdir = bpy.props.StringProperty(
         name="conversion_outdir",
         default="",
@@ -192,18 +164,18 @@ def register():
     )
 
     bpy.utils.register_class(ExportMBLabAttributes)
+    bpy.utils.register_class(ToolsPanel)
     bpy.utils.register_class(GenerationPanel)
     bpy.utils.register_class(ConvertIndividualsToMBLabJSon)
 
 
 def unregister():
     bpy.utils.unregister_class(ExportMBLabAttributes)
+    bpy.utils.unregister_class(ToolsPanel)
     bpy.utils.unregister_class(GenerationPanel)
     bpy.utils.unregister_class(ConvertIndividualsToMBLabJSon)
 
     del bpy.types.Scene.deeva_generation_attributes_file
-    del bpy.types.Scene.deeva_generation_num_individuals
-    del bpy.types.Scene.deeva_generation_segments
     del bpy.types.Scene.deeva_conversion_outdir
 
 

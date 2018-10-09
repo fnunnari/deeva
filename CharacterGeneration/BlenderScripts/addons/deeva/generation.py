@@ -15,11 +15,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import pandas
-
 from typing import List
 from typing import Tuple
-from typing import Optional
+
+import pandas
 
 
 class AttributesTable:
@@ -33,7 +32,7 @@ class AttributesTable:
     323,Eyes_Size,nc,0.1,1.0,N/A
     """
 
-    def __init__(self, table_filename):
+    def __init__(self, table_filename: str):
 
         self._table = pandas.read_csv(filepath_or_buffer=table_filename)
         self._table.set_index('id', inplace=True)
@@ -87,57 +86,6 @@ class IndividualsTable:
         return [float(a) for a in attrib_values]
 
 
-def consistency_check(individuals: IndividualsTable, attributes: AttributesTable):
-    attrib_ids_1 = individuals.attribute_ids()
-    print(attrib_ids_1)
-
-    attrib_ids_2 = attributes.attribute_ids()
-    print(attrib_ids_2)
-
-    if len(attrib_ids_1) != len(attrib_ids_2):
-        raise Exception("Number of attribute IDs should be the same. Found {} {}"
-                        .format(len(attrib_ids_1), len(attrib_ids_2)))
-
-    attrib_set = set(attrib_ids_1)
-    for attr_id in attrib_ids_2:
-        if attr_id not in attrib_set:
-            raise Exception("Attribute {} from attributes table not found in individuals table".format(attr_id))
-
-
-def create_mblab_chars_dir(individuals: IndividualsTable, attributes: AttributesTable, dirpath: str) -> None:
-
-    import os
-    import json
-
-    consistency_check(individuals=individuals, attributes=attributes)
-
-    if not os.path.exists(dirpath):
-        os.makedirs(dirpath)
-
-    attr_ids = attributes.attribute_ids()
-
-    for individual_id in individuals.ids():
-        attr_vals = individuals.attribute_values(individual_id=individual_id)
-        if len(attr_ids) != len(attr_vals):
-            raise Exception("Number of attribute IDs should be the same of Attribute values. Found {} {}"
-                            .format(len(attr_ids), len(attr_vals)))
-
-        attributes_dict = {}
-        for attr_id, attr_val in zip(attr_ids, attr_vals):
-            attr_name = attributes.attribute_name(attr_id=attr_id)
-            attributes_dict[attr_name] = attr_val
-
-        out_dict = {
-            "materialproperties": {},
-            "metaproperties": {},
-            "manuellab_vers": [1, 6, 1],
-            "structural": attributes_dict
-        }
-
-        with open(os.path.join(dirpath, "{}.json".format(individual_id)), 'w') as outfile:
-            json.dump(obj=out_dict, fp=outfile, indent=2)
-
-
 #
 #
 #
@@ -147,6 +95,8 @@ if __name__ == "__main__":
     print("Test attrs")
 
     import os
+
+    from deeva.generation_tools import create_mblab_chars_json_dir
 
     print(os.getcwd())
 
@@ -166,6 +116,6 @@ if __name__ == "__main__":
     indiv_tab = IndividualsTable("../../BlenderScenes/individuals2-fake.csv")
     print(indiv_tab._table)
 
-    create_mblab_chars_dir(individuals=indiv_tab, attributes=attributes_tab, dirpath="generated_indiv")
+    create_mblab_chars_json_dir(individuals=indiv_tab, attributes=attributes_tab, dirpath="generated_indiv")
 
     print("end.")

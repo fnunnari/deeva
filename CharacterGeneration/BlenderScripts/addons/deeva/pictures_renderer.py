@@ -37,7 +37,7 @@ import math
 
 
 bl_info = {
-    "name": "Deeva - Pictures Generation Tools",
+    "name": "Deeva - Pictures Rendering Tools",
     "description": "Automates import of scripts and generation of pictures from characters for the ManuelbastioniLAB.",
     "author": "Nicolas Erbach",
     "version": (0, 10),
@@ -57,9 +57,9 @@ HEAD_CAMERA_ORTHO_DEFAULT = 0.3
 #
 
 
-class AutomationPanel(bpy.types.Panel):
+class PicturesRenderPanel(bpy.types.Panel):
     # bl_idname = "OBJECT_PT_PictureCreationPanel"
-    bl_label = "Pictures Generation Tools (v" + (".".join([str(x) for x in bl_info["version"]])) + ")"
+    bl_label = bl_info["name"] + " (v" + (".".join([str(x) for x in bl_info["version"]])) + ")"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'TOOLS'
     bl_context = 'objectmode'
@@ -450,7 +450,7 @@ class ReplaceLights(bpy.types.Operator):
 
 def register():
     # panels
-    bpy.utils.register_class(AutomationPanel)
+    bpy.utils.register_class(PicturesRenderPanel)
     
     # operators
     bpy.utils.register_class(LoadScripts)
@@ -503,7 +503,7 @@ def register():
 
 
 def unregister():
-    bpy.utils.unregister_class(AutomationPanel)
+    bpy.utils.unregister_class(PicturesRenderPanel)
     bpy.utils.unregister_class(LoadScripts)
     bpy.utils.unregister_class(ChangeCamera)
     bpy.utils.unregister_class(CreateOneRender)

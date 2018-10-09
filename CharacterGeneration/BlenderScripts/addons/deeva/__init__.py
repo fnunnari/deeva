@@ -15,7 +15,7 @@
 
 import os
 
-import deeva.mblab_batchchargen
+import deeva.pictures_renderer
 import deeva.generation_gui
 
 bl_info = {
@@ -36,14 +36,14 @@ DEEVA_DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
 def register():
     # bpy.utils.register_module(__name__)
-    mblab_batchchargen.register()
+    pictures_renderer.register()
     generation_gui.register()
 
 
 def unregister():
     # bpy.utils.unregister_module(__name__)
     generation_gui.unregister()
-    mblab_batchchargen.unregister()
+    pictures_renderer.unregister()
 
 
 if __name__ == "__main__":
