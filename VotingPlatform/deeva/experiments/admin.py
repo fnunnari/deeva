@@ -126,9 +126,6 @@ class IndividualAdmin(admin.ModelAdmin):
         ('General Information', {
             'fields': ('id', 'creation_type',)
         }),
-        ('Variables', {
-            'fields': ('id',),#TODO
-        }),
         ('Content', {
             'fields': ('has_content_files',), #TODO content preview
         }),
