@@ -42,47 +42,36 @@
 			<form id=fake-form>
 				{% for v in dependent_variables %}
 				<div class="form-group">
-					<label for="">...more {{v.name}}?</label><br>
+					<label for="">...more {{v.name}} ({{v.id}})?</label><br>
 					<div class="btn-group btn-group-toggle" data-toggle="buttons" data-variable="{{v.id}}">
 						<label class="btn btn-secondary">
-							<input type="radio" name="options" id="-1" autocomplete="off"> Left
+							<input type="radio" name="var{{v.id}}" data-vote="-1" autocomplete="off"> Left
 						</label>
 						<label class="btn btn-secondary">
-							<input type="radio" name="options" id="0" autocomplete="off"> I don't know
+							<input type="radio" name="var{{v.id}}" data-vote="0" autocomplete="off"> I don't know
 						</label>
 						<label class="btn btn-secondary">
-							<input type="radio" name="options" id="1" autocomplete="off"> Right
+							<input type="radio" name="var{{v.id}}" data-vote="1" autocomplete="off"> Right
 						</label>
 					</div>
 				</div>
 				{% endfor %}
 			</form>
-			
-		</div>
-		<div class="col-sm-12 col-md-4 text-center order-xs-3 order-md-2">
 
-			<form id=fake-form>
-				FORM
-				{% for form in formset %}
-				<div class="form-group">
-					<label for="">...more {{ form.get_variable_display }}?</label><br>
-					<div class="btn-group btn-group-toggle" data-toggle="buttons" data-variable="{{form.variable.html_name}}">
-						<label class="btn btn-secondary">
-							<input type="radio" name="options" id="-1" autocomplete="off"> Left
-						</label>
-						<label class="btn btn-secondary">
-							<input type="radio" name="options" id="0" autocomplete="off"> I don't know
-						</label>
-						<label class="btn btn-secondary">
-							<input type="radio" name="options" id="1" autocomplete="off"> Right
-						</label>
-					</div>
-				</div>
-				{% endfor %}
-			</form>
+			{% block buttons %}
+			<button id="fake-send-btn-click" type="button" class="btn btn-primary">
+				<span class="fa fa-chevron-right"></span> {% block button_cnt %}Save &amp; Continue{% endblock %} 
+			</button>
+			<button id="fake-send-btn-spinner" type="button" class="btn btn-warning disabled d-none">
+				<span class="fa fa-pulse fa-spinner"></span> {% block button_save %}Saving...{% endblock %} 
+			</button>
+			<button id="fake-send-btn-finished" type="button" class="btn btn-success disabled d-none">
+				<span class="fa fa-check"></span> {% block button_load %}Saved! Loading next page...{% endblock %} 
+			</button>
+		{% endblock %}
 			
 		</div>
-			
+
 	
 
 
@@ -105,6 +94,59 @@
 
 {% block scripts %}
 <script>
+	$("#fake-form")[0].reset(); //reset fake form on page load
+
+	$("#fake-form").change(function() {
+		//get total number of variables to fill and iterate through them
+		var total_forms = $('input[name=form-TOTAL_FORMS]').val();
+
+
+		for (i = 0; i < total_forms; i++) {
+
+			//get variable id for current form
+			vid = $('#id_form-'+i+'-variable').val();
+			console.log(vid)
+
+			//get selected vote from the fake form
+			var vote = $('input[name=var'+vid+']:checked', '#fake-form').data('vote');
+
+			//paste value in real form
+			$('#id_form-'+i+'-vote').val(vote);
+		} ;
+
+	});
+
+
+	$("#fake-send-btn-click").click(function() {
+			var form = $("#real-form");
+		    var url = form.attr('action');
+
+		    $('#fake-send-btn-click').addClass("d-none");
+		    $('#fake-send-btn-spinner').removeClass("d-none");
+
+		    $.ajax({
+		           type: "POST",
+		           url: url,
+		           data: form.serialize(),
+		        }).done(function(data){
+		        	if(data.success){
+		        		//proceed
+		        		$('#fake-send-btn-spinner').addClass("d-none");
+		    			$('#fake-send-btn-finished').removeClass("d-none");
+		    			window.location.href = "{% url 'experiments:vote' wizard.id %}";
+		        	} else {
+		        		//re-do form
+		        		$('#fake-send-btn-spinner').addClass("d-none");
+		    			$('#fake-send-btn-click').removeClass("d-none");
+		    			alert("Please fill out the form before clicking on continue.");
+		        	}
+		        	
+		        }).fail(function(jqXHR, textStatus, errorThrown){
+		        	$('#fake-send-btn-spinner').addClass("d-none");
+		    		$('#fake-send-btn-click').removeClass("d-none");
+		        	alert(textStatus);
+		        })
+		});
 
 
 

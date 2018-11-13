@@ -1,4 +1,4 @@
-from .models import VotingWizard, Individual, RateVote
+from .models import VotingWizard, Individual, RateVote, CompareVote
 
 
 
@@ -120,7 +120,7 @@ class RateVoteCountResult():
 
 
 def getRateVoteCountForUser(wizard, user):
-    """returns various counts of votes for this user in this wizards generation and if break or consistency check are needed
+    """returns various counts of votes in rate mode for this user in this wizards generation and if break or consistency check are needed
 
     wizard -- wizard to search votes in
     user -- user for which count should be generated
@@ -156,6 +156,78 @@ def getRateVoteCountForUser(wizard, user):
         #print(rvcr.break_needed)
                 
     return rvcr
+
+
+class CompareVoteCountResult():
+    all_var_count = None
+    normal_count = None
+    consistency_count = None
+    all_distinct_count = None
+
+    cc_needed = None
+    break_needed = None
+
+
+def getCompareVoteCountForUser(wizard, user):
+    """returns various counts of votes in comparison mode for this user in this wizards generation and if break or consistency check are needed
+
+    wizard -- wizard to search votes in
+    user -- user for which count should be generated
+    """
+    
+    cvs = CompareVote.objects.filter(generation=wizard.generation, wizard=wizard, user=user)
+
+    cvcr = CompareVoteCountResult()
+
+    cvcr.all_var_count = cvs.count()
+
+    cvcr.normal_count = cvs.values('individual1','individual2').distinct().count()
+
+    cvcr.consistency_count = cvs.filter(consistency=True).values('individual1','individual2').distinct().count()
+
+    cvcr.all_distinct_count = cvcr.normal_count + cvcr.consistency_count
+
+    print("COUNT:", cvcr.all_var_count, cvcr.normal_count, cvcr.consistency_count, cvcr.all_distinct_count)
+
+    print("wiz cc", wizard.consistency_check)
+    print("wiz nc", cvcr.normal_count )
+
+    if wizard.consistency_check > 0 and cvcr.normal_count > 0:
+        print("B")
+        last_vote = cvs.last()
+        if not last_vote.consistency:       
+            cvcr.cc_needed = (cvcr.normal_count % wizard.consistency_check) == 0 
+        print(cvcr.cc_needed)
+
+    if wizard.forced_break > 0 and cvcr.all_distinct_count > 0:
+        print("A")
+        cvcr.break_needed = (cvcr.all_distinct_count % wizard.forced_break) == 0
+        print(cvcr.break_needed)
+                
+    return cvcr
+
+def getConsistencyCheckIndividualsForUser(wizard, user):
+    """returns an already voted pair to vote on in comp mode or a message why there is none
+
+    wizard -- wizard to search individuals in
+    user -- user for which pair is to be picked
+    """
+
+    cvs = CompareVote.objects.filter(user=user, wizard=wizard, generation=wizard.generation).order_by('-date_time') #distinct together with order_by not possible
+    
+    number_of_vars = cvs.values('variable').distinct().count()
+
+    if cvs.count() <= wizard.consistency_check:
+        message = '(FE.CCC.01) There are no individuals left to be voted for this user. This is a state that should not be reachable.'
+        return None, None, message
+
+    #rvs = list(rvs)
+    cc_rv = cvs[(wizard.consistency_check-1)*number_of_vars]
+
+    individual1 = cc_rv.individual1
+    individual2 = cc_rv.individual2
+
+    return individual1, individual2, None  # empty message
 
 def getProgressBarForUser(wizard, user):
     """returns a dict to pass through to the website to display the current progress as bar
