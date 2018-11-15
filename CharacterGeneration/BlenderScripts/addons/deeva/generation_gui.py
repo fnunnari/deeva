@@ -73,10 +73,24 @@ class GenerationPanel(bpy.types.Panel):
 
         row = layout.row()
         box = row.box()
+        box.prop(context.scene, "deeva_generation_project_dir")
+        box.operator(ScanProjectDir.bl_idname)
+
+        row = layout.row()
+        box = row.box()
+        box.prop(context.scene, "deeva_generation_traits_file")
         box.prop(context.scene, "deeva_generation_attributes_file")
         box.prop(context.scene, "deeva_generation_individuals_file")
-        box.label("TODO -- select file: the traits table")
-        box.label("TODO -- select file: the votes results (coefficients and p values)")
+        box.prop(context.scene, "deeva_generation_ratevotes_file")
+
+        row = layout.row()
+        box = row.box()
+        box.operator(ComputeGenerationModel.bl_idname)
+        box.label("TODO -- list all the generated files/properties.")
+
+        row = layout.row()
+        box = row.box()
+        box.label("TODO -- Button: load model.")
         box.label("TODO -- grid: list the traits and select their values")
         box.label("TODO -- operator: reset/center traits")
 
@@ -138,21 +152,73 @@ class ExportMBLabAttributes(bpy.types.Operator, ExportHelper):
 
 
 #
+# SCAN The project dir in order to find all the needed tables.
+#
+class ScanProjectDir(bpy.types.Operator):
+    """Scan the project dir and locate all the files needed to compute the models and run the generation"""
+    bl_idname = "deeva.scan_project_dir"
+    bl_label = "Scan Project Dir"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        import os
+        import re
+
+        #
+        # Look for the tables
+        prj_dir = context.scene.deeva_generation_project_dir
+        if not os.path.exists(prj_dir):
+            raise Exception("Project dir '{}' doesn't exist".format(prj_dir))
+
+        tables_dir = os.path.join(prj_dir, "tables")
+        if not os.path.exists(tables_dir):
+            raise Exception("Tables dir '{}' doesn't exist".format(tables_dir))
+
+        table_files = os.listdir(tables_dir)
+
+        for table_file in table_files:
+
+            # e.g.: 'GEN-5-Anke Thesis 100 Indiv-INDIVIDUALS'
+            if re.match("^GEN-.+-INDIVIDUALS.csv$", table_file):
+                context.scene.deeva_generation_individuals_file = os.path.join(tables_dir, table_file)
+
+            # e.g.: VS-5-Face 9 variables-ATTRIBUTES.csv
+            elif re.match("^VS-.+-ATTRIBUTES.csv$", table_file):
+                context.scene.deeva_generation_attributes_file = os.path.join(tables_dir, table_file)
+
+            # e.g.: VS-6-Anke's Thesis 5 Traits-TRAITS.csv
+            elif re.match("^VS-.+-TRAITS.csv$", table_file):
+                context.scene.deeva_generation_traits_file = os.path.join(tables_dir, table_file)
+
+            # e.g.: WIZ-2-AnkeThesisWizard-RATEVOTES.csv
+            elif re.match("^WIZ-.+-RATEVOTES.csv$", table_file):
+                context.scene.deeva_generation_ratevotes_file = os.path.join(tables_dir, table_file)
+
+        return {'FINISHED'}
+
+
+#
+# Compute Model
+class ComputeGenerationModel(bpy.types.Operator):
+    """Analyses the votes and computes the linear model needed for the generation."""
+    bl_idname = "deeva.compute_generation_model"
+    bl_label = "Compute Generation Model"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+
+        self.report({'ERROR'}, "Not implemented, yet.")
+        return {'CANCELLED'}
+
+
+#
 # Register & Unregister ###
 #
-
 def register():
     bpy.types.Scene.deeva_generation_individuals_file = bpy.props.StringProperty(
         name="generation_individuals",
         default="",
-        description="The CSV with the individuals table, as downloaded from the web platform.",
-        subtype='FILE_PATH'
-    )
-
-    bpy.types.Scene.deeva_generation_attributes_file = bpy.props.StringProperty(
-        name="generation_attributes",
-        default="",
-        description="The CSV attributes table, as downloaded from the web platform.",
+        description="The CSV with the individuals table, as downloaded from the web platform, ending in '-INDIVIDUALS.csv'.",
         subtype='FILE_PATH'
     )
 
@@ -163,10 +229,41 @@ def register():
         subtype='DIR_PATH'
     )
 
+    bpy.types.Scene.deeva_generation_attributes_file = bpy.props.StringProperty(
+        name="generation_attributes",
+        default="",
+        description="The CSV attributes table, as downloaded from the web platform, ending in '-ATTRIBTUES.csv'.",
+        subtype='FILE_PATH'
+    )
+
+    bpy.types.Scene.deeva_generation_traits_file = bpy.props.StringProperty(
+        name="generation_traits",
+        default="",
+        description="The CSV traits table, as downloaded from the web platform, ending in '-TRAITS.csv'.",
+        subtype='FILE_PATH'
+    )
+
+    bpy.types.Scene.deeva_generation_ratevotes_file = bpy.props.StringProperty(
+        name="generation_ratevotes",
+        default="",
+        description="The CSV traits table, as downloaded from the web platform, ending in '-RATEVOTES.csv'.",
+        subtype='FILE_PATH'
+    )
+
+    bpy.types.Scene.deeva_generation_project_dir = bpy.props.StringProperty(
+        name="generation_project_dir",
+        default="",
+        description="The directory where the 'tables' dir is located and all the models will be written.",
+        subtype='DIR_PATH'
+    )
+
+
     bpy.utils.register_class(ExportMBLabAttributes)
     bpy.utils.register_class(ToolsPanel)
     bpy.utils.register_class(GenerationPanel)
     bpy.utils.register_class(ConvertIndividualsToMBLabJSon)
+    bpy.utils.register_class(ScanProjectDir)
+    bpy.utils.register_class(ComputeGenerationModel)
 
 
 def unregister():
@@ -174,9 +271,15 @@ def unregister():
     bpy.utils.unregister_class(ToolsPanel)
     bpy.utils.unregister_class(GenerationPanel)
     bpy.utils.unregister_class(ConvertIndividualsToMBLabJSon)
+    bpy.utils.unregister_class(ScanProjectDir)
+    bpy.utils.unregister_class(ComputeGenerationModel)
 
-    del bpy.types.Scene.deeva_generation_attributes_file
+    del bpy.types.Scene.deeva_generation_individuals_file
     del bpy.types.Scene.deeva_conversion_outdir
+    del bpy.types.Scene.deeva_generation_attributes_file
+    del bpy.types.Scene.deeva_generation_traits_file
+    del bpy.types.Scene.deeva_generation_ratevotes_file
+    del bpy.types.Scene.deeva_generation_project_dir
 
 
 #
