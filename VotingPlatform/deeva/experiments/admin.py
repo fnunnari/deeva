@@ -216,5 +216,16 @@ class RateVoteAdmin(admin.ModelAdmin):
     readonly_fields = ('date_time',)
 
 
-admin.site.register(CompareVote)
+@admin.register(CompareVote)
+class RCopareVoteAdmin(admin.ModelAdmin):
+    #list
+    list_display = ('id', 'user', 'individual1', 'individual2', 'variable', 'vote', 'consistency', 'generation', 'wizard')
+    list_display_links = ('id',)
+
+    list_filter = ('wizard', 'generation',)
+
+    #page
+    readonly_fields = ('date_time',)
+
+
 admin.site.register(PromotedWizard)

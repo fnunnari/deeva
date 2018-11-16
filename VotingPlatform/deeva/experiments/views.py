@@ -6,7 +6,7 @@ from django.forms import modelformset_factory
 from deeva.settings import *
 
 from .models import VotingWizard, CompareVote, RateVote
-from .functions import getRandomIndividualForUser, getRateVoteCountForUser, getConsistencyCheckIndividualForUser, getProgressBarForUser
+from .functions import *
 from questions.models import Answer
 from django.contrib.auth.models import User
 
@@ -210,11 +210,18 @@ def wizard_example(request, wizard_id):
     #anonuser, created = AnonymousUser.objects.get_or_create(session_id=session_id)
 
     #check available modes and roll dice to see which mode is presented to the user
+    if wizard.enable_rating_mode and wizard.enable_compare_mode:
+        from random import randint
+        if randint(0,1) == 0:
+            request.session['wizard_mode'] = 'rate'
+        else:
+            request.session['wizard_mode'] = 'comp'
+
     if wizard.enable_rating_mode:
         request.session['wizard_mode'] = 'rate'
 
-    #elif wizard.enable_compare_mode:
-    #    request.session['wizard_mode'] = 'comp'
+    elif wizard.enable_compare_mode:
+        request.session['wizard_mode'] = 'comp'
 
     else:
         messages.error(request, "This experiment is currently disabled. You will not be able to complete this experiment! Sorry for the inconvenience caused.")
@@ -309,6 +316,32 @@ def vote(request, wizard_id, had_break=False):
         else:
             return redirect('experiments:wizard_personalinfos', wizard_id=wizard.id)   
 
+    elif mode == 'comp':
+
+        cvcr = getCompareVoteCountForUser(wizard, vote_user)
+        #check number of votes for this wizard and generation
+        
+        #dependent_variables = wizard.generation.experiment.dependent_variables.attributes.all().count()
+        #rate_votes = RateVote.objects.filter(generation=wizard.generation, wizard=wizard, user=vote_user).count()/dependent_variables
+
+        #print('number', rate_votes)
+
+        #redirect to break page if needed
+        if cvcr.break_needed and not had_break:
+            #don't redirect to break page if there is no vote last
+            if cvcr.normal_count < wizard.number_of_votes:
+                return redirect('experiments:wizard_break', wizard_id=wizard.id)
+
+        #redirect to consistency check
+        if cvcr.cc_needed:
+            return redirect('experiments:comp_vote', wizard_id=wizard.id)
+
+        #redirect to vote page or personalinfos if finished
+        if cvcr.normal_count < wizard.number_of_votes:
+            return redirect('experiments:comp_vote', wizard_id=wizard.id)
+        else:
+            return redirect('experiments:wizard_personalinfos', wizard_id=wizard.id)   
+
     else:
         pass
 
@@ -317,10 +350,37 @@ def vote(request, wizard_id, had_break=False):
 
 def comp_vote(request, wizard_id):
     wizard = get_object_or_404(VotingWizard, pk=wizard_id)
-    individual1 = wizard.generation.individuals.all().order_by('?').first() #TODO replace by special selection function
-    individual2 = wizard.generation.individuals.all().order_by('?').first() #TODO replace by special selection function
 
     dependent_variables = wizard.generation.experiment.dependent_variables.attributes.all()
+
+    #check, if user has a valid session
+    if hasattr(request, 'session') and not request.session.session_key:
+        messages.error(request, "(VE06) This user didn't have a valid session and was not eligible to vote and therefore was redirected to this page.") 
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
+    
+    session_id = request.session.session_key
+
+    #check, if the user exists in the db
+    users = User.objects.filter(username=session_id)
+    if users:
+        vote_user = users[0]
+    else:
+        messages.error(request, "(VE07) This session didn't have a valid user account and therefore was redirected to this page.") 
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
+
+    #get individuals to vote on
+    cvcr = getCompareVoteCountForUser(wizard, vote_user)
+
+    if cvcr.cc_needed:
+        print("CONSISTENCY CHECK!")
+        individual1, individual2, message = getConsistencyCheckIndividualsForUser(wizard, vote_user)
+    else:
+        individual1 = wizard.generation.individuals.all().order_by('?').first() #TODO replace by special selection function
+        individual2 = wizard.generation.individuals.all().order_by('?').first() #TODO replace by special selection function
+
+    if not individual1 or not individual2:
+        messages.error(request, message)
+        return redirect('experiments:wizard_checkuser', wizard_id=wizard.id)
 
     #prefill form with information relevant for storing in database
     initial = []
@@ -329,11 +389,12 @@ def comp_vote(request, wizard_id):
             'individual1':individual1,
             'individual2':individual2,
             'variable':variable,
+            'consistency':cvcr.cc_needed,
         })
 
     #formset of seperate CompareVote forms
     CompareVoteFormSet = modelformset_factory(CompareVote, fields=(
-        'individual1', 'individual2', 'vote', 'variable'), extra=len(initial))
+        'individual1', 'individual2', 'vote', 'variable', 'consistency'), extra=len(initial))
 
     #create or retrieve formset
     formset = CompareVoteFormSet(
@@ -349,14 +410,14 @@ def comp_vote(request, wizard_id):
             c_votes = formset.save(commit=False) #do not commit as we need to add to fields
 
             for c_vote in c_votes:
-                c_vote.user = request.user
+                c_vote.user = vote_user
                 c_vote.generation = wizard.generation
                 c_vote.wizard = wizard
                 c_vote.save()
 
-            return HttpResponse('supi') #TODO replace by json/http
+            return JsonResponse({'success': True})
         else:
-            messages.error(request, 'not valid') #TODO replace by json/http
+            return JsonResponse({'success': False})
 
 
 
