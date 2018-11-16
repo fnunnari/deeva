@@ -48,7 +48,7 @@ def download_individuals_data(request, generation_id):
         
     #get generation and variables set and create filename
     g = get_object_or_404(Generation, id=generation_id)
-    filename = 'GEN-{id}-{name}'.format(id=g.id, name=g.nickname)
+    filename = 'GEN-{id}-{name}-INDIVIDUALS'.format(id=g.id, name=g.nickname)
 
     vs = g.experiment.independent_variables
 
