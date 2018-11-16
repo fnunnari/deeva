@@ -119,6 +119,9 @@ class IndividualAdmin(admin.ModelAdmin):
     list_display = ('id', 'creation_type', 'has_content_files',)
     list_display_links = ('id',)
 
+    list_filter = ('in_generations',)
+
+
     #page
     readonly_fields = ('id',)
 
@@ -217,7 +220,7 @@ class RateVoteAdmin(admin.ModelAdmin):
 
 
 @admin.register(CompareVote)
-class RCopareVoteAdmin(admin.ModelAdmin):
+class CompareVoteAdmin(admin.ModelAdmin):
     #list
     list_display = ('id', 'user', 'individual1', 'individual2', 'variable', 'vote', 'consistency', 'generation', 'wizard')
     list_display_links = ('id',)
