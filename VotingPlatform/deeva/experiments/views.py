@@ -375,8 +375,7 @@ def comp_vote(request, wizard_id):
         print("CONSISTENCY CHECK!")
         individual1, individual2, message = getConsistencyCheckIndividualsForUser(wizard, vote_user)
     else:
-        individual1 = wizard.generation.individuals.all().order_by('?').first() #TODO replace by special selection function
-        individual2 = wizard.generation.individuals.all().order_by('?').first() #TODO replace by special selection function
+        individual1, individual2, message = getRandomPairForUser(wizard, vote_user)
 
     if not individual1 or not individual2:
         messages.error(request, message)

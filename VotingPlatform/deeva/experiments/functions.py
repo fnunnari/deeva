@@ -1,5 +1,8 @@
 from .models import VotingWizard, Individual, RateVote, CompareVote
 
+from .PairGenerator import PairGenerator
+import random
+
 
 
 def getOneWizard(id):
@@ -360,3 +363,97 @@ def getProgressBarForUser(wizard, user):
 
 
 
+def getRandomPairForUser(wizard, user):
+    """returns a pair to vote on in comp mode or a message why there is none
+
+    wizard -- wizard to search pair in
+    user -- user for which pair is to be picked
+    """
+    generation = wizard.generation
+
+    #get maximum number of possible pairs
+    pg = PairGenerator(generation.individuals.count())
+    max_num_pairs = pg.getNumOfPairs()
+
+    #annote pairs with number of votes and order them ascending (oc = occurences)
+    from django.db.models import Count
+    pairs_with_number = CompareVote.objects.filter(generation=generation, consistency=False).values('individual1','individual2').annotate(oc=Count('individual1')).order_by('oc')
+    pairs_flat = list(CompareVote.objects.filter(generation=generation, consistency=False).values('individual1','individual2').distinct().values_list('individual1','individual2'))
+
+    #get count of already voted pairs
+    count_voted_pairs = pairs_with_number.count()
+
+    if count_voted_pairs < max_num_pairs:
+        #We're missing pairs in the database. Find a pair that is not yet voted
+
+        #create a cached list of all individuals ordered by their pair generator number for the next step
+        all_individuals_list = []
+
+        ordered_individuals = generation.individuals.order_by('id')
+        for i in ordered_individuals:
+            all_individuals_list.append(i.id)
+
+        #create a dict of all possible pairs {i1:[i2, i2, i2], i1:[i2, i2], ...}
+        all_pair_list = {}
+
+        for i in range(max_num_pairs):
+            i1, i2 = pg.indexToPair(i)
+
+            ind1 = all_individuals_list[i1]
+            ind2 = all_individuals_list[i2]
+
+            if ind1 in all_pair_list:
+                all_pair_list[ind1].add(ind2)
+            else:
+                all_pair_list[ind1] = set([ind2])
+
+        #remove all pairs from that dict that are already voted on
+        for individual1, individual2 in pairs_flat:
+            all_pair_list[individual1].remove(individual2)
+
+        remaining_pair_list = dict((ind1, ind2) for ind1, ind2 in all_pair_list.items() if ind2)
+
+        #get a raondom pair from the dict translate the ids into individuals and return it
+        ind1 = random.sample(list(remaining_pair_list), 1)[0]
+        ind2 = remaining_pair_list[ind1].pop()
+
+        individual1 = Individual.objects.get(pk=ind1)
+        individual2 = Individual.objects.get(pk=ind2)
+
+        return individual1, individual2, None
+
+        
+    else:
+        #we're not missing pairs. select the first one from the least voted and check if user already voted them
+        #get lowest number of pair votes 
+        number = pairs_with_number[0]['oc']
+
+        #search for pairs with that oc until the search space runs empty
+        while pairs_with_number.filter(oc=number).count() > 0:
+
+            #get number of voted pairs with that number
+            number_pairs_count = pairs_with_number.filter(oc=number).count()
+
+            for i in range(number_pairs_count):
+                test_pair = pairs_with_number[i]
+
+                (ind1, ind2) = (test_pair['individual1'], test_pair['individual2'])
+
+                #check if the user already voted on that pair
+                votes = CompareVote.objects.filter(user=user, generation=generation,
+                                            individual1__in=[ind1, ind2],
+                                            individual2__in=[ind1, ind2])
+
+                if not votes:
+                    #they did not, use that pair
+                    ind1 = generation.individuals.get(id=ind1)
+                    ind2 = generation.individuals.get(id=ind2)
+
+                    return ind1, ind2, None
+
+            #search in next oc space for not voted pairs by that user
+            number += 1
+
+        #There is no pair left for that user
+        message = '(FE.GRPFU.01) There are no individuals left to be voted for this user, as they already voted on all pairs.'
+        return None, None, message
