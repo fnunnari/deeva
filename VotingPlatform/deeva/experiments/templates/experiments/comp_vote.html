@@ -80,7 +80,7 @@
 	</div>
 
 
-	<form action="" method="post" autocomplete="off" id="real-form">
+	<form action="" method="post" autocomplete="off" id="real-form" hidden>
 	    {% csrf_token %}
 	    {{ formset.as_p }}
 	    <input type="submit" value="Submit" />
