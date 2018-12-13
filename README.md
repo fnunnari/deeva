@@ -6,8 +6,6 @@ This is a platform for the procedural generation of characters from personality 
 
 DeEvA consists of several inter-dependent projects.
 
-| I am text to the left  | Test |
-
 * Character Generation: Consists of a set of scripts to procedurally generate virtual characters. It also allows for the generation of pictures of them. It uses the [ManuelBastioniLAB](http://www.manuelbastioni.com/) add-on.
 
   | Blender GUI | Masked Face |
