@@ -2,9 +2,9 @@
 
 This is a platform for the procedural generation of characters from personality traits.
 
-It currently consists of several, inter-dependent, projects.
-
 ## Projects
+
+DeEvA consists of several inter-dependent projects.
 
 * Character Generation: Consists of a set of scripts to procedurally generate virtual characters. It also allows for the generation of pictures of them. It uses the [ManuelBastioniLAB](http://www.manuelbastioni.com/) add-on.
 
@@ -13,3 +13,14 @@ It currently consists of several, inter-dependent, projects.
   ![Rate Voting Page](VotingPlatform/Docs/Pics/SampleExperiment-RateVotePage.png)
 
 * MBLab-FalseTimePatch: It is a patch for the ManuelBastioniLAB allowing for the generation of characters via scripting. It is used by the CharacterGeneration project.
+
+## Documentation
+
+Please, thee the [DeEvA Wiki](https://github.com/fnunnari/deeva/wiki) for up-to-date documentation.
+
+## People
+
+* [Fabrizio Nunnari](http://www.dfki.de/~fanu01/) - Concept, Blender add-on Develpment.
+* Alexis Heloir - Concept.
+* Nicholas Erbach - Django and Blender add-on development.
+* Anke Hirsch - User Studies.
