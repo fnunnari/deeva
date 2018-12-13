@@ -4,7 +4,8 @@
 {% load staticfiles %}
 
 {% block content %}
-	
+
+
 	<h1>Which individual looks...</h1>
 
 	
@@ -29,7 +30,7 @@
 		
 
 			
-		<div id="ff" class="form-frame" style="margin: auto; margin-bottom: 10px;" col-sm-12 col-md-4 text-center order-xs-3 order-md-2>
+		<div id="ff" class="form-frame" style="margin: auto;" col-sm-12 col-md-4 text-center order-xs-3 order-md-2>
 
 			<form id=fake-form>
 				{% for v in dependent_variables %}
@@ -54,16 +55,18 @@
 
 
 			{% block buttons %}
-			<button id="fake-send-btn-click" type="button" class="btn btn-primary">
-				<span class="fa fa-chevron-right"></span> {% block button_cnt %}Save &amp; Continue{% endblock %} 
-			</button>
-			<button id="fake-send-btn-spinner" type="button" class="btn btn-warning disabled d-none">
-				<span class="fa fa-pulse fa-spinner"></span> {% block button_save %}Saving...{% endblock %} 
-			</button>
-			<button id="fake-send-btn-finished" type="button" class="btn btn-success disabled d-none">
-				<span class="fa fa-check"></span> {% block button_load %}Saved! Loading next page...{% endblock %} 
-			</button>
-		{% endblock %}
+			<div class="text-center mt-5">
+				<button id="fake-send-btn-click" type="button" class="btn btn-primary">
+					<span class="fa fa-chevron-right"></span> {% block button_cnt %}Save &amp; Continue{% endblock %}
+				</button>
+				<button id="fake-send-btn-spinner" type="button" class="btn btn-warning disabled d-none">
+					<span class="fa fa-pulse fa-spinner"></span> {% block button_save %}Saving...{% endblock %}
+				</button>
+				<button id="fake-send-btn-finished" type="button" class="btn btn-success disabled d-none">
+					<span class="fa fa-check"></span> {% block button_load %}Saved! Loading next page...{% endblock %}
+				</button>
+			</div>
+			{% endblock %}
 			
 		</div>
 
@@ -160,9 +163,21 @@
 		});
 
 
+	//
+	// Some dirty stuff.
+	// The defaukt main container has too big borders.
+	// If we are using this header-less version, then we set the main class to be "fluid",
+	// and the side borders will be significantly shrunk.
+	$(document).ready(function () {
+	    // alert("Class substitution")
+		$("#main-content").removeClass("container").addClass("container-fluid");
+	});
+
+
 	function move_form() { 
 		//check whether the content frames are on the same height
-		//if not, move form to the bottom 
+		//if not, move form to the bottom
+		// alert("move_form start")
 		if ($("#cf1").position().top != $("#cf2").position().top){
 			$("#ff").insertAfter($("#after-content"));
 
@@ -177,8 +192,6 @@
 
 	$(document).ready(move_form); 
 	$(window).resize(move_form);
-
-
 
 
 </script>
