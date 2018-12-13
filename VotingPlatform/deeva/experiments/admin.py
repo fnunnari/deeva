@@ -151,7 +151,7 @@ class VotingWizardAdmin(admin.ModelAdmin):
             'fields': ('id', 'name', 'generation',)
         }),
         ('Configuration', {
-            'fields': ('enable_rating_mode', 'enable_compare_mode', 'enable_anonymous_mode', 'number_of_votes', 'consistency_check', 'forced_break', 'size_of_content', 'shown_on_overview_page', 'distraction_free_mode', 'questions',),
+            'fields': ('enable_rating_mode', 'enable_compare_mode', 'enable_anonymous_mode', 'number_of_votes', 'consistency_check', 'forced_break', 'size_of_content', 'size_of_comp_content', 'shown_on_overview_page', 'distraction_free_mode', 'questions',),
         }),
         ('HTML override', {
             'fields': ('welcome_html', 'disclaimer_html', 'example_html', 'rate_vote_html', 'break_html', 'personalinfos_html', 'exit_html',),

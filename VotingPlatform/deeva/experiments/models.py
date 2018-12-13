@@ -80,7 +80,8 @@ class VotingWizard(models.Model):
     forced_break = models.IntegerField(default=0, help_text='Number of votes after which a break page will be shown. 0 = no break. All votes, including consistency check vote will be counted.')
 
     #content size
-    size_of_content = models.CharField(max_length = 128, default='10cm', null=True, blank=True, help_text='Size on page for the content files. Need to be a valid css size.')
+    size_of_content = models.CharField(max_length = 128, default='10cm', null=True, blank=True, verbose_name="size of rate content", help_text='Size on page for the content files in RATE mode. Needs to be a valid css size.')
+    size_of_comp_content = models.CharField(max_length = 128, default='5cm', null=True, blank=True, help_text='Size on page for the content files in COMPARISON mode. Needs to be a valid css size.')
 
     #select if wizard is shown on the overview page
     shown_on_overview_page = models.BooleanField(default=False, help_text='Determines if the wizard is advertised publically on the page.')

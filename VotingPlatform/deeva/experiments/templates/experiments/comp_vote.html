@@ -10,26 +10,18 @@
 	
 
 	<div class="row">
-		<!-- left individual -->
-		<div class="col-sm-6 col-md-4 text-center order-xs-1 order-md-1">
-		L: {{individual1.id}}
+		<!-- left individual L: {{individual1.id}}-->
+		<div id="cf1" class="content-frame" style="margin-left: auto;" col-sm-6 col-md-4 text-center order-xs-1 order-md-1>
+		
 			<div class="img-thumbnail">
 				{% for content_name in wizard.generation.experiment.content_list %}
-					<img class="img-responsive img-vote" src="{% url 'experiments:send_individual_content' individual1.id content_name %}">
+					<img class="img-responsive img-vote" style="width:{{wizard.size_of_comp_content}}; max-height:{{wizard.size_of_comp_content}};" src="{% url 'experiments:send_individual_content' individual1.id content_name %}">
 				{% endfor %}
 			</div>
 		</div>
 
 
-		<!-- right individual -->
-		<div class="col-sm-6 col-md-4 text-center order-xs-2 order-md-3">
-		R: {{individual2.id}}
-			<div class="img-thumbnail">
-				{% for content_name in wizard.generation.experiment.content_list %}
-					<img class="img-responsive img-vote" src="{% url 'experiments:send_individual_content' individual2.id content_name %}">
-				{% endfor %}
-			</div>
-		</div>
+		
 
 		<!-- comparison vote panel -->
 
@@ -37,26 +29,29 @@
 		
 
 			
-		<div class="col-sm-12 col-md-4 text-center order-xs-3 order-md-2">
+		<div id="ff" class="form-frame" style="margin: auto; margin-bottom: 10px;" col-sm-12 col-md-4 text-center order-xs-3 order-md-2>
 
 			<form id=fake-form>
 				{% for v in dependent_variables %}
 				<div class="form-group">
-					<label for="">...more {{v.name}} ({{v.id}})?</label><br>
+					<label for="">...more {{v.name}}?</label><br>
 					<div class="btn-group btn-group-toggle" data-toggle="buttons" data-variable="{{v.id}}">
 						<label class="btn btn-secondary">
-							<input type="radio" name="var{{v.id}}" data-vote="-1" autocomplete="off"> Left
+							<input type="radio" name="var{{v.id}}" data-vote="-1" autocomplete="off"> First
 						</label>
 						<label class="btn btn-secondary">
 							<input type="radio" name="var{{v.id}}" data-vote="0" autocomplete="off"> I don't know
 						</label>
 						<label class="btn btn-secondary">
-							<input type="radio" name="var{{v.id}}" data-vote="1" autocomplete="off"> Right
+							<input type="radio" name="var{{v.id}}" data-vote="1" autocomplete="off"> Second
 						</label>
 					</div>
 				</div>
 				{% endfor %}
 			</form>
+
+
+
 
 			{% block buttons %}
 			<button id="fake-send-btn-click" type="button" class="btn btn-primary">
@@ -72,12 +67,28 @@
 			
 		</div>
 
-	
 
+		<!-- right individual R: {{individual2.id}} -->
+		<div id="cf2" class="content-frame" style="margin-right: auto; margin-bottom: 10px;" col-sm-6 col-md-4 text-center order-xs-2 order-md-3>
+		
+			<div class="img-thumbnail">
+				{% for content_name in wizard.generation.experiment.content_list %}
+					<img class="img-responsive img-vote" style="width:{{wizard.size_of_comp_content}}; max-height:{{wizard.size_of_comp_content}};" src="{% url 'experiments:send_individual_content' individual2.id content_name %}">
+				{% endfor %}
+			</div>
+		</div>
+
+		
 
 		
 		
 	</div>
+
+	<div class="row">
+		<div id="after-content" class="" style=""></div>
+	</div>
+
+	
 
 
 	<form action="" method="post" autocomplete="off" id="real-form" hidden>
@@ -147,6 +158,26 @@
 		        	alert(textStatus);
 		        })
 		});
+
+
+	function move_form() { 
+		//check whether the content frames are on the same height
+		//if not, move form to the bottom 
+		if ($("#cf1").position().top != $("#cf2").position().top){
+			$("#ff").insertAfter($("#after-content"));
+
+			//check whether their still not on the same height
+			//if not, center them
+			if ($("#cf1").position().top != $("#cf2").position().top){
+				$(".content-frame").css("margin-left", "auto");
+				$(".content-frame").css("margin-right", "auto");
+			};
+		};
+	};
+
+	$(document).ready(move_form); 
+	$(window).resize(move_form);
+
 
 
 
