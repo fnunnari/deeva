@@ -58,6 +58,7 @@ class ToolsPanel(bpy.types.Panel):
         box.prop(context.scene, "deeva_generation_individuals_file")
         box.prop(context.scene, "deeva_conversion_outdir")
         box.operator(ConvertIndividualsToMBLabJSon.bl_idname)
+        box.operator(CreateExtremesJSON.bl_idname)
 
 
 class GenerationPanel(bpy.types.Panel):
@@ -149,6 +150,112 @@ class ExportMBLabAttributes(bpy.types.Operator, ExportHelper):
         export_mblab_attributes(mesh_obj=mesh_obj, outfilepath=self.filepath)
 
         return {'FINISHED'}
+
+
+#
+# Rendering of the extremes
+#
+class CreateExtremesJSON(bpy.types.Operator):
+
+    """Create render for all chracters"""
+    bl_idname = "mbastauto.create_extremes_json"
+    bl_label = "Save extremes' JSON"
+    bl_options = {'REGISTER'}
+
+    # Used to select the directory output.
+    # See: https://blender.stackexchange.com/questions/14738/use-filemanager-to-select-directory-instead-of-file/126596#126596
+    directory = bpy.props.StringProperty(
+        name="Outdir Path",
+        description="Path used to save the JSONs of all extremes"
+        )
+
+    @classmethod
+    def poll(cls, context):
+        if context.active_object is not None:
+            if context.active_object.type == 'MESH':
+                return True
+
+        return False
+
+    def execute(self, context):
+        import json
+        import os
+
+        # https://docs.blender.org/api/blender_python_api_2_71_release/bpy.types.FileSelectParams.html
+        print("Saving Extremes to dir ... '" + self.directory + "'")
+
+        scene = context.scene
+
+        attrib_table = AttributesTable(table_filename=abspath(scene.deeva_generation_attributes_file))
+
+        json_template = {
+            "metaproperties": {},
+            "manuellab_vers": [1, 6, 1],
+            "materialproperties": {},
+            "structural": {}  # this is the field that will contain the values of the physical attributes.
+        }
+
+        #
+        # Render the default character (as reference)
+        structural = {}
+        for attr_id in attrib_table.attribute_ids():
+            attr_name = attrib_table.attribute_name(attr_id=attr_id)
+            structural[attr_name] = 0.5
+        json_template["structural"] = structural
+        with open(os.path.join(self.directory, 'default.json'), "w") as fp:
+            json.dump(obj=json_template, fp=fp, indent=2)
+
+        #
+        # Now, structural has all items at 0.0
+        assert len(structural) == len(attrib_table.attribute_ids())
+        for k in structural.keys():
+            assert structural[k] == 0.5
+
+        #
+        # Render each feature min/max
+        for attr_id in attrib_table.attribute_ids():
+            attr_name = attrib_table.attribute_name(attr_id=attr_id)
+            assert structural[attr_name] == 0.5
+
+            attr_min, attr_max = attrib_table.attribute_range(attr_id=attr_id)
+            structural[attr_name] = attr_min
+            with open(os.path.join(self.directory, attr_name+'_min.json'), "w") as fp:
+                json.dump(obj=json_template, fp=fp, indent=2)
+            structural[attr_name] = attr_max
+            with open(os.path.join(self.directory, attr_name+'_max.json'), "w") as fp:
+                json.dump(obj=json_template, fp=fp, indent=2)
+            structural[attr_name] = 0.5
+
+        #
+        # Render all features at min
+        structural = {}
+        for attr_id in attrib_table.attribute_ids():
+            attr_name = attrib_table.attribute_name(attr_id=attr_id)
+            attr_min, attr_max = attrib_table.attribute_range(attr_id=attr_id)
+            structural[attr_name] = attr_min
+        json_template["structural"] = structural
+        with open(os.path.join(self.directory, 'All_min.json'), "w") as fp:
+            json.dump(obj=json_template, fp=fp, indent=2)
+
+        #
+        # Render all features at max
+        structural = {}
+        for attr_id in attrib_table.attribute_ids():
+            attr_name = attrib_table.attribute_name(attr_id=attr_id)
+            attr_min, attr_max = attrib_table.attribute_range(attr_id=attr_id)
+            structural[attr_name] = attr_max
+        json_template["structural"] = structural
+        with open(os.path.join(self.directory, 'All_max.json'), "w") as fp:
+            json.dump(obj=json_template, fp=fp, indent=2)
+
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)
+        # Open browser, take reference to 'self' read the path to selected
+        # dir, put path in predetermined data structures
+        return {'RUNNING_MODAL'}
+        # Tells Blender to hang on for the slow user input
 
 
 #
@@ -257,11 +364,11 @@ def register():
         subtype='DIR_PATH'
     )
 
-
     bpy.utils.register_class(ExportMBLabAttributes)
     bpy.utils.register_class(ToolsPanel)
     bpy.utils.register_class(GenerationPanel)
     bpy.utils.register_class(ConvertIndividualsToMBLabJSon)
+    bpy.utils.register_class(CreateExtremesJSON)
     bpy.utils.register_class(ScanProjectDir)
     bpy.utils.register_class(ComputeGenerationModel)
 
@@ -271,6 +378,7 @@ def unregister():
     bpy.utils.unregister_class(ToolsPanel)
     bpy.utils.unregister_class(GenerationPanel)
     bpy.utils.unregister_class(ConvertIndividualsToMBLabJSon)
+    bpy.utils.unregister_class(CreateExtremesJSON)
     bpy.utils.unregister_class(ScanProjectDir)
     bpy.utils.unregister_class(ComputeGenerationModel)
 

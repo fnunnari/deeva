@@ -238,7 +238,7 @@ class CreateOneRender(bpy.types.Operator):
         if not self.file_name:
             raise Exception("No character selected!")    
         name = script_name.replace(".json", "")
-        
+
         # set background transparent
         if context.scene.check_black_background:
             bpy.context.scene.cycles.film_transparent = False
@@ -262,7 +262,7 @@ class CreateOneRender(bpy.types.Operator):
             bpy.ops.render.render(write_still=True)
 
         return {'FINISHED'}
-    
+
 
 class CreateAllRender(bpy.types.Operator):
     """Create render for all chracters"""
